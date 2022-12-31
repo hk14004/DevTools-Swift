@@ -5,6 +5,7 @@
 //  Created by Cube on 31/12/2022.
 //
 
+import Foundation
 import Moya
 
 public class RequestManager {
