@@ -1,5 +1,5 @@
 //
-//  Coordinator.swift
+//  NavigationCoordinator.swift
 //  
 //
 //  Created by Hardijs on 31/12/2022.
@@ -7,20 +7,20 @@
 
 import UIKit
 
-public protocol Coordinator: AnyObject {
+public protocol NavigationCoordinator: AnyObject {
     typealias FreeCoodinatorClosure = (()->())?
-    var children: [Coordinator] { get set }
+    var children: [NavigationCoordinator] { get set }
     var router: RouterProtocol { get set }
     var onFree: FreeCoodinatorClosure { get set}
     func start()
 }
 
-extension Coordinator {
-    func store(coordinator: Coordinator) {
+extension NavigationCoordinator {
+    func store(coordinator: NavigationCoordinator) {
         children.append(coordinator)
     }
 
-    func free(coordinator: Coordinator) {
+    func free(coordinator: NavigationCoordinator) {
         children = children.filter { $0 !== coordinator }
         coordinator.onFree = nil
     }
