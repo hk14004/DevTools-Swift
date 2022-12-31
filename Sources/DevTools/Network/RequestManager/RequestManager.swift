@@ -8,7 +8,7 @@
 import Foundation
 import Moya
 
-public final class RequestManager<T: TargetType> {
+public final class RequestManager<T: RequestManagerTarget> {
 
     private var requestsInProgress = [String: RequestInfo]()
     private var groupsInProgress = [String: GroupRequest<T>]()
