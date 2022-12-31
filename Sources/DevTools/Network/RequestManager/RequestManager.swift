@@ -13,7 +13,7 @@ public final class RequestManager<T: RequestManagerTarget> {
     private var requestsInProgress = [String: RequestInfo]()
     private var groupsInProgress = [String: GroupRequest<T>]()
     private var cancellables = [String: Cancellable]()
-    public var delegates = [NetworkLayerIntercepter]()
+    public var delegates = [NetworkLayerInterceptor]()
 
     // MARK: Init
     
