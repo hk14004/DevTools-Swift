@@ -64,7 +64,7 @@ extension MoyaRequestManager {
     }
     
     @discardableResult
-    public func launchGroupRequest(groupRequest: GroupRequest<T>, provider: MoyaProvider<T>, behaviour: GroupRequestBehaviour, hookCompletionIfAlreadyRunning: Bool, completion: @escaping ([String: Result<Response, MoyaError>]) -> Void) -> Bool {
+    public func launchGroupRequest(groupRequest: GroupRequest<T>, provider: MoyaProvider<T>, behaviour: GroupRequestBehaviour, hookRunning: Bool, completion: @escaping ([String: Result<Response, MoyaError>]) -> Void) -> Bool {
         guard !groupsInProgress.keys.contains(groupRequest.id) else {
             return false
         }
@@ -77,7 +77,7 @@ extension MoyaRequestManager {
                 workCompletionGroup.enter()
                 switch behaviour {
                 case .parallel:
-                   let launched = launchSingleUniqueRequest(requestID: request.requestID, provider: provider, target: request.targetType, hookCompletionIfAlreadyRunning: hookCompletionIfAlreadyRunning, retryMethod: request.retryMethod) { result in
+                   let launched = launchSingleUniqueRequest(requestID: request.requestID, provider: provider, target: request.targetType, hookRunning: hookRunning, retryMethod: request.retryMethod) { result in
                        results[request.requestID] = result
                        workCompletionGroup.leave()
                     }
@@ -86,7 +86,7 @@ extension MoyaRequestManager {
                     }
                 case .oneAfterAnother:
                     let semaphore = DispatchSemaphore(value: 0)
-                    let launched = launchSingleUniqueRequest(requestID: request.requestID, provider: provider, target: request.targetType, hookCompletionIfAlreadyRunning: hookCompletionIfAlreadyRunning, retryMethod: request.retryMethod) { result in
+                    let launched = launchSingleUniqueRequest(requestID: request.requestID, provider: provider, target: request.targetType, hookRunning: hookRunning, retryMethod: request.retryMethod) { result in
                         results[request.requestID] = result
                         semaphore.signal()
                         workCompletionGroup.enter()
@@ -113,10 +113,10 @@ extension MoyaRequestManager {
     }
     
     @discardableResult
-    public func launchSingleUniqueRequest(requestID: String, provider: MoyaProvider<T>, target: T, hookCompletionIfAlreadyRunning: Bool, retryMethod: RetryMethod, completion: @escaping (Result<Response, MoyaError>) -> Void) -> Bool {
+    public func launchSingleUniqueRequest(requestID: String, provider: MoyaProvider<T>, target: T, hookRunning: Bool, retryMethod: RetryMethod, completion: @escaping (Result<Response, MoyaError>) -> Void) -> Bool {
         if var requestInfo = requestsInProgress[requestID] {
             // A request with the same ID is already in progress
-            if hookCompletionIfAlreadyRunning {
+            if hookRunning {
                 requestInfo.completionHandlers.append(completion)
                 requestsInProgress[requestID] = requestInfo
                 return true
