@@ -1,8 +1,8 @@
 //
-//  File.swift
+//  Collection + Ext.swift
 //  
 //
-//  Created by Cube on 31/12/2022.
+//  Created by Hardijs on 31/12/2022.
 //
 
 import Foundation
