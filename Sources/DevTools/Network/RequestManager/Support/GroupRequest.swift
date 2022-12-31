@@ -8,7 +8,7 @@
 import Foundation
 import Moya
 
-extension MoyaRequestManager {
+extension RequestManager {
     public struct GroupRequest<T: TargetType> {
             let id: String
             let requests: [RequestMetaData]

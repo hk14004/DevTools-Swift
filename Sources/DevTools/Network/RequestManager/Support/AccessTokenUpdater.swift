@@ -7,7 +7,7 @@
 
 import Moya
 
-extension MoyaRequestManager {
+extension RequestManager {
     class AccessTokenUpdater: NetworkLayerIntercepter {
         func requestDidCancel<T>(requestID: String, target: T) where T : Moya.TargetType {
             // No action required

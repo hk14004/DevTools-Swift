@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension MoyaRequestManager {
+extension RequestManager {
     enum MoyaRequestManagerError: LocalizedError {
         case canceledRequest
     }

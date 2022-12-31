@@ -8,12 +8,11 @@
 import Foundation
 import Moya
 
-public final class MoyaRequestManager<T: TargetType> {
+public final class RequestManager<T: TargetType> {
 
     private var requestsInProgress = [String: RequestInfo]()
     private var groupsInProgress = [String: GroupRequest<T>]()
     private var cancellables = [String: Cancellable]()
-    
     public var delegates = [NetworkLayerIntercepter]()
 
     // MARK: Init
@@ -23,7 +22,7 @@ public final class MoyaRequestManager<T: TargetType> {
 
 // MARK: Public
 
-extension MoyaRequestManager {
+extension RequestManager {
     
     public func isRequestInProgress(requestID: String) -> Bool {
         requestsInProgress.keys.contains(requestID)
@@ -151,7 +150,7 @@ extension MoyaRequestManager {
 
 // MARK: Private
 
-extension MoyaRequestManager {
+extension RequestManager {
     private func requestCompleted(requestID: String, result: Result<Response, MoyaError>, target: T) {
         self.cancellables.removeValue(forKey: requestID)
         self.requestsInProgress.removeValue(forKey: requestID)

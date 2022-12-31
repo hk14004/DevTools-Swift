@@ -7,7 +7,7 @@
 
 import Moya
 
-extension MoyaRequestManager {
+extension RequestManager {
     struct RequestInfo {
         weak var provider: MoyaProvider<T>?
         var target: T

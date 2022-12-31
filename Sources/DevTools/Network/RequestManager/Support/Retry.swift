@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension MoyaRequestManager {
+extension RequestManager {
     public enum RetryMethod {
         case `default`
         case retry(maxRetryCount: Int, seconds: Int, exponentialBackOff: Bool)
