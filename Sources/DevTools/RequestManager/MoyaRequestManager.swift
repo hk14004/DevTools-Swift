@@ -16,6 +16,9 @@ public final class MoyaRequestManager<T: TargetType> {
     
     public var delegates = [NetworkLayerIntercepter]()
 
+    // MARK: Init
+    
+    public init() {}
 }
 
 // MARK: Public
