@@ -63,6 +63,7 @@ extension MoyaRequestManager {
         }
     }
     
+    @discardableResult
     public func launchGroupRequest(groupRequest: GroupRequest<T>, provider: MoyaProvider<T>, behaviour: GroupRequestBehaviour, hookCompletionIfAlreadyRunning: Bool, completion: @escaping ([String: Result<Response, MoyaError>]) -> Void) -> Bool {
         guard !groupsInProgress.keys.contains(groupRequest.id) else {
             return false
@@ -111,6 +112,7 @@ extension MoyaRequestManager {
         return true
     }
     
+    @discardableResult
     public func launchSingleUniqueRequest(requestID: String, provider: MoyaProvider<T>, target: T, hookCompletionIfAlreadyRunning: Bool, retryMethod: RetryMethod, completion: @escaping (Result<Response, MoyaError>) -> Void) -> Bool {
         if var requestInfo = requestsInProgress[requestID] {
             // A request with the same ID is already in progress
