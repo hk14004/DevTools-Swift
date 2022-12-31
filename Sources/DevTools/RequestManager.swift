@@ -8,7 +8,7 @@
 import Moya
 
 public class RequestManager {
-    public func doSomething() {
+    public static func doSomething() {
         print("Did something")
     }
 }
