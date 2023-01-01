@@ -47,23 +47,23 @@ extension Realm {
         })
     }
     
-    public func replaceItems<T: DatabaseItemType>(ofType type: T, withJSONList list: [NSDictionary], itemFields: Set<T.T>,
+    public func replaceList<T: DatabaseItemType>(ofType type: T, withJSONList list: [NSDictionary], itemFields: Set<T.T>,
                                           JSONPrimaryKeyField: String = "id", generatePrimaryKeyIfNotFound: Bool,
                                           updateOnlyWhenJSONFieldDataExists: Bool) {
         bulkWrite(writeOperation: {
             archiveItems(ofType: type)
-            updateItems(ofType: type, withJSONList: list, itemFields: itemFields,
+            updateItems(ofType: type, withJSONItems: list, itemFields: itemFields,
                         JSONPrimaryKeyField: JSONPrimaryKeyField, generatePrimaryKeyIfNotFound: generatePrimaryKeyIfNotFound,
                         updateOnlyWhenJSONFieldDataExists: updateOnlyWhenJSONFieldDataExists)
         })
     }
     
     public typealias DatabaseItemType = Object & UnequallyPersistable & Archivable & PartialyUpdateable & AnyObject
-    public  func updateItems<T: DatabaseItemType>(ofType type: T, withJSONList list: [NSDictionary], itemFields: Set<T.T>,
+    public  func updateItems<T: DatabaseItemType>(ofType type: T, withJSONItems items: [NSDictionary], itemFields: Set<T.T>,
                                           JSONPrimaryKeyField: String = "id", generatePrimaryKeyIfNotFound: Bool,
                                           updateOnlyWhenJSONFieldDataExists: Bool) {
         bulkWrite(writeOperation: {
-            list.forEach { json in
+            items.forEach { json in
                 updateItem(ofType: type, withJSON: json, itemFields: itemFields, JSONPrimaryKeyField: JSONPrimaryKeyField,
                            generatePrimaryKeyIfNotFound: generatePrimaryKeyIfNotFound,
                            updateOnlyWhenJSONFieldDataExists: updateOnlyWhenJSONFieldDataExists)
