@@ -53,6 +53,8 @@ extension AuthorizationInterceptor: NetworkLayerInterceptor {
         }
     }
 
+    // TODO: Add request will call completion handler
+    // TODO: Change requestDidComplete to request received data
     func requestDidComplete<T: TargetType>(requestID: String, result: Result<Response, MoyaError>, target: T) {
         switch result {
         case .success:
