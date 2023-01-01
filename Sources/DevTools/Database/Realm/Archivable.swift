@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol Archivable: AnyObject {
+public protocol Archivable: AnyObject {
     var isArchived: Bool { get set }
     func archive(_ archive: Bool)
 }

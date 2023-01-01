@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol UnequallyPersistable: AnyObject {
+public protocol UnequallyPersistable: AnyObject {
     var id: String { get set }
 }

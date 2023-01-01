@@ -9,7 +9,7 @@ import Foundation
 import RealmSwift
 
 extension Realm {
-    func bulkWrite(writeOperation: ()->()) {
+    public func bulkWrite(writeOperation: ()->()) {
         if isInWriteTransaction {
             writeOperation()
         } else {
@@ -19,14 +19,14 @@ extension Realm {
         }
     }
     
-    func deleteArchived<T: Object & Archivable>(ofType type: T.Type) {
+    public func deleteArchived<T: Object & Archivable>(ofType type: T.Type) {
         bulkWrite(writeOperation: {
             let items = objects(type.self).filter("isArchived == true")
             delete(items)
         })
     }
     
-    func archiveItems<T: Object & Archivable>(ofType type: T, identifiers: [String]? = nil) {
+    public func archiveItems<T: Object & Archivable>(ofType type: T, identifiers: [String]? = nil) {
         func archive(_ object: T) {
             object.archive(true)
         }
@@ -47,7 +47,7 @@ extension Realm {
         })
     }
     
-    func replaceItems<T: DatabaseItemType>(ofType type: T, withJSONList list: [NSDictionary], itemFields: Set<T.T>,
+    public func replaceItems<T: DatabaseItemType>(ofType type: T, withJSONList list: [NSDictionary], itemFields: Set<T.T>,
                                           JSONPrimaryKeyField: String = "id", generatePrimaryKeyIfNotFound: Bool,
                                           updateOnlyWhenJSONFieldDataExists: Bool) {
         bulkWrite(writeOperation: {
@@ -58,8 +58,8 @@ extension Realm {
         })
     }
     
-    typealias DatabaseItemType = Object & UnequallyPersistable & Archivable & PartialyUpdateable & AnyObject
-    func updateItems<T: DatabaseItemType>(ofType type: T, withJSONList list: [NSDictionary], itemFields: Set<T.T>,
+    public typealias DatabaseItemType = Object & UnequallyPersistable & Archivable & PartialyUpdateable & AnyObject
+    public  func updateItems<T: DatabaseItemType>(ofType type: T, withJSONList list: [NSDictionary], itemFields: Set<T.T>,
                                           JSONPrimaryKeyField: String = "id", generatePrimaryKeyIfNotFound: Bool,
                                           updateOnlyWhenJSONFieldDataExists: Bool) {
         bulkWrite(writeOperation: {
@@ -71,7 +71,7 @@ extension Realm {
         })
     }
     
-    func updateItem<T: DatabaseItemType>(ofType type: T, withJSON data: NSDictionary, itemFields: Set<T.T>,
+    public func updateItem<T: DatabaseItemType>(ofType type: T, withJSON data: NSDictionary, itemFields: Set<T.T>,
                                           JSONPrimaryKeyField: String = "id", generatePrimaryKeyIfNotFound: Bool,
                                           updateOnlyWhenJSONFieldDataExists: Bool) {
         let itemPrimaryKey: String = {
