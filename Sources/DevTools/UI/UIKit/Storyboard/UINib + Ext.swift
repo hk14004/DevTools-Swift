@@ -8,7 +8,7 @@
 import UIKit
 
 extension UINib {
-    static func instanciateNib<T: UITableViewCell>(type: T.Type) -> UINib! {
+    public static func instanciateNib<T: UITableViewCell>(type: T.Type) -> UINib! {
         return .init(nibName: "\(type)", bundle: nil)
     }
 }
