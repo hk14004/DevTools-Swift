@@ -18,7 +18,7 @@ public protocol MappedField: CaseIterable, Hashable {
 }
 
 extension MappedField {
-    func getFieldValue(fromJSON json: NSDictionary) -> Any? {
+    public func getFieldValue(fromJSON json: NSDictionary) -> Any? {
         let knownKeys = getKnownJSONKeys()
         var extractedValue: Any? = nil
         
