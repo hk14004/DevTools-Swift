@@ -74,31 +74,33 @@ extension Realm {
     public func updateItem<T: DatabaseItemType>(ofType type: T.Type, withJSON data: NSDictionary, itemFields: Set<T.T>,
                                           JSONPrimaryKeyField: String = "id", generatePrimaryKeyIfNotFound: Bool,
                                           updateOnlyWhenJSONFieldDataExists: Bool) {
-        let itemPrimaryKey: String = {
-            let id = "\(data[JSONPrimaryKeyField] ?? "")"
-            if id.isEmpty, generatePrimaryKeyIfNotFound {
-                return UUID().uuidString
+        bulkWrite(writeOperation: {
+            let itemPrimaryKey: String = {
+                let id = "\(data[JSONPrimaryKeyField] ?? "")"
+                if id.isEmpty, generatePrimaryKeyIfNotFound {
+                    return UUID().uuidString
+                }
+                return id
+            }()
+            
+            guard !itemPrimaryKey.isEmpty else {
+                return
             }
-            return id
-        }()
-        
-        guard !itemPrimaryKey.isEmpty else {
-            return
-        }
-        
-        var dbObject: T? = object(ofType: T.self, forPrimaryKey: itemPrimaryKey)
-        
-        if let dbObject = dbObject {
-            dbObject.archive(false)
-        } else {
-            let new = T.init()
-            new.id = itemPrimaryKey
-            add(new)
-            dbObject = new
-        }
-        
-        dbObject?.updateFields(withJson: data,
-                               fields: itemFields,
-                               updateOnlyWhenFieldDataExists: updateOnlyWhenJSONFieldDataExists)
+            
+            var dbObject: T? = object(ofType: T.self, forPrimaryKey: itemPrimaryKey)
+            
+            if let dbObject = dbObject {
+                dbObject.archive(false)
+            } else {
+                let new = T.init()
+                new.id = itemPrimaryKey
+                add(new)
+                dbObject = new
+            }
+            
+            dbObject?.updateFields(withJson: data,
+                                   fields: itemFields,
+                                   updateOnlyWhenFieldDataExists: updateOnlyWhenJSONFieldDataExists)
+        })
     }
 }
