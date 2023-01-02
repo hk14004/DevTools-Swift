@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RealmSwift
 
 public protocol Archivable: AnyObject {
     var isArchived: Bool { get set }
@@ -15,5 +16,11 @@ public protocol Archivable: AnyObject {
 extension Archivable {
     func archive(_ archive: Bool) {
         isArchived = archive
+    }
+}
+
+public extension RealmCollection {
+    func filterUnarchived() -> Results<Element> {
+        return filter("isArchived = false")
     }
 }
