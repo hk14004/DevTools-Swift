@@ -26,7 +26,7 @@ extension Realm {
         })
     }
     
-    public func archiveItems<T: Object & Archivable>(ofType type: T, identifiers: [String]? = nil) {
+    public func archiveItems<T: Object & Archivable>(ofType type: T.Type, identifiers: [String]? = nil) {
         func archive(_ object: T) {
             object.archive(true)
         }
@@ -47,7 +47,7 @@ extension Realm {
         })
     }
     
-    public func replaceList<T: DatabaseItemType>(ofType type: T, withJSONList list: [NSDictionary], itemFields: Set<T.T>,
+    public func replaceList<T: DatabaseItemType>(ofType type: T.Type, withJSONList list: [NSDictionary], itemFields: Set<T.T>,
                                           JSONPrimaryKeyField: String = "id", generatePrimaryKeyIfNotFound: Bool,
                                           updateOnlyWhenJSONFieldDataExists: Bool) {
         bulkWrite(writeOperation: {
@@ -59,7 +59,7 @@ extension Realm {
     }
     
     public typealias DatabaseItemType = Object & UnequallyPersistable & Archivable & PartialyUpdateable & AnyObject
-    public  func updateItems<T: DatabaseItemType>(ofType type: T, withJSONItems items: [NSDictionary], itemFields: Set<T.T>,
+    public  func updateItems<T: DatabaseItemType>(ofType type: T.Type, withJSONItems items: [NSDictionary], itemFields: Set<T.T>,
                                           JSONPrimaryKeyField: String = "id", generatePrimaryKeyIfNotFound: Bool,
                                           updateOnlyWhenJSONFieldDataExists: Bool) {
         bulkWrite(writeOperation: {
@@ -71,7 +71,7 @@ extension Realm {
         })
     }
     
-    public func updateItem<T: DatabaseItemType>(ofType type: T, withJSON data: NSDictionary, itemFields: Set<T.T>,
+    public func updateItem<T: DatabaseItemType>(ofType type: T.Type, withJSON data: NSDictionary, itemFields: Set<T.T>,
                                           JSONPrimaryKeyField: String = "id", generatePrimaryKeyIfNotFound: Bool,
                                           updateOnlyWhenJSONFieldDataExists: Bool) {
         let itemPrimaryKey: String = {
