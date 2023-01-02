@@ -16,11 +16,11 @@ public protocol NavigationCoordinator: AnyObject {
 }
 
 extension NavigationCoordinator {
-    func store(coordinator: NavigationCoordinator) {
+    public func store(coordinator: NavigationCoordinator) {
         children.append(coordinator)
     }
 
-    func free(coordinator: NavigationCoordinator) {
+    public func free(coordinator: NavigationCoordinator) {
         children = children.filter { $0 !== coordinator }
         coordinator.onFree = nil
     }
