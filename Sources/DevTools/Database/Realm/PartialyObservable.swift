@@ -11,13 +11,12 @@ public protocol OservableField: RawRepresentable, CaseIterable, Hashable where R
 
 }
 
-public protocol PartialyObservable: AnyObject where Self: Object {
+public protocol PartialyObservable where Self: Object {
     associatedtype FieldType: OservableField
-    func observe(fields: Set<FieldType>, closure:(ObjectChange<Self>) -> Void) -> NotificationToken
 }
 
 
-public extension PartialyObservable {
+public extension PartialyObservable where Self: Object  {
     func observe(fields: Set<FieldType>, closure: @escaping (ObjectChange<Self>) -> Void) -> NotificationToken {
         let keyPaths = fields.map { field in
             field.rawValue
