@@ -19,7 +19,7 @@ public protocol PartialyObservable: AnyObject where Self: Object {
 
 
 extension PartialyObservable {
-    func observe(fields: Set<FieldType>, closure: @escaping (ObjectChange<ObjectType>) -> Void) -> NotificationToken {
+    public func observe(fields: Set<FieldType>, closure: @escaping (ObjectChange<ObjectType>) -> Void) -> NotificationToken {
         let keyPaths = fields.map { field in
             field.rawValue
         }
