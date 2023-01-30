@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+// TODO: Add sorting
 public protocol RepositoryProtocol {
     associatedtype T: PersistableDomainModelProtocol
     

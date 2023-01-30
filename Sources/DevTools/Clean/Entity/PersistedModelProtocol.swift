@@ -11,13 +11,13 @@ import Foundation
 
 public protocol PersistedModelProtocol: AnyObject, Identifiable {
     associatedtype DomainModel: PersistableDomainModelProtocol
-    associatedtype F: PersistedModelField
+    associatedtype F: PersistedModelFieldProtocol
     
     func toDomain(fields: Set<F>) throws -> DomainModel
     func update(with model: DomainModel, fields: Set<F>)
     
 }
 
-public protocol PersistedModelField: CaseIterable, Hashable {
+public protocol PersistedModelFieldProtocol: CaseIterable, Hashable {
 
 }
