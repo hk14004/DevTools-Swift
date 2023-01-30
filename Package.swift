@@ -52,6 +52,6 @@ let package = Package(
             dependencies: []),
         .target(
             name: "DevToolsRealm",
-            dependencies: [.product(name: "RealmSwift", package: "realm-cocoa")]),
+            dependencies: [.product(name: "RealmSwift", package: "realm-cocoa"), "DevTools"]),
     ]
 )
