@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevTools
 
 extension Set where Element: MappedField {
     subscript(field: Element) -> Element? {

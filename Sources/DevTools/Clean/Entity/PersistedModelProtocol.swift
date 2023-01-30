@@ -9,11 +9,16 @@ import Foundation
 
 // All persistent entities should implement this protocol
 
-public protocol PersistedModelProtocol: AnyObject, Identifiable, PartialyUpdateable {
+public protocol PersistedModelProtocol: AnyObject, Identifiable {
     associatedtype DomainModel: PersistableDomainModelProtocol
+    associatedtype F: PersistedModelField
     
     func toDomain() -> DomainModel
     func update(with model: DomainModel)
-    // TODO: Partially updatable
+    func partialUpdate(with model: DomainModel, fields: Set<F>)
     
+}
+
+public protocol PersistedModelField: CaseIterable, Hashable {
+
 }

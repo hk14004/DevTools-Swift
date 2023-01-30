@@ -7,6 +7,7 @@
 
 import Foundation
 import RealmSwift
+import DevTools
 
 extension Realm {
     public func bulkWrite(writeOperation: ()->()) {
