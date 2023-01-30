@@ -10,11 +10,11 @@ import Foundation
 // All persistent entities should implement this protocol
 
 public protocol PersistedModelProtocol: AnyObject, Identifiable {
-    associatedtype DomainModel: PersistableDomainModelProtocol
-    associatedtype F: PersistedModelFieldProtocol
+    associatedtype DomainModelType: PersistableDomainModelProtocol
+    associatedtype FieldType: PersistedModelFieldProtocol
     
-    func toDomain(fields: Set<F>) throws -> DomainModel
-    func update(with model: DomainModel, fields: Set<F>)
+    func toDomain(fields: Set<FieldType>) throws -> DomainModelType
+    func update(with model: DomainModelType, fields: Set<FieldType>)
     
 }
 
