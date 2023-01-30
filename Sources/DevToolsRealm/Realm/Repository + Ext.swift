@@ -20,7 +20,7 @@ extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.StoreType.Do
         let realm = try! Realm()
         let entities: [RealmSwiftObject] = items.map {
             let stored = T.StoreType()
-            stored.update(with: $0)
+            stored.update(with: $0, fields: Set(T.StoreType.F.allCases))
             return stored
         }
         do {
@@ -39,7 +39,7 @@ extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.StoreType.Do
         let stored = realm.objects(T.StoreType.self)
         let new: [RealmSwiftObject] = items.map {
             let stored = T.StoreType()
-            stored.update(with: $0)
+            stored.update(with: $0, fields: Set(T.StoreType.F.allCases))
             return stored
         }
         do {
@@ -74,14 +74,16 @@ extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.StoreType.Do
 
     // MARK: Read
 
+    // TODO: Catch
+    
     func getSingle(id: String) -> T? {
         let realm = try! Realm()
-        return realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain()
+        return try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain(fields: Set(T.StoreType.F.allCases)) ?? nil
     }
 
     func getList(predicate: NSPredicate = NSPredicate(value: true)) -> [T] {
         let realm = try! Realm()
-        return realm.objects(T.StoreType.self).filter(predicate).compactMap {$0.toDomain()}
+        return try! realm.objects(T.StoreType.self).filter(predicate).compactMap {try $0.toDomain(fields: Set(T.StoreType.F.allCases))}
     }
 
     func observeSingle(id: String) -> AnyPublisher<T?, Never> {
@@ -91,7 +93,7 @@ extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.StoreType.Do
             .collectionPublisher
             .receive(on: DispatchQueue.main)
             .freeze()
-            .map {$0.first?.toDomain()}
+            .map {try! $0.first?.toDomain(fields: Set(T.StoreType.F.allCases))}
             .replaceError(with: nil)
             .eraseToAnyPublisher()
     }
@@ -103,7 +105,7 @@ extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.StoreType.Do
             .collectionPublisher
             .receive(on: DispatchQueue.main)
             .freeze()
-            .map {$0.compactMap{$0.toDomain()}}
+            .map {try! $0.compactMap{try $0.toDomain(fields: Set(T.StoreType.F.allCases))}}
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
