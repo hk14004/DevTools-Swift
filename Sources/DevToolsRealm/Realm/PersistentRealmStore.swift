@@ -11,8 +11,8 @@ import Combine
 import Realm
 import RealmSwift
 
-class PersistentRealmStore<Domain: PersistableDomainModelProtocol> {
-    typealias T = Domain
+public class PersistentRealmStore<Domain: PersistableDomainModelProtocol> {
+    public typealias T = Domain
     private var realm: Realm
     
     init(realm: Realm) {
@@ -24,7 +24,7 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
 
     // MARK: Add, update
 
-    func addOrUpdate(_ items: [T]) -> Bool {
+    public func addOrUpdate(_ items: [T]) -> Bool {
 //        let realm = try! Realm()
         let entities: [RealmSwiftObject] = items.map {
             let stored = T.StoreType()
@@ -42,7 +42,7 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
         }
     }
 
-    func replace(with items: [T]) -> Bool {
+    public func replace(with items: [T]) -> Bool {
 //        let realm = try! Realm()
         let stored = realm.objects(T.StoreType.self)
         let new: [RealmSwiftObject] = items.map {
@@ -64,7 +64,7 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
 
     // MARK: Delete
 
-    func delete(_ items: [T]) -> Bool {
+    public func delete(_ items: [T]) -> Bool {
 //        let realm = try! Realm()
         let storedItems = items.compactMap {
             realm.object(ofType: T.StoreType.self, forPrimaryKey: $0.id)
@@ -84,17 +84,17 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
 
     // TODO: Catch
     
-    func getSingle(id: String) -> T? {
+    public func getSingle(id: String) -> T? {
 //        let realm = try! Realm()
         return try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
     }
 
-    func getList(predicate: NSPredicate = NSPredicate(value: true)) -> [T] {
+    public func getList(predicate: NSPredicate = NSPredicate(value: true)) -> [T] {
 //        let realm = try! Realm()
         return try! realm.objects(T.StoreType.self).filter(predicate).compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
     }
 
-    func observeSingle(id: String) -> AnyPublisher<T?, Never> {
+    public func observeSingle(id: String) -> AnyPublisher<T?, Never> {
 //        let realm = try! Realm()
         return realm.objects(T.StoreType.self)
             .filter(NSPredicate(format: "id == %@", id))
@@ -106,7 +106,7 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
             .eraseToAnyPublisher()
     }
 
-    func observeList(predicate: NSPredicate = NSPredicate(value: true)) -> AnyPublisher<[T], Never> {
+    public func observeList(predicate: NSPredicate = NSPredicate(value: true)) -> AnyPublisher<[T], Never> {
 //        let realm = try! Realm()
         return realm.objects(T.StoreType.self)
             .filter(predicate)
