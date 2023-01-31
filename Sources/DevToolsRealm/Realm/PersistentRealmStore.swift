@@ -2,22 +2,30 @@
 //  File.swift
 //  
 //
-//  Created by Cube on 30/01/2023.
+//  Created by Cube on 31/01/2023.
 //
 
-import RealmSwift
-import Realm
+import Foundation
 import DevTools
 import Combine
+import Realm
+import RealmSwift
 
-// MARK: CRUD
+class PersistentRealmStore<Domain: PersistableDomainModelProtocol> {
+    typealias T = Domain
+    private var realm: Realm
+    
+    init(realm: Realm) {
+        self.realm = realm
+    }
+}
 
-public extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.StoreType.DomainModelType == T  {
+extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: RealmSwiftObject, T.StoreType.DomainModelType == T  {
 
     // MARK: Add, update
 
     func addOrUpdate(_ items: [T]) -> Bool {
-        let realm = try! Realm()
+//        let realm = try! Realm()
         let entities: [RealmSwiftObject] = items.map {
             let stored = T.StoreType()
             stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
@@ -35,7 +43,7 @@ public extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.Store
     }
 
     func replace(with items: [T]) -> Bool {
-        let realm = try! Realm()
+//        let realm = try! Realm()
         let stored = realm.objects(T.StoreType.self)
         let new: [RealmSwiftObject] = items.map {
             let stored = T.StoreType()
@@ -57,7 +65,7 @@ public extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.Store
     // MARK: Delete
 
     func delete(_ items: [T]) -> Bool {
-        let realm = try! Realm()
+//        let realm = try! Realm()
         let storedItems = items.compactMap {
             realm.object(ofType: T.StoreType.self, forPrimaryKey: $0.id)
         }
@@ -77,17 +85,17 @@ public extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.Store
     // TODO: Catch
     
     func getSingle(id: String) -> T? {
-        let realm = try! Realm()
+//        let realm = try! Realm()
         return try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
     }
 
     func getList(predicate: NSPredicate = NSPredicate(value: true)) -> [T] {
-        let realm = try! Realm()
+//        let realm = try! Realm()
         return try! realm.objects(T.StoreType.self).filter(predicate).compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
     }
 
     func observeSingle(id: String) -> AnyPublisher<T?, Never> {
-        let realm = try! Realm()
+//        let realm = try! Realm()
         return realm.objects(T.StoreType.self)
             .filter(NSPredicate(format: "id == %@", id))
             .collectionPublisher
@@ -99,7 +107,7 @@ public extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.Store
     }
 
     func observeList(predicate: NSPredicate = NSPredicate(value: true)) -> AnyPublisher<[T], Never> {
-        let realm = try! Realm()
+//        let realm = try! Realm()
         return realm.objects(T.StoreType.self)
             .filter(predicate)
             .collectionPublisher

@@ -2,14 +2,13 @@
 //  File.swift
 //  
 //
-//  Created by Hardijs on 30/01/2023.
+//  Created by Cube on 31/01/2023.
 //
 
 import Foundation
 import Combine
 
-// TODO: Add sorting
-public protocol RepositoryProtocol {
+public protocol PersistedLayerInterface {
     associatedtype T: PersistableDomainModelProtocol
     
     @discardableResult func getSingle(id: String) -> T?
