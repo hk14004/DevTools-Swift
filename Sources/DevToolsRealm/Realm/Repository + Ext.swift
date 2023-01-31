@@ -12,7 +12,7 @@ import Combine
 
 // MARK: CRUD
 
-extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.StoreType.DomainModelType == T  {
+public extension RepositoryProtocol where T.StoreType: RealmSwiftObject, T.StoreType.DomainModelType == T  {
 
     // MARK: Add, update
 
