@@ -7,6 +7,6 @@
 
 import Foundation
 
-public func printError(error: Error) {
+public func printError(_ error: Error) {
     print(String(describing: error))
 }
