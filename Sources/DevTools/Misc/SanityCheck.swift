@@ -7,7 +7,7 @@
 
 import Foundation
 
-func sanityCheck(name: String = "SANITY-CHECK", operation: ()->()) {
+public func sanityCheck(name: String = "SANITY-CHECK", operation: ()->()) {
     let symbols = "###########"
     print(symbols + name + "-START" + symbols)
     operation()
