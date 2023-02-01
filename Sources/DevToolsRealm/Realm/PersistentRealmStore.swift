@@ -15,7 +15,7 @@ public class PersistentRealmStore<Domain: PersistableDomainModelProtocol> {
     public typealias T = Domain
     private var realm: Realm
     
-    init(realm: Realm) {
+    public init(realm: Realm) {
         self.realm = realm
     }
 }
