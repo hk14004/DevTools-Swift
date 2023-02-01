@@ -9,7 +9,7 @@ import Foundation
 
 public func sanityCheck(name: String = "SANITY-CHECK", operation: ()->()) {
     let symbols = "###########"
-    print(symbols + name + "-START" + symbols)
+    print(symbols + " " + name + "-START" + " " + symbols)
     operation()
-    print(symbols + name + "-END" + symbols)
+    print(symbols + " " + name + "-END" + " " + symbols)
 }
