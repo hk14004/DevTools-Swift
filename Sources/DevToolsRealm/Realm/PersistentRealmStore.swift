@@ -24,7 +24,7 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
     
     // MARK: Add, update
     
-    public func addOrUpdate(_ items: [Domain], chain: [() -> ()]) {
+    public func addOrUpdate(_ items: [Domain], chain: [() -> ()] = []) {
         let addedOrUpdatedEntities: [T.StoreType] = items.map {
             let stored = T.StoreType()
             stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
@@ -51,7 +51,7 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
         }
     }
     
-    public func replace(with items: [T], chain: [() -> ()]) {
+    public func replace(with items: [T], chain: [() -> ()] = []) {
         let storedEntities = realm.objects(T.StoreType.self)
         let newEntities: [T.StoreType] = items.map {
             let stored = T.StoreType()
