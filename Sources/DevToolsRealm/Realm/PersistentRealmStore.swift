@@ -21,81 +21,105 @@ public class PersistentRealmStore<Domain: PersistableDomainModelProtocol> {
 }
 
 extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: RealmSwiftObject, T.StoreType.DomainModelType == T  {
-
+    
     // MARK: Add, update
-
-    public func addOrUpdate(_ items: [T]) -> Bool {
-//        let realm = try! Realm()
-        let entities: [RealmSwiftObject] = items.map {
+    
+    public func addOrUpdate(_ items: [Domain], chain: [() -> ()]) {
+        let addedOrUpdatedEntities: [T.StoreType] = items.map {
             let stored = T.StoreType()
             stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
             return stored
         }
-        do {
-            try realm.write {
-                realm.add(entities, update: .modified)
+        
+        func writeOperation() {
+            realm.add(addedOrUpdatedEntities, update: .modified)
+            chain.forEach { chainWrite in
+                chainWrite()
             }
-            return true
-        } catch(let err) {
-            //Log.s("Could not write to realm: \(err.localizedDescription)")
-            return false
+        }
+        
+        if realm.isInWriteTransaction {
+            writeOperation()
+        } else {
+            do {
+                try realm.write {
+                    writeOperation()
+                }
+            } catch(let error) {
+                printError(error)
+            }
         }
     }
-
-    public func replace(with items: [T]) -> Bool {
-//        let realm = try! Realm()
-        let stored = realm.objects(T.StoreType.self)
-        let new: [RealmSwiftObject] = items.map {
+    
+    public func replace(with items: [T], chain: [() -> ()]) {
+        let storedEntities = realm.objects(T.StoreType.self)
+        let newEntities: [T.StoreType] = items.map {
             let stored = T.StoreType()
             stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
             return stored
         }
-        do {
-            try realm.write {
-                realm.delete(stored)
-                realm.add(new, update: .modified)
+        
+        func writeOperation() {
+            realm.delete(storedEntities)
+            realm.add(newEntities, update: .modified)
+            chain.forEach { chainWrite in
+                chainWrite()
             }
-            return true
-        } catch(let err) {
-            //Log.s("Could not write to realm: \(err.localizedDescription)")
-            return false
+        }
+        
+        if realm.isInWriteTransaction {
+            writeOperation()
+        } else {
+            do {
+                try realm.write {
+                    writeOperation()
+                }
+            } catch(let error) {
+                printError(error)
+            }
         }
     }
-
+    
     // MARK: Delete
-
-    public func delete(_ items: [T]) -> Bool {
-//        let realm = try! Realm()
-        let storedItems = items.compactMap {
+    
+    public func delete(_ items: [Domain], chain: [() -> ()] = []) {
+        let storedEntities = items.compactMap {
             realm.object(ofType: T.StoreType.self, forPrimaryKey: $0.id)
         }
-        do {
-            try realm.write {
-                realm.delete(storedItems)
+        
+        func writeTransaction() {
+            realm.delete(storedEntities)
+            chain.forEach { chainWrite in
+                chainWrite()
             }
-            return true
-        } catch(let err) {
-            //Log.s("Could not write to realm: \(err.localizedDescription)")
-            return false
+        }
+        
+        if realm.isInWriteTransaction {
+            writeTransaction()
+        } else {
+            do {
+                try realm.write {
+                    writeTransaction()
+                }
+            } catch(let error) {
+                printError(error)
+            }
         }
     }
-
+    
     // MARK: Read
-
-    // TODO: Catch
+    
+    // TODO: Catch errors for read  transactions
     
     public func getSingle(id: String) -> T? {
-//        let realm = try! Realm()
         return try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
     }
-
+    
     public func getList(predicate: NSPredicate = NSPredicate(value: true)) -> [T] {
-//        let realm = try! Realm()
         return try! realm.objects(T.StoreType.self).filter(predicate).compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
     }
-
+    
     public func observeSingle(id: String) -> AnyPublisher<T?, Never> {
-//        let realm = try! Realm()
         return realm.objects(T.StoreType.self)
             .filter(NSPredicate(format: "id == %@", id))
             .collectionPublisher
@@ -105,9 +129,8 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
             .replaceError(with: nil)
             .eraseToAnyPublisher()
     }
-
+    
     public func observeList(predicate: NSPredicate = NSPredicate(value: true)) -> AnyPublisher<[T], Never> {
-//        let realm = try! Realm()
         return realm.objects(T.StoreType.self)
             .filter(predicate)
             .collectionPublisher
