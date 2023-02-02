@@ -112,7 +112,7 @@ extension RequestManager {
     }
     
     @discardableResult
-    public func launchSingleUniqueRequest(requestID: String, provider: MoyaProvider<T>, target: T, hookRunning: Bool, retryMethod: RetryMethod, completion: @escaping (Result<Response, MoyaError>) -> Void) -> Bool {
+    public func launchSingleUniqueRequest(requestID: String, target: T, provider: MoyaProvider<T>, hookRunning: Bool, retryMethod: RetryMethod, completion: @escaping (Result<Response, MoyaError>) -> Void) -> Bool {
         if var requestInfo = requestsInProgress[requestID] {
             // A request with the same ID is already in progress
             if hookRunning {
