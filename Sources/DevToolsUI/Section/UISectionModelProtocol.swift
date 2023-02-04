@@ -32,3 +32,17 @@ fileprivate struct ExampleSection: UISectionModelProtocol {
         self.cells = cells
     }
 }
+
+public extension Array where Element: UISectionModelProtocol {
+    mutating func update(section: Element) {
+        guard let sectionIndex = firstIndex(where: {$0.uuid == section.uuid}) else {
+            return
+        }
+        remove(at: sectionIndex)
+        insert(section, at: sectionIndex)
+    }
+    
+    func getSection(uuid: String) -> Element? {
+        return first(where: {$0.uuid == uuid})
+    }
+}
