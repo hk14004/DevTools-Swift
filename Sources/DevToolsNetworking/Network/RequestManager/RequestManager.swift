@@ -76,7 +76,7 @@ extension RequestManager {
                 workCompletionGroup.enter()
                 switch behaviour {
                 case .parallel:
-                   let launched = launchSingleUniqueRequest(requestID: request.requestID, provider: provider, target: request.targetType, hookRunning: hookRunning, retryMethod: request.retryMethod) { result in
+                   let launched = launchSingleUniqueRequest(requestID: request.requestID, target: request.targetType, provider: provider, hookRunning: hookRunning, retryMethod: request.retryMethod) { result in
                        results[request.requestID] = result
                        workCompletionGroup.leave()
                     }
@@ -85,7 +85,7 @@ extension RequestManager {
                     }
                 case .oneAfterAnother:
                     let semaphore = DispatchSemaphore(value: 0)
-                    let launched = launchSingleUniqueRequest(requestID: request.requestID, provider: provider, target: request.targetType, hookRunning: hookRunning, retryMethod: request.retryMethod) { result in
+                    let launched = launchSingleUniqueRequest(requestID: request.requestID, target: request.targetType, provider: provider, hookRunning: hookRunning, retryMethod: request.retryMethod) { result in
                         results[request.requestID] = result
                         semaphore.signal()
                         workCompletionGroup.enter()
@@ -112,7 +112,7 @@ extension RequestManager {
     }
     
     @discardableResult
-    public func launchSingleUniqueRequest(requestID: String, provider: MoyaProvider<T>, target: T, hookRunning: Bool, retryMethod: RetryMethod, completion: @escaping (Result<Response, MoyaError>) -> Void) -> Bool {
+    public func launchSingleUniqueRequest(requestID: String, target: T, provider: MoyaProvider<T>, hookRunning: Bool, retryMethod: RetryMethod, completion: @escaping (Result<Response, MoyaError>) -> Void) -> Bool {
         if var requestInfo = requestsInProgress[requestID] {
             // A request with the same ID is already in progress
             if hookRunning {

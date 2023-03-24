@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import DevTools
 
-extension Set where Element: MappedField {
+extension Set where Element: JSONMappedField {
     subscript(field: Element) -> Element? {
         get {
             return self.first { $0 == field }

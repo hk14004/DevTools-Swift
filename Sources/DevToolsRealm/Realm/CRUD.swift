@@ -7,6 +7,7 @@
 
 import Foundation
 import RealmSwift
+import DevTools
 
 extension Realm {
     public func bulkWrite(writeOperation: ()->()) {
@@ -58,7 +59,7 @@ extension Realm {
         })
     }
     
-    public typealias DatabaseItemType = Object & UnequallyPersistable & Archivable & PartialyUpdateable & AnyObject
+    public typealias DatabaseItemType = Object & UnequallyPersistable & Archivable & PartialyJSONUpdateable & AnyObject
     public  func updateItems<T: DatabaseItemType>(ofType type: T.Type, withJSONItems items: [NSDictionary], updateFields: Set<T.T>,
                                           JSONPrimaryKeyField: String = "id", generatePrimaryKeyIfNotFound: Bool,
                                           updateOnlyWhenJSONFieldDataExists: Bool) {

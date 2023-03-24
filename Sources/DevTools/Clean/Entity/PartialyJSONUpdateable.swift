@@ -7,17 +7,17 @@
 
 import Foundation
 
-public protocol PartialyUpdateable: AnyObject {
-    associatedtype T: MappedField
+public protocol PartialyJSONUpdateable: AnyObject {
+    associatedtype T: JSONMappedField
     func updateFields(withJson json: NSDictionary, fields: Set<T>, updateOnlyWhenFieldDataExists: Bool)
 }
 
-public protocol MappedField: CaseIterable, Hashable {
+public protocol JSONMappedField: CaseIterable, Hashable {
     func getKnownJSONKeys() -> [String]
     func getFieldValue(fromJSON json: NSDictionary) -> Any?
 }
 
-extension MappedField {
+extension JSONMappedField {
     public func getFieldValue(fromJSON json: NSDictionary) -> Any? {
         let knownKeys = getKnownJSONKeys()
         var extractedValue: Any? = nil
@@ -40,9 +40,9 @@ class ExamplePartialyUpdatableObject {
     
 }
 
-extension ExamplePartialyUpdatableObject: PartialyUpdateable {
+extension ExamplePartialyUpdatableObject: PartialyJSONUpdateable {
     
-    enum Field: MappedField {
+    enum Field: JSONMappedField {
         case fullName
         case birthDate
         
