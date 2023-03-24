@@ -18,6 +18,9 @@ public protocol NavigationCoordinator: AnyObject {
 extension NavigationCoordinator {
     public func store(coordinator: NavigationCoordinator) {
         children.append(coordinator)
+        coordinator.onFree = { [weak self] in
+            self?.free(coordinator: coordinator)
+        }
     }
 
     public func free(coordinator: NavigationCoordinator) {
