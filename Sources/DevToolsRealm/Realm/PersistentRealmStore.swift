@@ -130,9 +130,10 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
             .eraseToAnyPublisher()
     }
     
-    public func observeList(predicate: NSPredicate = NSPredicate(value: true)) -> AnyPublisher<[T], Never> {
+    public func observeList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> AnyPublisher<[T], Never> {
         return realm.objects(T.StoreType.self)
             .filter(predicate)
+            .sorted(byKeyPath: sortedByKeyPath, ascending: ascending)
             .collectionPublisher
             .receive(on: DispatchQueue.main)
             .freeze()
