@@ -118,7 +118,7 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
     public func getList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> [T] {
         return try! realm.objects(T.StoreType.self)
             .filter(predicate)
-            .sorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
             .compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
     }
     
@@ -136,12 +136,22 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
     public func observeList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> AnyPublisher<[T], Never> {
         return realm.objects(T.StoreType.self)
             .filter(predicate)
-            .sorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
             .collectionPublisher
             .receive(on: DispatchQueue.main)
             .freeze()
             .map {try! $0.compactMap{try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}}
             .replaceError(with: [])
             .eraseToAnyPublisher()
+    }
+}
+
+extension Results where Element: KeypathSortable {
+    func optionallySorted(byKeyPath: String = "", ascending: Bool = true) -> Results<Element> {
+        if byKeyPath.isEmpty {
+            return self
+        } else {
+            return self.sorted(byKeyPath: byKeyPath, ascending: ascending)
+        }
     }
 }
