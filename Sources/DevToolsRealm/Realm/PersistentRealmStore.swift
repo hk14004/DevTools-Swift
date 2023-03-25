@@ -115,8 +115,11 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
         return try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
     }
     
-    public func getList(predicate: NSPredicate = NSPredicate(value: true)) -> [T] {
-        return try! realm.objects(T.StoreType.self).filter(predicate).compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
+    public func getList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> [T] {
+        return try! realm.objects(T.StoreType.self)
+            .filter(predicate)
+            .sorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+            .compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
     }
     
     public func observeSingle(id: String) -> AnyPublisher<T?, Never> {
