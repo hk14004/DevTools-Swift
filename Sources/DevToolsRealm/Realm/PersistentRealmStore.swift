@@ -13,96 +13,107 @@ import RealmSwift
 
 public class PersistentRealmStore<Domain: PersistableDomainModelProtocol> {
     public typealias T = Domain
-    private var realm: Realm
+    private var dbConfig: Realm.Configuration
+    private let queue: DispatchQueue = .init(label: "DevTools.PersistentRealmStore.\(Domain.self)")
     
-    public init(realm: Realm) {
-        self.realm = realm
+    public init(dbConfig: Realm.Configuration) {
+        self.dbConfig = dbConfig
     }
+    
 }
 
 extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: RealmSwiftObject, T.StoreType.DomainModelType == T  {
     
-    // MARK: Add, update
-    
-    public func addOrUpdate(_ items: [Domain], chain: [() -> ()] = []) {
-        let addedOrUpdatedEntities: [T.StoreType] = items.map {
-            let stored = T.StoreType()
-            stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
-            return stored
-        }
-        
-        func writeOperation() {
-            realm.add(addedOrUpdatedEntities, update: .modified)
-            chain.forEach { chainWrite in
-                chainWrite()
-            }
-        }
-        
-        if realm.isInWriteTransaction {
-            writeOperation()
-        } else {
-            do {
-                try realm.write {
-                    writeOperation()
+    public func bulkWrite(operations: [() async -> Void]) async {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                autoreleasepool {
+                    let realm = try! Realm(configuration: self.dbConfig)
+                    realm.bulkWrite {
+                        Task {
+                            for operation in operations {
+                                await operation()
+                            }
+                            continuation.resume()
+                        }
+                    }
                 }
-            } catch(let error) {
-                printError(error)
             }
         }
     }
     
-    public func replace(with items: [T], chain: [() -> ()] = []) {
-        let storedEntities = realm.objects(T.StoreType.self)
-        let newEntities: [T.StoreType] = items.map {
-            let stored = T.StoreType()
-            stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
-            return stored
-        }
-        
-        func writeOperation() {
-            realm.delete(storedEntities)
-            realm.add(newEntities, update: .modified)
-            chain.forEach { chainWrite in
-                chainWrite()
+    // MARK: Add, update
+    
+    public func addOrUpdate(_ items: [Domain]) async {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                autoreleasepool {
+                    let realm = try! Realm(configuration: self.dbConfig)
+                    let addedOrUpdatedEntities: [T.StoreType] = items.map {
+                        let stored = T.StoreType()
+                        stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
+                        return stored
+                    }
+                    
+                    func writeOperation() {
+                        realm.add(addedOrUpdatedEntities, update: .modified)
+                    }
+                    
+                    realm.bulkWrite {
+                        writeOperation()
+                    }
+                    continuation.resume()
+                }
             }
         }
-        
-        if realm.isInWriteTransaction {
-            writeOperation()
-        } else {
-            do {
-                try realm.write {
-                    writeOperation()
+    }
+    
+    public func replace(with items: [T]) async {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                autoreleasepool {
+                    let realm = try! Realm(configuration: self.dbConfig)
+                    let storedEntities = realm.objects(T.StoreType.self)
+                    let newEntities: [T.StoreType] = items.map {
+                        let stored = T.StoreType()
+                        stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
+                        return stored
+                    }
+                    
+                    func writeOperation() {
+                        realm.delete(storedEntities)
+                        realm.add(newEntities, update: .modified)
+                    }
+                    
+                    realm.bulkWrite {
+                        writeOperation()
+                    }
+                    continuation.resume()
                 }
-            } catch(let error) {
-                printError(error)
             }
         }
     }
     
     // MARK: Delete
     
-    public func delete(_ items: [Domain], chain: [() -> ()] = []) {
-        let storedEntities = items.compactMap {
-            realm.object(ofType: T.StoreType.self, forPrimaryKey: $0.id)
-        }
-        
-        func writeTransaction() {
-            realm.delete(storedEntities)
-            chain.forEach { chainWrite in
-                chainWrite()
-            }
-        }
-        
-        if realm.isInWriteTransaction {
-            writeTransaction()
-        } else {
-            do {
-                try realm.write {
-                    writeTransaction()
+    public func delete(_ items: [Domain]) async {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                autoreleasepool {
+                    let realm = try! Realm(configuration: self.dbConfig)
+                    let storedEntities = items.compactMap {
+                        realm.object(ofType: T.StoreType.self, forPrimaryKey: $0.id)
+                    }
+                    
+                    func writeOperation() {
+                        realm.delete(storedEntities)
+                    }
+                    
+                    realm.bulkWrite {
+                        writeOperation()
+                    }
+                    continuation.resume()
                 }
-            } catch(let error) {
-                printError(error)
             }
         }
     }
@@ -111,37 +122,57 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
     
     // TODO: Catch errors for read  transactions
     
-    public func getSingle(id: String) -> T? {
-        return try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
+    public func getSingle(id: String) async -> T? {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                autoreleasepool {
+                    let realm = try! Realm(configuration: self.dbConfig)
+                    let result = try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
+                    continuation.resume(returning: result)
+                }
+            }
+        }
     }
     
-    public func getList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> [T] {
-        return try! realm.objects(T.StoreType.self)
-            .filter(predicate)
-            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
-            .compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
+    public func getList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) async -> [T] {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                autoreleasepool {
+                    let realm = try! Realm(configuration: self.dbConfig)
+                    let result = try? realm.objects(T.StoreType.self)
+                        .filter(predicate)
+                        .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+                        .compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
+                    continuation.resume(returning: result ?? [])
+                }
+            }
+        }
     }
     
     public func observeSingle(id: String) -> AnyPublisher<T?, Never> {
+        let realm = try! Realm(configuration: dbConfig)
         return realm.objects(T.StoreType.self)
             .filter(NSPredicate(format: "id == %@", id))
             .collectionPublisher
-            .receive(on: DispatchQueue.main)
+            .subscribe(on: queue)
             .freeze()
             .map {try! $0.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
             .replaceError(with: nil)
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
     
     public func observeList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> AnyPublisher<[T], Never> {
+        let realm = try! Realm(configuration: dbConfig)
         return realm.objects(T.StoreType.self)
             .filter(predicate)
             .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
             .collectionPublisher
-            .receive(on: DispatchQueue.main)
+            .subscribe(on: queue)
             .freeze()
             .map {try! $0.compactMap{try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}}
             .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 }
@@ -155,3 +186,5 @@ extension Results where Element: KeypathSortable {
         }
     }
 }
+
+extension NSPredicate: @unchecked Sendable { }
