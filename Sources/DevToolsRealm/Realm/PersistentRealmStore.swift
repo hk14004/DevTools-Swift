@@ -219,7 +219,7 @@ extension Results where Element: KeypathSortable {
 extension Results where Element: PersistedModelProtocol {
     func mapToDomain(fetchOffset: Int, fetchLimit: Int, fields: Set<Element.FieldType>) -> [Element.DomainModelType] {
         let endIndex: Int = {
-           let wantIndex = fetchOffset * fetchLimit + fetchLimit
+           let wantIndex = fetchOffset * fetchLimit + fetchLimit - 1
             return [wantIndex, self.count-1].min()!
         }()
         var items: [Element.DomainModelType] = []
