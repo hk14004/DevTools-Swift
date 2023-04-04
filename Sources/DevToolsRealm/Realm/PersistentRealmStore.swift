@@ -149,6 +149,35 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
         }
     }
     
+    public func getListPage(pageOptions: DevTools.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevTools.PagedResult<Domain> {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                autoreleasepool {
+                    do {
+                        let realm = try Realm(configuration: self.dbConfig)
+                        let all = realm.objects(T.StoreType.self)
+                        let total = all.count
+                        let fetchOffset = (pageOptions.fetchPage - 1) * pageOptions.pageSize
+                        let hasNextPage = fetchOffset + pageOptions.pageSize < total
+                        let result = all
+                            .filter(predicate)
+                            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+                            .mapToDomain(fetchOffset: fetchOffset,
+                                         fetchLimit: pageOptions.pageSize,
+                                         fields: T.StoreType.FieldType.getSetOfAllFields())
+                        let pageResult = PagedResult(pageNumber: pageOptions.fetchPage,
+                                                 pageItems: result,
+                                                 hasNextPage: hasNextPage)
+                        continuation.resume(returning: pageResult)
+                    } catch (let err) {
+                        print(err)
+                        continuation.resume(returning: .init(pageNumber: pageOptions.fetchPage, pageItems: [], hasNextPage: false))
+                    }
+                }
+            }
+        }
+    }
+    
     public func observeSingle(id: String) -> AnyPublisher<T?, Never> {
         let realm = try! Realm(configuration: dbConfig)
         return realm.objects(T.StoreType.self)
@@ -187,4 +216,29 @@ extension Results where Element: KeypathSortable {
     }
 }
 
+extension Results where Element: PersistedModelProtocol {
+    func mapToDomain(fetchOffset: Int, fetchLimit: Int, fields: Set<Element.FieldType>) -> [Element.DomainModelType] {
+        let endIndex: Int = {
+           let wantIndex = fetchOffset * fetchLimit
+            return [wantIndex, self.count-1].min()!
+        }()
+        var items: [Element.DomainModelType] = []
+        for index in fetchOffset...endIndex {
+            guard let stored = self[safe: index] else {
+                continue
+            }
+            guard let converted = try? stored.toDomain(fields: fields) else {
+                continue
+            }
+            items.append(converted)
+        }
+        return items
+    }
+    
+    subscript (safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
+}
+
 extension NSPredicate: @unchecked Sendable { }
+
