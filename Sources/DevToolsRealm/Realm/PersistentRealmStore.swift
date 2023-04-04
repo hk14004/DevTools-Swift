@@ -223,6 +223,9 @@ extension Results where Element: PersistedModelProtocol {
             return [wantIndex, self.count-1].min()!
         }()
         var items: [Element.DomainModelType] = []
+        guard fetchOffset <= endIndex else {
+            return []
+        }
         for index in fetchOffset...endIndex {
             guard let stored = self[safe: index] else {
                 continue
