@@ -8,8 +8,6 @@
 import Foundation
 import Combine
 
-// TODO: Add pagination
-
 public protocol PersistedLayerInterface {
     associatedtype T: PersistableDomainModelProtocol
     
