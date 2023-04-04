@@ -1,14 +1,14 @@
 //
-//  File.swift
+//  PersistedLayerInterface.swift
 //  
 //
-//  Created by Cube on 31/01/2023.
+//  Created by Hardijs on 31/01/2023.
 //
 
 import Foundation
 import Combine
 
-// TODO: Add sorting predicate
+// TODO: Add pagination
 
 public protocol PersistedLayerInterface {
     associatedtype T: PersistableDomainModelProtocol
