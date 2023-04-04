@@ -34,9 +34,9 @@ public protocol PersistedLayerInterface {
 }
 
 public struct PagedResult<T> {
-    let pageNumber: Int
-    let pageItems: [T]
-    let hasNextPage: Bool
+    public let pageNumber: Int
+    public let pageItems: [T]
+    public let hasNextPage: Bool
     
     public init(pageNumber: Int, pageItems: [T], hasNextPage: Bool) {
         self.pageNumber = pageNumber
