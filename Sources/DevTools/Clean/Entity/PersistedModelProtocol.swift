@@ -21,3 +21,9 @@ public protocol PersistedModelProtocol: AnyObject, Identifiable {
 public protocol PersistedModelFieldProtocol: CaseIterable, Hashable {
 
 }
+
+extension PersistedModelFieldProtocol {
+    public static func getSetOfAllFields() -> Set<Self> {
+        Set(Self.allCases)
+    }
+}
