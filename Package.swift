@@ -25,6 +25,9 @@ let package = Package(
         .library(
             name: "DevToolsRealm",
             targets: ["DevToolsRealm"]),
+        .library(
+            name: "DevToolsCoreData",
+            targets: ["DevToolsCoreData"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -53,5 +56,8 @@ let package = Package(
         .target(
             name: "DevToolsRealm",
             dependencies: [.product(name: "RealmSwift", package: "realm-cocoa"), "DevTools"]),
+        .target(
+            name: "DevToolsCoreData",
+            dependencies: ["DevTools"]),
     ]
 )
