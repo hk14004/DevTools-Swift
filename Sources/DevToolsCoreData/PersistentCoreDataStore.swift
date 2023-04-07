@@ -55,7 +55,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                     do {
                         for item in items {
                             let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
-                            fetchRequest.predicate = NSPredicate(format: "id == %@", item as! CVarArg)
+                            fetchRequest.predicate = NSPredicate(format: "id == %@", item.id as! CVarArg)
                             
                             let result = try self.context.fetch(fetchRequest)
                             
@@ -180,7 +180,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         
                         for item in items {
                             let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
-                            fetchRequest.predicate = NSPredicate(format: "id == %@", item as! CVarArg)
+                            fetchRequest.predicate = NSPredicate(format: "id == %@", item.id as! CVarArg)
                             
                             let result = try self.context.fetch(fetchRequest)
                             
