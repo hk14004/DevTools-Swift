@@ -163,7 +163,46 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     }
     
     public override func replace(with items: [Domain]) async {
-        fatalError()
+        await withCheckedContinuation { continuation in
+            queue.async {
+                self.context.perform {
+                    do {
+                        let objectIDs = items.map { $0.id }
+                        let predicate = NSPredicate(format: "self IN %@", objectIDs)
+                        let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
+                        fetchRequest.predicate = predicate
+                        
+                        let objectsToDelete = try self.context.fetch(fetchRequest)
+                        
+                        for object in objectsToDelete {
+                            self.context.delete(object)
+                        }
+                        
+                        for item in items {
+                            let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
+                            fetchRequest.predicate = NSPredicate(format: "id == %@", item as! CVarArg)
+                            
+                            let result = try self.context.fetch(fetchRequest)
+                            
+                            if let stored = result.first {
+                                stored.update(with: item, fields: Set(T.StoreType.FieldType.allCases))
+                            } else {
+                                let entity = T.StoreType(context: self.context)
+                                entity.update(with: item, fields: Set(T.StoreType.FieldType.allCases))
+                            }
+                        }
+                        
+                        if !self.bulkWriteInProgress {
+                            try self.context.save()
+                        }
+                        continuation.resume()
+                    } catch (let err) {
+                        printError(err)
+                        continuation.resume()
+                    }
+                }
+            }
+        }
     }
 }
 
