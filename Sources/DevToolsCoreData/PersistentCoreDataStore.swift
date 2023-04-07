@@ -136,7 +136,28 @@ extension PersistentCoreDataStore: PersistedLayerInterface where T.StoreType: NS
     }
     
     public func delete(_ items: [Domain]) async {
-        fatalError()
+        await withCheckedContinuation { continuation in
+            queue.async {
+                self.context.perform {
+                    do {
+                        let objectIDs = items.map { $0.id }
+                        let predicate = NSPredicate(format: "self IN %@", objectIDs)
+                        let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
+                        fetchRequest.predicate = predicate
+                        
+                        let objectsToDelete = try self.context.fetch(fetchRequest)
+                        
+                        for object in objectsToDelete {
+                            self.context.delete(object)
+                        }
+                        continuation.resume()
+                    } catch (let err) {
+                        printError(err)
+                        continuation.resume()
+                    }
+                }
+            }
+        }
     }
     
     public func replace(with items: [Domain]) async {
