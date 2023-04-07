@@ -112,10 +112,11 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         }
                         
                         let result = try self.context.fetch(fetchRequest)
+                        let r = result
                             .compactMap({ current in
                                 try? current.toDomain(fields: T.StoreType.FieldType.getSetOfAllFields())
                             })
-                        continuation.resume(returning: result)
+                        continuation.resume(returning: r)
                     } catch (let err) {
                         printError(err)
                         continuation.resume(returning: [])
