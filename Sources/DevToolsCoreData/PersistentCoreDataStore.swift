@@ -10,7 +10,9 @@ import CoreData
 import DevTools
 import Combine
 
-public class PersistentCoreDataStore<Domain: PersistableDomainModelProtocol> {
+public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: PersistableDomainModelProtocol,
+                                                                                        Domain.StoreType: NSManagedObject,
+                                                                                        Domain.StoreType.DomainModelType == Domain {
     
     // MARK: Properties
     
@@ -23,12 +25,12 @@ public class PersistentCoreDataStore<Domain: PersistableDomainModelProtocol> {
     
     public init(context: NSManagedObjectContext) {
         self.context = context
+        super.init()
     }
-}
-
-extension PersistentCoreDataStore: PersistedLayerInterface where T.StoreType: NSManagedObject, T.StoreType.DomainModelType == T  {
     
-    public func bulkWrite(operations: [() async -> Void]) async {
+    // MARK: Overriden
+    
+    public override func bulkWrite(operations: [() async -> Void]) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
@@ -46,7 +48,7 @@ extension PersistentCoreDataStore: PersistedLayerInterface where T.StoreType: NS
         }
     }
     
-    public func addOrUpdate(_ items: [Domain]) async {
+    public override func addOrUpdate(_ items: [Domain]) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 self.context.perform {
@@ -78,7 +80,7 @@ extension PersistentCoreDataStore: PersistedLayerInterface where T.StoreType: NS
         }
     }
     
-    public func getSingle(id: String) async -> Domain? {
+    public override func getSingle(id: String) async -> Domain? {
         await withCheckedContinuation { continuation in
             queue.async {
                 self.context.perform {
@@ -98,7 +100,7 @@ extension PersistentCoreDataStore: PersistedLayerInterface where T.StoreType: NS
         }
     }
     
-    public func getList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> [Domain] {
+    public override func getList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> [Domain] {
         await withCheckedContinuation { continuation in
             queue.async {
                 self.context.perform {
@@ -123,19 +125,19 @@ extension PersistentCoreDataStore: PersistedLayerInterface where T.StoreType: NS
         }
     }
     
-    public func getListPage(pageOptions: DevTools.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevTools.PagedResult<Domain> {
+    public override func getListPage(pageOptions: DevTools.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevTools.PagedResult<Domain> {
         fatalError()
     }
     
-    public func observeSingle(id: String) -> AnyPublisher<Domain?, Never> {
+    public override func observeSingle(id: String) -> AnyPublisher<Domain?, Never> {
         fatalError()
     }
     
-    public func observeList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> AnyPublisher<[Domain], Never> {
+    public override func observeList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> AnyPublisher<[Domain], Never> {
         fatalError()
     }
     
-    public func delete(_ items: [Domain]) async {
+    public override func delete(_ items: [Domain]) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 self.context.perform {
@@ -160,9 +162,9 @@ extension PersistentCoreDataStore: PersistedLayerInterface where T.StoreType: NS
         }
     }
     
-    public func replace(with items: [Domain]) async {
+    public override func replace(with items: [Domain]) async {
         fatalError()
     }
 }
 
-extension NSPredicate: @unchecked Sendable { }
+extension NSPredicate: @unchecked Sendable {}
