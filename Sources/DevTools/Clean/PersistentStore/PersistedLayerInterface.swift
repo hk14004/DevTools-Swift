@@ -8,40 +8,43 @@
 import Foundation
 import Combine
 
-public class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: PersistedLayerInterface {
-    public func getSingle(id: String) async -> T? {
+open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: PersistedLayerInterface {
+    
+    public init() {}
+    
+    open func getSingle(id: String) async -> T? {
         fatalError()
     }
     
-    public func getList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> [T] {
+    open func getList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> [T] {
         fatalError()
     }
     
-    public func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> PagedResult<T> {
+    open func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> PagedResult<T> {
         fatalError()
     }
     
-    public func observeSingle(id: String) -> AnyPublisher<T?, Never> {
+    open func observeSingle(id: String) -> AnyPublisher<T?, Never> {
         fatalError()
     }
     
-    public func observeList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> AnyPublisher<[T], Never> {
+    open func observeList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> AnyPublisher<[T], Never> {
         fatalError()
     }
     
-    public func addOrUpdate(_ items: [T]) async {
+    open func addOrUpdate(_ items: [T]) async {
         fatalError()
     }
     
-    public func delete(_ items: [T]) async {
+    open func delete(_ items: [T]) async {
         fatalError()
     }
     
-    public func replace(with items: [T]) async {
+    open func replace(with items: [T]) async {
         fatalError()
     }
     
-    public func bulkWrite(operations: [() async -> Void]) async {
+    open func bulkWrite(operations: [() async -> Void]) async {
         fatalError()
     }
 }

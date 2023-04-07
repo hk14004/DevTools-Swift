@@ -11,20 +11,21 @@ import Combine
 import Realm
 import RealmSwift
 
-public class PersistentRealmStore<Domain: PersistableDomainModelProtocol> {
+public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: PersistableDomainModelProtocol,
+                                                                                   Domain.StoreType: RealmSwiftObject,
+                                                                                   Domain.StoreType.DomainModelType == Domain {
     public typealias T = Domain
-    private var dbConfig: Realm.Configuration
+    private let dbConfig: Realm.Configuration
     private let queue: DispatchQueue = .init(label: "DevTools.PersistentRealmStore.\(Domain.self)")
     
     public init(dbConfig: Realm.Configuration) {
         self.dbConfig = dbConfig
+        super.init()
     }
     
-}
-
-extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: RealmSwiftObject, T.StoreType.DomainModelType == T  {
+    // MARK: Override
     
-    public func bulkWrite(operations: [() async -> Void]) async {
+    public override func bulkWrite(operations: [() async -> Void]) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
@@ -43,8 +44,8 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
     }
     
     // MARK: Add, update
-    
-    public func addOrUpdate(_ items: [Domain]) async {
+
+    public override func addOrUpdate(_ items: [Domain]) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
@@ -54,11 +55,11 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
                         stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
                         return stored
                     }
-                    
+
                     func writeOperation() {
                         realm.add(addedOrUpdatedEntities, update: .modified)
                     }
-                    
+
                     realm.bulkWrite {
                         writeOperation()
                     }
@@ -67,8 +68,8 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
             }
         }
     }
-    
-    public func replace(with items: [T]) async {
+
+    public override func replace(with items: [T]) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
@@ -79,12 +80,12 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
                         stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
                         return stored
                     }
-                    
+
                     func writeOperation() {
                         realm.delete(storedEntities)
                         realm.add(newEntities, update: .modified)
                     }
-                    
+
                     realm.bulkWrite {
                         writeOperation()
                     }
@@ -93,10 +94,10 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
             }
         }
     }
-    
+
     // MARK: Delete
-    
-    public func delete(_ items: [Domain]) async {
+
+    public override func delete(_ items: [Domain]) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
@@ -104,11 +105,11 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
                     let storedEntities = items.compactMap {
                         realm.object(ofType: T.StoreType.self, forPrimaryKey: $0.id)
                     }
-                    
+
                     func writeOperation() {
                         realm.delete(storedEntities)
                     }
-                    
+
                     realm.bulkWrite {
                         writeOperation()
                     }
@@ -117,12 +118,12 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
             }
         }
     }
-    
+
     // MARK: Read
-    
+
     // TODO: Catch errors for read  transactions
-    
-    public func getSingle(id: String) async -> T? {
+
+    public override func getSingle(id: String) async -> T? {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
@@ -133,8 +134,8 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
             }
         }
     }
-    
-    public func getList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) async -> [T] {
+
+    public override func getList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) async -> [T] {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
@@ -148,8 +149,8 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
             }
         }
     }
-    
-    public func getListPage(pageOptions: DevTools.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevTools.PagedResult<Domain> {
+
+    public override func getListPage(pageOptions: DevTools.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevTools.PagedResult<Domain> {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
@@ -177,8 +178,8 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
             }
         }
     }
-    
-    public func observeSingle(id: String) -> AnyPublisher<T?, Never> {
+
+    public override func observeSingle(id: String) -> AnyPublisher<T?, Never> {
         let realm = try! Realm(configuration: dbConfig)
         return realm.objects(T.StoreType.self)
             .filter(NSPredicate(format: "id == %@", id))
@@ -190,8 +191,8 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
-    
-    public func observeList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> AnyPublisher<[T], Never> {
+
+    public override func observeList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> AnyPublisher<[T], Never> {
         let realm = try! Realm(configuration: dbConfig)
         return realm.objects(T.StoreType.self)
             .filter(predicate)
@@ -206,42 +207,4 @@ extension PersistentRealmStore: PersistedLayerInterface where T.StoreType: Realm
     }
 }
 
-extension Results where Element: KeypathSortable {
-    func optionallySorted(byKeyPath: String = "", ascending: Bool = true) -> Results<Element> {
-        if byKeyPath.isEmpty {
-            return self
-        } else {
-            return self.sorted(byKeyPath: byKeyPath, ascending: ascending)
-        }
-    }
-}
-
-extension Results where Element: PersistedModelProtocol {
-    func mapToDomain(fetchOffset: Int, fetchLimit: Int, fields: Set<Element.FieldType>) -> [Element.DomainModelType] {
-        let endIndex: Int = {
-           let wantIndex = fetchOffset + fetchLimit - 1
-            return [wantIndex, self.count-1].min()!
-        }()
-        var items: [Element.DomainModelType] = []
-        guard fetchOffset <= endIndex else {
-            return []
-        }
-        for index in fetchOffset...endIndex {
-            guard let stored = self[safe: index] else {
-                continue
-            }
-            guard let converted = try? stored.toDomain(fields: fields) else {
-                continue
-            }
-            items.append(converted)
-        }
-        return items
-    }
-    
-    subscript (safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
-    }
-}
-
 extension NSPredicate: @unchecked Sendable { }
-
