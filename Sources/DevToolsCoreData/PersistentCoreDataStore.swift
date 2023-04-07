@@ -152,6 +152,9 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         for object in objectsToDelete {
                             self.context.delete(object)
                         }
+                        if !self.bulkWriteInProgress {
+                            try self.context.save()
+                        }
                         continuation.resume()
                     } catch (let err) {
                         printError(err)
