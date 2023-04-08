@@ -165,7 +165,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
             queue.async {
                 self.context.perform {
                     do {
-                        let predicate = NSPredicate(format: "self IN %@", itemIds)
+                        let predicate = NSPredicate(format: "id IN %@", itemIds)
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
                         fetchRequest.predicate = predicate
                         
@@ -193,7 +193,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                 self.context.perform {
                     do {
                         let objectIDs = items.map { $0.id }
-                        let predicate = NSPredicate(format: "self IN %@", objectIDs)
+                        let predicate = NSPredicate(format: "id IN %@", objectIDs)
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
                         fetchRequest.predicate = predicate
                         
