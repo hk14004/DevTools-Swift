@@ -131,11 +131,30 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     }
     
     public override func observeSingle(id: String) -> AnyPublisher<Domain?, Never> {
-        fatalError()
+        let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id)
+        return context.collectionPublisher(for: fetchRequest)
+            .map({ storedArr in
+                try! storedArr.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))
+            })
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
     }
     
     public override func observeList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> AnyPublisher<[Domain], Never> {
-        fatalError()
+        let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
+        fetchRequest.predicate = predicate
+        if !sortedByKeyPath.isEmpty {
+            fetchRequest.sortDescriptors = [.init(key: sortedByKeyPath, ascending: ascending)]
+        }
+        return context.collectionPublisher(for: fetchRequest)
+            .map({ storedArr in
+                storedArr.map { persisted in
+                    try! persisted.toDomain(fields: Set(T.StoreType.FieldType.allCases))
+                }
+            })
+            .replaceError(with: [])
+            .eraseToAnyPublisher()
     }
     
     public override func delete(_ items: [Domain]) async {

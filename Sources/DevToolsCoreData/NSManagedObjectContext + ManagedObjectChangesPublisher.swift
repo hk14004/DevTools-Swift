@@ -18,4 +18,13 @@ extension NSManagedObjectContext {
             context: self
         )
     }
+    
+    func collectionPublisher<Object: NSManagedObject>(
+        for fetchRequest: NSFetchRequest<Object>
+    ) -> ManagedObjectCollectionPublisher<Object> {
+        ManagedObjectCollectionPublisher(
+            fetchRequest: fetchRequest,
+            context: self
+        )
+    }
 }
