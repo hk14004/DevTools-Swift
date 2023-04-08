@@ -139,6 +139,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                 try! storedArr.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))
             })
             .replaceError(with: nil)
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
     
@@ -157,6 +158,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                 }
             })
             .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
     
