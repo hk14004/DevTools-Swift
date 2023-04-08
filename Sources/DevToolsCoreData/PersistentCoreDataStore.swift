@@ -160,13 +160,12 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
             .eraseToAnyPublisher()
     }
     
-    public override func delete(_ items: [Domain]) async {
+    public override func delete(_ itemIds: [String]) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 self.context.perform {
                     do {
-                        let objectIDs = items.map { $0.id }
-                        let predicate = NSPredicate(format: "self IN %@", objectIDs)
+                        let predicate = NSPredicate(format: "self IN %@", itemIds)
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
                         fetchRequest.predicate = predicate
                         

@@ -36,7 +36,7 @@ open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: Persi
         fatalError()
     }
     
-    open func delete(_ items: [T]) async {
+    open func delete(_ itemIds: [String]) async {
         fatalError()
     }
     
@@ -67,7 +67,7 @@ public protocol PersistedLayerInterface {
     
     // Write
     func addOrUpdate(_ items: [T]) async
-    func delete(_ items: [T]) async
+    func delete(_ itemIds: [String]) async
     func replace(with items: [T]) async
     func bulkWrite(operations: [() async -> Void]) async
 }

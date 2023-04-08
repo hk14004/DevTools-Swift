@@ -97,13 +97,13 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
 
     // MARK: Delete
 
-    public override func delete(_ items: [Domain]) async {
+    public override func delete(_ itemIds: [String]) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
                     let realm = try! Realm(configuration: self.dbConfig)
-                    let storedEntities = items.compactMap {
-                        realm.object(ofType: T.StoreType.self, forPrimaryKey: $0.id)
+                    let storedEntities = itemIds.compactMap {
+                        realm.object(ofType: T.StoreType.self, forPrimaryKey: $0)
                     }
 
                     func writeOperation() {
