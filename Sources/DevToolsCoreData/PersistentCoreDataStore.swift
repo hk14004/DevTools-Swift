@@ -133,6 +133,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     public override func observeSingle(id: String) -> AnyPublisher<Domain?, Never> {
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
+        fetchRequest.sortDescriptors = []
         return context.collectionPublisher(for: fetchRequest)
             .map({ storedArr in
                 try! storedArr.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))
