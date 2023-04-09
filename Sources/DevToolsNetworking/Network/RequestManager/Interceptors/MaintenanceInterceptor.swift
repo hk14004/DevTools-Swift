@@ -39,6 +39,7 @@ extension MaintenanceInterceptor {
 // MARK: NetworkLayerInterceptor
 
 extension MaintenanceInterceptor: NetworkLayerInterceptor {
+    
     public func requestDidComplete<T>(requestID: String, result: Result<Moya.Response, Moya.MoyaError>, target: T) where T : Moya.TargetType {
         guard let code = getStatusCode(moyaResponse: result) else {
             // No response
@@ -51,4 +52,17 @@ extension MaintenanceInterceptor: NetworkLayerInterceptor {
         }
         lastRequestWasUnderMaintenance = didReceiveMaintenanceMode
     }
+    
+    public func requestCreated<T>(requestID: String, provider: Moya.MoyaProvider<T>, target: T, startRequest: @escaping () -> Void) where T : Moya.TargetType {
+        startRequest()
+    }
+    
+    public func requestDidLaunch<T>(requestID: String, target: T) where T : Moya.TargetType {}
+    
+    public func shouldRequestComplete<T>(requestID: String, provider: Moya.MoyaProvider<T>, result: Result<Moya.Response, Moya.MoyaError>, target: T, reLaunchClosure: @escaping () -> ()) -> Bool where T : Moya.TargetType {
+        return true
+    }
+    
+    public func requestDidCancel<T>(requestID: String, target: T) where T : Moya.TargetType {}
+    
 }

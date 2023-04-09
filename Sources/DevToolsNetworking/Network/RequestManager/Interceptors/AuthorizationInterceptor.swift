@@ -7,10 +7,13 @@
 
 import Moya
 
-class AuthorizationInterceptor<T: TargetType> {
+open class AuthorizationInterceptor<T: TargetType> {
 
+    typealias RequestID = String
     private let authorizationIssueStatusCode: Int = 401
-    private let secondsLeftBeforeTriggerAuthorizationUpdate: Int = 3600 * 4
+    private let secondsLeftBeforeTriggerAuthTokenUpdate: Int = 3600 * 4
+    private var refreshingToken = false
+    private var waitingHandlersForNewToken: [RequestID : ()->()] = [:]
     
 }
 
@@ -18,9 +21,16 @@ class AuthorizationInterceptor<T: TargetType> {
 
 extension AuthorizationInterceptor {
     private func updateAccessToken<T: TargetType>(_ provider: MoyaProvider<T>, _ target: T, completion: @escaping () -> Void) {
-        // Update the access token for the given target
-        // Once the access token has been updated, call the completion closure
-        completion()
+        // 1. Fetch token
+        // 2. Store where provider can access it
+        fatalError("Implement")
+    }
+    
+    private func notifyTokenUpdated() {
+        waitingHandlersForNewToken.forEach { stored in
+            stored.value()
+        }
+        waitingHandlersForNewToken = [:]
     }
     
     private func didAuthorizationFail(error: MoyaError) -> Bool {
@@ -31,38 +41,62 @@ extension AuthorizationInterceptor {
         return authFailed
     }
     
-    private func getAuthorizationExpiryInSeconds(result: Result<Response, MoyaError>) -> Int? {
-        // TODO: Implement
-        switch result {
-        case .success(let response):
-            return nil
-        case .failure(let failure):
-            return nil
-        }
+    private func getAuthorizationExpiryFromRequestInSeconds(result: Result<Response, MoyaError>) -> Int? {
+        // Process response result and return token ETA
+        fatalError("Implement")
     }
     
+    private func isStoredTokenExpired() -> Bool {
+        fatalError("Implement")
+    }
 }
 
 // MARK: NetworkLayerInterceptor
 
 extension AuthorizationInterceptor: NetworkLayerInterceptor {
-    func requestCreated<T>(requestID: String, provider: MoyaProvider<T>, target: T, startRequest: @escaping () -> Void) where T : Moya.TargetType {
-        // Check access token?
-        updateAccessToken(provider, target) {
-            startRequest()
-        }
-    }
-
-    // TODO: Add request will call completion handler
-    // TODO: Change requestDidComplete to request received data
-    func requestDidComplete<T: TargetType>(requestID: String, result: Result<Response, MoyaError>, target: T) {
+    
+    public func shouldRequestComplete<T>(requestID: String,
+                                         provider: MoyaProvider<T>,
+                                         result: Result<Moya.Response, Moya.MoyaError>,
+                                         target: T,
+                                         reLaunchClosure: @escaping ()->()) -> Bool where T : Moya.TargetType {
         switch result {
         case .success:
-            return
+            return true
         case .failure(let failure):
             if didAuthorizationFail(error: failure) {
-                // TODO: Retry request after auth attempt
+                waitingHandlersForNewToken[requestID] = reLaunchClosure
+                if !refreshingToken {
+                    refreshingToken = true
+                    updateAccessToken(provider, target, completion: {
+                        self.refreshingToken = false
+                        self.notifyTokenUpdated()
+                    })
+                }
+                return false
+            } else {
+                return true
             }
         }
     }
+    
+    public func requestCreated<T>(requestID: String, provider: MoyaProvider<T>, target: T, startRequest: @escaping () -> Void) where T : Moya.TargetType {
+        guard isStoredTokenExpired() else {
+            startRequest()
+            return
+        }
+        
+        waitingHandlersForNewToken[requestID] = startRequest
+        if !refreshingToken {
+            refreshingToken = true
+            updateAccessToken(provider, target, completion: {
+                self.refreshingToken = false
+                self.notifyTokenUpdated()
+            })
+        }
+    }
+
+    public func requestDidLaunch<T>(requestID: String, target: T) where T : Moya.TargetType {}
+    public func requestDidCancel<T>(requestID: String, target: T) where T : Moya.TargetType {}
+    public func requestDidComplete<T: TargetType>(requestID: String, result: Result<Response, MoyaError>, target: T) {}
 }

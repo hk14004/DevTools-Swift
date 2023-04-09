@@ -9,12 +9,12 @@ import Foundation
 import Moya
 
 public final class RequestManager<T: RequestManagerTarget> {
-
+    
     private var requestsInProgress = [String: RequestInfo]()
     private var groupsInProgress = [String: GroupRequest<T>]()
     private var cancellables = [String: Cancellable]()
     public var delegates = [NetworkLayerInterceptor]()
-
+    
     // MARK: Init
     
     public init() {}
@@ -49,13 +49,13 @@ extension RequestManager {
             cancelRequest(requestID: requestID)
         }
     }
-
+    
     public func cancelGroupRequest(groupID: String) {
         // Check if the group exists
         guard let group = groupsInProgress.removeValue(forKey: groupID) else {
             return
         }
-
+        
         // Cancel all requests in the group
         for request in group.requests {
             cancelRequest(requestID: request.requestID)
@@ -76,9 +76,9 @@ extension RequestManager {
                 workCompletionGroup.enter()
                 switch behaviour {
                 case .parallel:
-                   let launched = launchSingleUniqueRequest(requestID: request.requestID, target: request.targetType, provider: provider, hookRunning: hookRunning, retryMethod: request.retryMethod) { result in
-                       results[request.requestID] = result
-                       workCompletionGroup.leave()
+                    let launched = launchSingleUniqueRequest(requestID: request.requestID, target: request.targetType, provider: provider, hookRunning: hookRunning, retryMethod: request.retryMethod) { result in
+                        results[request.requestID] = result
+                        workCompletionGroup.leave()
                     }
                     if !launched {
                         workCompletionGroup.leave()
@@ -100,7 +100,7 @@ extension RequestManager {
         }
         
         let queue = DispatchQueue(label: "\(Self.Type.self) - Group UUID (\(groupRequest.id)")
-
+        
         queue.async {
             launchRequests()
         }
@@ -137,10 +137,7 @@ extension RequestManager {
                     delegate.requestDidLaunch(requestID: requestID, target: target)
                 }
                 self.request(requestID: requestID, provider: provider, target: target, retryMethod: retryMethod) { result in
-                    self.requestsInProgress[requestID]?.completionHandlers.forEach({ closure in
-                        closure(result)
-                    })
-                    self.requestCompleted(requestID: requestID, result: result, target: target)
+                    self.handleRequestWillComplete(requestID: requestID, provider: provider, result: result, target: target)
                 }
             }
             return true
@@ -151,6 +148,28 @@ extension RequestManager {
 // MARK: Private
 
 extension RequestManager {
+    private func handleRequestWillComplete(requestID: String, provider: MoyaProvider<T>, result: Result<Response, MoyaError>, target: T) {
+        var canComplete = true
+        for delegate in self.delegates {
+            let _canComplete = delegate.shouldRequestComplete(requestID: requestID, provider: provider,
+                                                              result: result, target: target, reLaunchClosure: {
+                self.request(requestID: requestID, provider: provider, target: target, retryMethod: .default) { result in
+                    self.handleRequestWillComplete(requestID: requestID, provider: provider, result: result, target: target)
+                }
+            })
+            if !_canComplete {
+                canComplete = false
+            }
+        }
+        
+        if canComplete {
+            self.requestsInProgress[requestID]?.completionHandlers.forEach({ closure in
+                closure(result)
+            })
+            self.requestCompleted(requestID: requestID, result: result, target: target)
+        }
+    }
+    
     private func requestCompleted(requestID: String, result: Result<Response, MoyaError>, target: T) {
         self.cancellables.removeValue(forKey: requestID)
         self.requestsInProgress.removeValue(forKey: requestID)
