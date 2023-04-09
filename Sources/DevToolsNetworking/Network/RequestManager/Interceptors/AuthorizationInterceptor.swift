@@ -9,22 +9,41 @@ import Moya
 
 open class AuthorizationInterceptor<T: TargetType> {
 
+    // MARK: Properties
+    
     typealias RequestID = String
     private let authorizationIssueStatusCode: Int = 401
     private let secondsLeftBeforeTriggerAuthTokenUpdate: Int = 3600 * 4
     private var refreshingToken = false
     private var waitingHandlersForNewToken: [RequestID : ()->()] = [:]
     
+    
+    // MARK: Init
+    
+    public init() {}
+    
+    // MARK: Methods
+    
+    open func updateAccessToken<T: TargetType>(_ provider: MoyaProvider<T>, _ target: T, completion: @escaping () -> Void) {
+        // 1. Fetch token
+        // 2. Store where provider can access it
+        fatalError("Implement")
+    }
+    
+    open func getAuthorizationExpiryFromRequestInSeconds(result: Result<Response, MoyaError>) -> Int? {
+        // Process response result and return token ETA
+        fatalError("Implement")
+    }
+    
+    open func isStoredTokenExpired() -> Bool {
+        fatalError("Implement")
+    }
+    
 }
 
 // MARK: Private
 
 extension AuthorizationInterceptor {
-    private func updateAccessToken<T: TargetType>(_ provider: MoyaProvider<T>, _ target: T, completion: @escaping () -> Void) {
-        // 1. Fetch token
-        // 2. Store where provider can access it
-        fatalError("Implement")
-    }
     
     private func notifyTokenUpdated() {
         waitingHandlersForNewToken.forEach { stored in
@@ -41,14 +60,6 @@ extension AuthorizationInterceptor {
         return authFailed
     }
     
-    private func getAuthorizationExpiryFromRequestInSeconds(result: Result<Response, MoyaError>) -> Int? {
-        // Process response result and return token ETA
-        fatalError("Implement")
-    }
-    
-    private func isStoredTokenExpired() -> Bool {
-        fatalError("Implement")
-    }
 }
 
 // MARK: NetworkLayerInterceptor

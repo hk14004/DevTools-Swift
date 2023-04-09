@@ -41,9 +41,6 @@ let package = Package(
         .target(
             name: "DevToolsCore",
             dependencies: []),
-        .testTarget(
-            name: "DevToolsTests",
-            dependencies: ["DevToolsCore"]),
         .target(
             name: "DevToolsNavigation",
             dependencies: []),
@@ -59,5 +56,8 @@ let package = Package(
         .target(
             name: "DevToolsCoreData",
             dependencies: ["DevToolsCore"]),
+        .testTarget(
+            name: "DevToolsNetworkingTests",
+            dependencies: ["DevToolsNetworking"]),
     ]
 )
