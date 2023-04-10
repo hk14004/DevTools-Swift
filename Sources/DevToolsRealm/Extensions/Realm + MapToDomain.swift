@@ -6,7 +6,7 @@
 //
 
 import RealmSwift
-import DevTools
+import DevToolsCore
 
 extension Results where Element: PersistedModelProtocol {
     func mapToDomain(fetchOffset: Int, fetchLimit: Int, fields: Set<Element.FieldType>) -> [Element.DomainModelType] {

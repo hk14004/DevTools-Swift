@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import DevTools
 
 extension Set where Element: JSONMappedField {
     subscript(field: Element) -> Element? {

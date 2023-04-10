@@ -7,7 +7,7 @@
 
 import Foundation
 import CoreData
-import DevTools
+import DevToolsCore
 import Combine
 
 public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: PersistableDomainModelProtocol,
@@ -126,7 +126,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         }
     }
     
-    public override func getListPage(pageOptions: DevTools.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevTools.PagedResult<Domain> {
+    public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevToolsCore.PagedResult<Domain> {
         fatalError()
     }
     

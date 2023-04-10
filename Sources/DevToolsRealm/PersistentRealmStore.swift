@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import DevTools
+import DevToolsCore
 import Combine
 import Realm
 import RealmSwift
@@ -150,7 +150,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
         }
     }
 
-    public override func getListPage(pageOptions: DevTools.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevTools.PagedResult<Domain> {
+    public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevToolsCore.PagedResult<Domain> {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
