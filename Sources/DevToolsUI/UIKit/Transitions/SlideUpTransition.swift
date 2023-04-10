@@ -50,3 +50,22 @@ class SlideUpTransition: NSObject, UIViewControllerAnimatedTransitioning {
         onDarkBackgroundTap()
     }
 }
+
+extension SlideUpTransition: UIViewControllerTransitioningDelegate {
+    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return SlideUpTransition(onDarkBackgroundTap: {presented.dismiss(animated: true)})
+    }
+    
+    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return SlideUpTransition(onDarkBackgroundTap: {dismissed.dismiss(animated: true)})
+    }
+}
+
+extension UIViewController {
+    func presentFromBottom(_ viewControllerToPresent: UIViewController, completion: (() -> Void)? = nil) {
+        let transition = SlideUpTransition(onDarkBackgroundTap: {self.dismiss(animated: true)})
+        viewControllerToPresent.modalPresentationStyle = .custom
+        viewControllerToPresent.transitioningDelegate = transition
+        present(viewControllerToPresent, animated: true, completion: completion)
+    }
+}
