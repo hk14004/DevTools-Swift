@@ -8,23 +8,21 @@
 import Foundation
 import Moya
 
-public class MaintenanceInterceptor<T: TargetType> {
+open class MaintenanceInterceptor<T: TargetType> {
     
-    private let maintenanceStatusCode: Int
+    public let maintenanceStatusCode: Int = 503
     private var lastRequestWasUnderMaintenance: Bool = false
     
-    init(maintenanceStatusCode: Int) {
-        self.maintenanceStatusCode = maintenanceStatusCode
+    // MARK: Methods
+    
+    open func notifyMaintenanceChanged(enabled: Bool) {
+        fatalError("Implement your maintenance trigger")
     }
 }
 
 // MARK: Private
 
 extension MaintenanceInterceptor {
-    private func notifyMaintenanceChanged(enabled: Bool) {
-        // TODO: Implement your maintenance trigger
-    }
-    
     private func getStatusCode(moyaResponse: Result<Moya.Response, Moya.MoyaError>) -> Int? {
         switch moyaResponse {
         case .success(let success):
