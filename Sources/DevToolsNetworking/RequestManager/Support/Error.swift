@@ -8,7 +8,7 @@
 import Foundation
 
 extension RequestManager {
-    enum MoyaRequestManagerError: LocalizedError {
+    enum RequestManagerError: Swift.Error {
         case canceledRequest
     }
 }

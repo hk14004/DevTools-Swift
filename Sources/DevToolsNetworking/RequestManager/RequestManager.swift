@@ -38,7 +38,7 @@ extension RequestManager {
             return
         }
         cancellables.removeValue(forKey: requestID)?.cancel()
-        request.completionHandlers.forEach({ $0(.failure(.underlying(MoyaRequestManagerError.canceledRequest, nil)))})
+        request.completionHandlers.forEach({ $0(.failure(.underlying(RequestManagerError.canceledRequest, nil)))})
         delegates.forEach { delegate in
             delegate.requestDidCancel(requestID: requestID, target: request.target)
         }
