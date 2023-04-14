@@ -45,14 +45,15 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
     
     // MARK: Add, update
 
-    public override func addOrUpdate(_ items: [Domain]) async {
+    public override func addOrUpdate(_ items: [Domain],
+                                     fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
                     let realm = try! Realm(configuration: self.dbConfig)
                     let addedOrUpdatedEntities: [T.StoreType] = items.map {
                         let stored = T.StoreType()
-                        stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
+                        stored.update(with: $0, fields: fields)
                         return stored
                     }
 
@@ -69,7 +70,8 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
         }
     }
 
-    public override func replace(with items: [T]) async {
+    public override func replace(with items: [T],
+                                 fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
@@ -77,7 +79,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
                     let storedEntities = realm.objects(T.StoreType.self)
                     let newEntities: [T.StoreType] = items.map {
                         let stored = T.StoreType()
-                        stored.update(with: $0, fields: Set(T.StoreType.FieldType.allCases))
+                        stored.update(with: $0, fields: fields)
                         return stored
                     }
 

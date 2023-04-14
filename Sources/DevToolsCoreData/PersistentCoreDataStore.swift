@@ -48,7 +48,8 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         }
     }
     
-    public override func addOrUpdate(_ items: [Domain]) async {
+    public override func addOrUpdate(_ items: [Domain],
+                                     fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 self.context.perform {
@@ -60,10 +61,10 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                             let result = try self.context.fetch(fetchRequest)
                             
                             if let stored = result.first {
-                                stored.update(with: item, fields: Set(T.StoreType.FieldType.allCases))
+                                stored.update(with: item, fields: fields)
                             } else {
                                 let entity = T.StoreType(context: self.context)
-                                entity.update(with: item, fields: Set(T.StoreType.FieldType.allCases))
+                                entity.update(with: item, fields: fields)
                             }
                         }
                         
@@ -189,7 +190,8 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         }
     }
     
-    public override func replace(with items: [Domain]) async {
+    public override func replace(with items: [Domain],
+                                 fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 self.context.perform {
@@ -212,10 +214,10 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                             let result = try self.context.fetch(fetchRequest)
                             
                             if let stored = result.first {
-                                stored.update(with: item, fields: Set(T.StoreType.FieldType.allCases))
+                                stored.update(with: item, fields: fields)
                             } else {
                                 let entity = T.StoreType(context: self.context)
-                                entity.update(with: item, fields: Set(T.StoreType.FieldType.allCases))
+                                entity.update(with: item, fields: fields)
                             }
                         }
                         

@@ -25,15 +25,23 @@ public protocol PersistedLayerInterface {
                                         ascending: Bool) -> AnyPublisher<[T],Never>
     
     // Write
-    func addOrUpdate(_ items: [T]) async
+    func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) async
     func delete(_ itemIds: [String]) async
-    func replace(with items: [T]) async
+    func replace(with items: [T], fields: Set<T.StoreType.FieldType>) async
     func bulkWrite(operations: [() async -> Void]) async
 }
 
 open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: PersistedLayerInterface {
     
     public init() {}
+    
+    open func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) async {
+        fatalError()
+    }
+    
+    open func replace(with items: [T], fields: Set<T.StoreType.FieldType>) async {
+        fatalError()
+    }
     
     open func getSingle(id: String) async -> T? {
         fatalError()
@@ -55,15 +63,7 @@ open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: Persi
         fatalError()
     }
     
-    open func addOrUpdate(_ items: [T]) async {
-        fatalError()
-    }
-    
     open func delete(_ itemIds: [String]) async {
-        fatalError()
-    }
-    
-    open func replace(with items: [T]) async {
         fatalError()
     }
     
