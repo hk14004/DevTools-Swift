@@ -10,7 +10,7 @@ import Combine
 
 public protocol PeriodTaskTypeProtocol: RawRepresentable, CaseIterable where RawValue == String {}
 
-extension PeriodTaskTypeProtocol  {
+public extension PeriodTaskTypeProtocol  {
     func getTaskID() -> String {
         return "PERIODIC_TASK" + self.rawValue
     }

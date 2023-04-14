@@ -13,7 +13,7 @@ open class PeriodicTaskBase<TaskType: PeriodTaskTypeProtocol> {
     // MARK: Properties
     
     public let taskType: TaskType
-    @Published private(set) var performingWork: Bool
+    @Published public var performingWork: Bool
     
     // MARK: Init
     
@@ -37,4 +37,9 @@ open class PeriodicTaskBase<TaskType: PeriodTaskTypeProtocol> {
         fatalError("Implement")
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self,
+                                                  name: NSNotification.Name(taskType.getTaskID()),
+                                                  object: nil)
+    }
 }

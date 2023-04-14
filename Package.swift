@@ -59,5 +59,8 @@ let package = Package(
         .testTarget(
             name: "DevToolsNetworkingTests",
             dependencies: ["DevToolsNetworking"]),
+        .testTarget(
+            name: "DevToolsCoreTests",
+            dependencies: ["DevToolsCore"]),
     ]
 )
