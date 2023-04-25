@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DynamicHeightScrollView<Content> : View where Content : View {
+public struct DynamicHeightScrollView<Content> : View where Content : View {
     
     public init(showsIndicators: Bool = true, @ViewBuilder content: () -> Content) {
         self.showsIndicators = showsIndicators
