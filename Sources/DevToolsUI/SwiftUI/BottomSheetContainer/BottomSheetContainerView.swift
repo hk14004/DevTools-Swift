@@ -43,13 +43,14 @@ public struct BottomSheetContainerView<Content: View>: View {
                         viewModel.onTappedOutsideOfContent()
                     }
             }
-            VStack(spacing: 0) {
+            Group {
                 content()
             }
-            .padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0) // Respect the bottom safe area for the child view
+            .padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0)
             .sizeModifier(size: size)
             .background(Color.red)
             .cornerRadius(cornerRadius, corners: [.topLeft, .topRight])
+            .layoutPriority(1)
         }
         .edgesIgnoringSafeArea(.bottom)
     }
