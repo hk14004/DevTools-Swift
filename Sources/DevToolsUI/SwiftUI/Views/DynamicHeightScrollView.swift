@@ -18,10 +18,10 @@ public struct DynamicHeightScrollView<Content> : View where Content : View {
     private let showsIndicators: Bool
     var content: Content
     
-    var body: some View {
+    public var body: some View {
         ScrollView(.vertical, showsIndicators: showsIndicators) {
             Group {
-               content
+                content
             }
             .overlay(
                 GeometryReader { geo in
