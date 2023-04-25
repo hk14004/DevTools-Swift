@@ -30,3 +30,27 @@ class CollectionViewHostCell<Cell: View>: UICollectionViewCell {
         }
     }
 }
+
+class CollectionViewReusableHostView<Cell: View>: UICollectionReusableView {
+    private var hostController: UIHostingController<Cell>?
+
+    var hostedCell: Cell? {
+        willSet {
+            if let hostView = hostController?.view {
+                hostView.removeFromSuperview()
+            }
+            hostController = nil
+            guard let view = newValue else { return }
+            hostController = UIHostingController(rootView: view, ignoreSafeArea: true)
+            if let hostView = hostController?.view {
+                addSubview(hostView)
+                hostController?.view.backgroundColor = .clear
+                hostController?.view.translatesAutoresizingMaskIntoConstraints = false
+                hostController?.view.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+                hostController?.view.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+                hostController?.view.topAnchor.constraint(equalTo: topAnchor).isActive = true
+                hostController?.view.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+            }
+        }
+    }
+}
