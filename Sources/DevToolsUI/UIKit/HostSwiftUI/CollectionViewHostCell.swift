@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-class CollectionViewHostCell<Cell: View>: UICollectionViewCell {
+public class CollectionViewHostCell<Cell: View>: UICollectionViewCell {
     private var hostController: UIHostingController<Cell>?
 
-    var hostedCell: Cell? {
+    public var hostedCell: Cell? {
         willSet {
             if let hostView = hostController?.view {
                 hostView.removeFromSuperview()
@@ -31,10 +31,10 @@ class CollectionViewHostCell<Cell: View>: UICollectionViewCell {
     }
 }
 
-class CollectionViewReusableHostView<Cell: View>: UICollectionReusableView {
+public class CollectionViewReusableHostView<Cell: View>: UICollectionReusableView {
     private var hostController: UIHostingController<Cell>?
 
-    var hostedCell: Cell? {
+    public var hostedCell: Cell? {
         willSet {
             if let hostView = hostController?.view {
                 hostView.removeFromSuperview()

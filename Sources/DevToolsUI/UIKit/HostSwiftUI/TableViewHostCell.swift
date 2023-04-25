@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-class TableViewHostCell<Cell: View>: UITableViewCell {
+public class TableViewHostCell<Cell: View>: UITableViewCell {
     private var hostController: UIHostingController<Cell>?
     
-    var hostedCell: Cell? {
+    public var hostedCell: Cell? {
         willSet {
             if let hostView = hostController?.view {
                 hostView.removeFromSuperview()
