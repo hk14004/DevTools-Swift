@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  View + cornerRadius.swift
 //  
 //
 //  Created by Hardijs Ķirsis on 10/04/2023.
