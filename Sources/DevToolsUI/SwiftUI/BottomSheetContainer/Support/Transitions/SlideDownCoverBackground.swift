@@ -7,15 +7,15 @@
 
 import UIKit
 
-class SlideDownCoverBackground: NSObject, UIViewControllerAnimatedTransitioning {
+public class SlideDownCoverBackground: NSObject, UIViewControllerAnimatedTransitioning {
 
     let duration: TimeInterval = 0.35
 
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+    public func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
     }
 
-    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+    public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         let containerView = transitionContext.containerView
             
             guard let fromView = transitionContext.view(forKey: .from) else { return }

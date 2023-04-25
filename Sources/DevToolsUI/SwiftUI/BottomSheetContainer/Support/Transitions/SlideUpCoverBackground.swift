@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SlideUpCoverBackground: NSObject, UIViewControllerAnimatedTransitioning {
+public class SlideUpCoverBackground: NSObject, UIViewControllerAnimatedTransitioning {
 
     // MARK: Properties
     
@@ -15,11 +15,11 @@ class SlideUpCoverBackground: NSObject, UIViewControllerAnimatedTransitioning {
 
     // MARK: Methods
     
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+    public func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
     }
 
-    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+    public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         let containerView = transitionContext.containerView
         
         guard let toView = transitionContext.view(forKey: .to) else { return }
