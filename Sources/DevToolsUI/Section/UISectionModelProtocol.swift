@@ -52,4 +52,8 @@ public extension Array where Element: UISectionModelProtocol {
         }
         remove(at: sectionIndex)
     }
+    
+    func hasSection(uuid: String) -> Bool {
+        return contains(where: {$0.uuid == uuid})
+    }
 }
