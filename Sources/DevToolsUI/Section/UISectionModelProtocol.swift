@@ -45,4 +45,11 @@ public extension Array where Element: UISectionModelProtocol {
     func getSection(uuid: String) -> Element? {
         return first(where: {$0.uuid == uuid})
     }
+    
+    mutating func remove(section: Element) {
+        guard let sectionIndex = firstIndex(where: {$0.uuid == section.uuid}) else {
+            return
+        }
+        remove(at: sectionIndex)
+    }
 }
