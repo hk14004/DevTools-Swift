@@ -14,7 +14,7 @@ public protocol BottomSheetDynamicContentViewProtocol: View {
 
 public class BottomSheetContainerVC<T: View & BottomSheetDynamicContentViewProtocol>: UIHostingController<BottomSheetContainerView<T>>, UIViewControllerTransitioningDelegate {
 
-    init(rootView: T, size: BottomSheetContainerSize) {
+    public init(rootView: T, size: BottomSheetContainerSize) {
         super.init(rootView: BottomSheetContainerView(size: size, vm: rootView.viewModel, content: {
             rootView
         }))
