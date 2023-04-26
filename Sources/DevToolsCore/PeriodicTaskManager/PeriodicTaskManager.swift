@@ -20,4 +20,7 @@ open class PeriodicTaskManager<T: PeriodTaskTypeProtocol>: PeriodicTaskManagerPr
     public typealias TaskType = T
     public var registeredTasks: [String: PeriodicTaskBase<T>] = [:]
     
+    public func registerTask(task: PeriodicTaskBase<T>) {
+        registeredTasks[task.taskType.getTaskID()] = task
+    }
 }
