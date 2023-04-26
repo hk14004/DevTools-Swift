@@ -17,4 +17,16 @@ public extension Money {
     func discountPercentage(originalPrice: Money) -> Money {
         return (originalPrice - self) / originalPrice * 100
     }
+    
+    mutating func round(_ scale: Int, _ roundingMode: NSDecimalNumber.RoundingMode) {
+        var localCopy = self
+        NSDecimalRound(&self, &localCopy, scale, roundingMode)
+    }
+
+    func rounded(_ scale: Int, _ roundingMode: NSDecimalNumber.RoundingMode) -> Decimal {
+        var result = Decimal()
+        var localCopy = self
+        NSDecimalRound(&result, &localCopy, scale, roundingMode)
+        return result
+    }
 }
