@@ -20,7 +20,7 @@ open class PeriodicTaskBase<TaskType: PeriodTaskTypeProtocol> {
     public init(taskType: TaskType) {
         self.taskType = taskType
         performingWork = false
-        NotificationCenter.default.addObserver(self, selector: #selector(performWork),
+        NotificationCenter.default.addObserver(self, selector: #selector(runWorkFlow),
                                                name: Notification.Name(taskType.getTaskID()), object: nil)
         registerTrigger()
     }
@@ -32,9 +32,25 @@ open class PeriodicTaskBase<TaskType: PeriodTaskTypeProtocol> {
         fatalError("Implement")
     }
     
-    @objc open func performWork() async {
+    open func work() async {
         // Actual "work" to be done
         fatalError("Implement")
+    }
+    
+    @objc open func runWorkFlow() {
+        Task {
+            onAfterWork()
+            await work()
+            onAfterWork()
+        }
+    }
+    
+    open func onBeforeWork() {
+        performingWork = true
+    }
+    
+    open func onAfterWork() {
+        performingWork = false
     }
 
     deinit {

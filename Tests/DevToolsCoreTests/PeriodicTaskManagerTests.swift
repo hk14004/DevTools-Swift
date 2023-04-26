@@ -17,7 +17,7 @@ final class PeriodicTaskManagerTests: XCTestCase {
         
         // When
         /// Creating a periodic task that is timer fired
-        _ = InternalTimerPeriodicTask(taskType: .refreshUserData, expectation: workExp)
+        let task = InternalTimerPeriodicTask(taskType: .refreshUserData, expectation: workExp)
         
         // Then
         wait(for: [workExp], timeout: 0.1)
@@ -56,17 +56,12 @@ fileprivate class InternalTimerPeriodicTask: PeriodicTaskBase<TestPeriodicTaskTy
     private var expectedWork: XCTestExpectation
     
     override func registerTrigger() {
-        self.timer = .init(timeInterval: 0.01, target: self, selector: #selector(performWork), userInfo: nil, repeats: true)
+        self.timer = .init(timeInterval: 0.01, target: self, selector: #selector(runWorkFlow), userInfo: nil, repeats: true)
         RunLoop.current.add(self.timer!, forMode: .default)
     }
     
-    @objc override open func performWork() async {
-        guard !performingWork else {
-            return
-        }
-        performingWork = true
+    @objc override open func work() async {
         expectedWork.fulfill()
-        performingWork = false
     }
     
     deinit {
@@ -86,12 +81,7 @@ fileprivate class NotificationTriggeredPeriodicTask: PeriodicTaskBase<TestPeriod
     
     override func registerTrigger() {}
     
-    @objc override open func performWork() async {
-        guard !performingWork else {
-            return
-        }
-        performingWork = true
+    @objc override open func work() async {
         expectedWork.fulfill()
-        performingWork = false
     }
 }
