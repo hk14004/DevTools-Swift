@@ -12,6 +12,6 @@ public protocol PeriodTaskTypeProtocol: RawRepresentable, CaseIterable where Raw
 
 public extension PeriodTaskTypeProtocol  {
     func getTaskID() -> String {
-        return "PERIODIC_TASK_" + self.rawValue.uppercased()
+        return "PERIODIC_TASK(" + self.rawValue.uppercased() + ")"
     }
 }
