@@ -60,7 +60,7 @@ fileprivate class InternalTimerPeriodicTask: PeriodicTaskBase<TestPeriodicTaskTy
         RunLoop.current.add(self.timer!, forMode: .default)
     }
     
-    @objc override open func performWork() {
+    @objc override open func performWork() async {
         guard !performingWork else {
             return
         }
@@ -86,7 +86,7 @@ fileprivate class NotificationTriggeredPeriodicTask: PeriodicTaskBase<TestPeriod
     
     override func registerTrigger() {}
     
-    @objc override open func performWork() {
+    @objc override open func performWork() async {
         guard !performingWork else {
             return
         }

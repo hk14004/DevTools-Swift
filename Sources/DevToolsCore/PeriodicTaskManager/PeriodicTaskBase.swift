@@ -32,7 +32,7 @@ open class PeriodicTaskBase<TaskType: PeriodTaskTypeProtocol> {
         fatalError("Implement")
     }
     
-    @objc open func performWork() {
+    @objc open func performWork() async {
         // Actual "work" to be done
         fatalError("Implement")
     }
