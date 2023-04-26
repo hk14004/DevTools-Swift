@@ -18,12 +18,12 @@ public extension Money {
         return (originalPrice - self) / originalPrice * 100
     }
     
-    mutating func round(_ scale: Int = 2, _ roundingMode: NSDecimalNumber.RoundingMode = .down) {
+    mutating func round(_ scale: Int = 2, _ roundingMode: NSDecimalNumber.RoundingMode = .plain) {
         var localCopy = self
         NSDecimalRound(&self, &localCopy, scale, roundingMode)
     }
 
-    func rounded(_ scale: Int = 2, _ roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal {
+    func rounded(_ scale: Int = 2, _ roundingMode: NSDecimalNumber.RoundingMode = .plain) -> Decimal {
         var result = Decimal()
         var localCopy = self
         NSDecimalRound(&result, &localCopy, scale, roundingMode)
