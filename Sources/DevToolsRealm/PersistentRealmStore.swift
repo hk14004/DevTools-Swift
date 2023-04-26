@@ -69,6 +69,29 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
             }
         }
     }
+    
+    public override func addOrUpdate(_ items: [Domain],
+                                     fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) {
+            queue.sync {
+                autoreleasepool {
+                    let realm = try! Realm(configuration: self.dbConfig)
+                    let addedOrUpdatedEntities: [T.StoreType] = items.map {
+                        let stored = T.StoreType()
+                        stored.update(with: $0, fields: fields)
+                        return stored
+                    }
+
+                    func writeOperation() {
+                        realm.add(addedOrUpdatedEntities, update: .modified)
+                    }
+
+                    realm.bulkWrite {
+                        writeOperation()
+                    }
+                }
+            }
+        
+    }
 
     public override func replace(with items: [T],
                                  fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
@@ -92,6 +115,30 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
                         writeOperation()
                     }
                     continuation.resume()
+                }
+            }
+        }
+    }
+    
+    public override func replace(with items: [T],
+                                 fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) {
+        queue.sync {
+            autoreleasepool {
+                let realm = try! Realm(configuration: self.dbConfig)
+                let storedEntities = realm.objects(T.StoreType.self)
+                let newEntities: [T.StoreType] = items.map {
+                    let stored = T.StoreType()
+                    stored.update(with: $0, fields: fields)
+                    return stored
+                }
+                
+                func writeOperation() {
+                    realm.delete(storedEntities)
+                    realm.add(newEntities, update: .modified)
+                }
+                
+                realm.bulkWrite {
+                    writeOperation()
                 }
             }
         }
@@ -120,6 +167,25 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
             }
         }
     }
+    
+    public override func delete(_ itemIds: [String]) {
+        queue.sync {
+            autoreleasepool {
+                let realm = try! Realm(configuration: self.dbConfig)
+                let storedEntities = itemIds.compactMap {
+                    realm.object(ofType: T.StoreType.self, forPrimaryKey: $0)
+                }
+                
+                func writeOperation() {
+                    realm.delete(storedEntities)
+                }
+                
+                realm.bulkWrite {
+                    writeOperation()
+                }
+            }
+        }
+    }
 
     // MARK: Read
 
@@ -137,6 +203,18 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
         }
     }
 
+    public override func getSingle(id: String) -> T? {
+        var result: T? = nil
+        queue.sync {
+            autoreleasepool {
+                let realm = try! Realm(configuration: self.dbConfig)
+                result = try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
+            }
+        }
+        
+        return result
+    }
+    
     public override func getList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) async -> [T] {
         await withCheckedContinuation { continuation in
             queue.async {
@@ -150,6 +228,21 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
                 }
             }
         }
+    }
+    
+    public override func getList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> [T] {
+        var result: [T] = []
+        queue.sync {
+            autoreleasepool {
+                let realm = try! Realm(configuration: self.dbConfig)
+                let fetch = try? realm.objects(T.StoreType.self)
+                    .filter(predicate)
+                    .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+                    .compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
+                result = fetch ?? []
+            }
+        }
+        return result
     }
 
     public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevToolsCore.PagedResult<Domain> {
@@ -179,6 +272,35 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
                 }
             }
         }
+    }
+    
+    public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> DevToolsCore.PagedResult<Domain> {
+        var result: DevToolsCore.PagedResult<Domain>!
+            queue.sync {
+                autoreleasepool {
+                    do {
+                        let realm = try Realm(configuration: self.dbConfig)
+                        let all = realm.objects(T.StoreType.self)
+                        let total = all.count
+                        let fetchOffset = (pageOptions.fetchPage - 1) * pageOptions.pageSize
+                        let hasNextPage = fetchOffset + pageOptions.pageSize < total
+                        let _result = all
+                            .filter(predicate)
+                            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+                            .mapToDomain(fetchOffset: fetchOffset,
+                                         fetchLimit: pageOptions.pageSize,
+                                         fields: T.StoreType.FieldType.getSetOfAllFields())
+                        let result = PagedResult(pageNumber: pageOptions.fetchPage,
+                                                 pageItems: _result,
+                                                 hasNextPage: hasNextPage)
+                    } catch (let err) {
+                        printError(err)
+                        result = .init(pageNumber: pageOptions.fetchPage, pageItems: [], hasNextPage: false)
+                    }
+                }
+            }
+        
+        return result
     }
 
     public override func observeSingle(id: String) -> AnyPublisher<T?, Never> {

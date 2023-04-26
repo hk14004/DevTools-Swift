@@ -13,12 +13,22 @@ public protocol PersistedLayerInterface {
     
     // Read & Observe
     @discardableResult func getSingle(id: String) async -> T?
+    @discardableResult func getSingle(id: String) -> T?
+    
     @discardableResult func getList(predicate: NSPredicate,
                                     sortedByKeyPath: String,
                                     ascending: Bool) async -> [T]
-    @discardableResult func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate,
+    @discardableResult func getList(predicate: NSPredicate,
                                     sortedByKeyPath: String,
-                                    ascending: Bool) async -> PagedResult<T>
+                                    ascending: Bool) -> [T]
+    
+    @discardableResult func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate,
+                                        sortedByKeyPath: String,
+                                        ascending: Bool) async -> PagedResult<T>
+    @discardableResult func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate,
+                                        sortedByKeyPath: String,
+                                        ascending: Bool) -> PagedResult<T>
+    
     @discardableResult func observeSingle(id: String) -> AnyPublisher<T?,Never>
     @discardableResult func observeList(predicate: NSPredicate,
                                         sortedByKeyPath: String,
@@ -26,12 +36,41 @@ public protocol PersistedLayerInterface {
     
     // Write
     func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) async
+    func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>)
+    
     func delete(_ itemIds: [String]) async
+    func delete(_ itemIds: [String])
+    
     func replace(with items: [T], fields: Set<T.StoreType.FieldType>) async
+    func replace(with items: [T], fields: Set<T.StoreType.FieldType>)
+    
     func bulkWrite(operations: [() async -> Void]) async
 }
 
 open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: PersistedLayerInterface {
+    open func replace(with items: [T], fields: Set<T.StoreType.FieldType>) {
+        fatalError()
+    }
+    
+    open func delete(_ itemIds: [String]) {
+        fatalError()
+    }
+    
+    open func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) {
+        fatalError()
+    }
+    
+    open func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> PagedResult<T> {
+        fatalError()
+    }
+    
+    open func getList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> [T] {
+        fatalError()
+    }
+    
+    open func getSingle(id: String) -> T? {
+        fatalError()
+    }
     
     public init() {}
     
