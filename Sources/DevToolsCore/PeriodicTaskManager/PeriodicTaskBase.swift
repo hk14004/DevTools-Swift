@@ -38,6 +38,9 @@ open class PeriodicTaskBase<TaskType: PeriodTaskTypeProtocol> {
     }
     
     @objc open func runWorkFlow() {
+        guard !performingWork else {
+            return
+        }
         Task {
             onAfterWork()
             await work()
