@@ -48,7 +48,7 @@ public protocol PersistedLayerInterface {
 }
 
 open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: PersistedLayerInterface {
-    open func replace(with items: [T], fields: Set<T.StoreType.FieldType>) {
+    open func replace(with items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) {
         fatalError()
     }
     
@@ -56,7 +56,7 @@ open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: Persi
         fatalError()
     }
     
-    open func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) {
+    open func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) {
         fatalError()
     }
     
@@ -74,11 +74,11 @@ open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: Persi
     
     public init() {}
     
-    open func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) async {
+    open func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
         fatalError()
     }
     
-    open func replace(with items: [T], fields: Set<T.StoreType.FieldType>) async {
+    open func replace(with items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
         fatalError()
     }
     
