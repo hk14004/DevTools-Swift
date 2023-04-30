@@ -7,8 +7,8 @@
 
 import Foundation
 
-public protocol UserSessionDataSynchronizer: AnyObject {
-    associatedtype T: AuthorizedEntity
+public protocol UserSessionDataSynchronizerProtocol: AnyObject {
+    associatedtype T: AuthorizedEntityProtocol
     var syncingUserSession: Bool { get set }
     func syncUserSession(forEntity entity: T, completion: @escaping(_ success: Bool)->())
 }
