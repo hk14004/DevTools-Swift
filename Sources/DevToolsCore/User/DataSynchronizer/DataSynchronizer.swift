@@ -10,10 +10,10 @@ import Foundation
 public protocol UserSessionDataSynchronizerProtocol: AnyObject {
     associatedtype T: AuthorizedEntityProtocol
     var syncingUserSession: Bool { get set }
-    func syncUserSession(forEntity entity: T, completion: @escaping(_ success: Bool)->())
+    func syncUserSession(forEntity entity: T) async throws
 }
 
 public protocol GuestDataSynchronizer: AnyObject {
     var syncingGuestData: Bool { get set }
-    func syncGuestData(completion: @escaping(_ success: Bool)->())
+    func syncGuestData() async throws
 }
