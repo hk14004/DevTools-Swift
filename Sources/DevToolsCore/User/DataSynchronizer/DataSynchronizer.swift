@@ -8,10 +8,9 @@
 import Foundation
 
 public protocol UserSessionDataSynchronizerProtocol: AnyObject {
-    associatedtype T: AuthorizedEntityProtocol
     var syncingUserSession: Bool { get set }
-    func syncUserSession(forEntity entity: T) async throws
-    func cancelSync(forEntity entity: T)
+    func syncUserSession() async throws
+    func cancelSync()
 }
 
 public protocol GuestDataSynchronizer: AnyObject {
