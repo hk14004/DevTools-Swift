@@ -17,6 +17,6 @@ public protocol AuthorizedUserSessionManagerProtocol {
     func getStartedAuthorizedUserSession(forEntity entity: T) -> U?
     func isSomebodyLoggedIn() -> Bool
     func storeAuthorizedEntity(entity: T)
-    func getAuthorizedEntity(id: String) -> T
-    func deleteAuthorizedEntity(id: String) -> T
+    func getAuthorizedEntity(id: String) -> T?
+    func deleteAuthorizedEntity(id: String) -> T?
 }
