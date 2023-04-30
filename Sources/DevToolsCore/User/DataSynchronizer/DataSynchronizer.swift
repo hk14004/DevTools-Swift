@@ -11,6 +11,7 @@ public protocol UserSessionDataSynchronizerProtocol: AnyObject {
     associatedtype T: AuthorizedEntityProtocol
     var syncingUserSession: Bool { get set }
     func syncUserSession(forEntity entity: T) async throws
+    func cancelSync(forEntity entity: T)
 }
 
 public protocol GuestDataSynchronizer: AnyObject {
