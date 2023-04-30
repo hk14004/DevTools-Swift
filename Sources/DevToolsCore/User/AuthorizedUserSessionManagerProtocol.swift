@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol AuthorizedUserSessionHandler {
+public protocol AuthorizedUserSessionManagerProtocol {
     associatedtype T: AuthorizedEntityProtocol
     associatedtype U: AuthorizedUserSessionProtocol
     
