@@ -7,8 +7,7 @@
 
 import Foundation
 
-public protocol AuthorizedUserSessionProtocol: UserSessionDataSynchronizerProtocol where T: AuthorizedEntityProtocol {
-    
+public protocol AuthorizedUserSessionProtocol: UserSessionDataSynchronizerProtocol {
+    associatedtype T: AuthorizedEntityProtocol
     var authorizedEntity: T { get set }
-    
 }
