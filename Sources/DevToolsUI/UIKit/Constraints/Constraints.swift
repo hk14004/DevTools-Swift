@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension UIView {
+public extension UIView {
     func pinToSuperviewEdges(useSafeArea: Bool) {
         guard let superview = self.superview else {
             return
