@@ -9,6 +9,7 @@ import Foundation
 
 public protocol UISectionModelProtocol {
     associatedtype Cell: Hashable
+    associatedtype Identifier: CaseIterable, RawRepresentable, Hashable where Identifier.RawValue == String
     
     var uuid: String { get }
     var title: String { get set }
@@ -16,6 +17,11 @@ public protocol UISectionModelProtocol {
 }
 
 fileprivate struct ExampleSection: UISectionModelProtocol {
+    
+    enum Identifier: String, CaseIterable {
+        case SectionA
+        case SectionB
+    }
     
     enum Cell: Hashable {
         case emptyCell
