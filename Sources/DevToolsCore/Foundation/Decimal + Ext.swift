@@ -10,8 +10,14 @@ import Foundation
 public typealias Money = Decimal
 
 public extension Money {
-    func asString() -> String {
-        NumberFormatter.localizedString(from: self as NSDecimalNumber, number: .currency)
+    func asString(currencyCode: String = "") -> String {
+        let formatter = NumberFormatter()
+        formatter.currencyCode = currencyCode
+        if currencyCode.isEmpty {
+            return NumberFormatter.localizedString(from: self as NSDecimalNumber, number: .currency)
+        } else {
+            return formatter.string(from: self as NSDecimalNumber) ?? ""
+        }
     }
     
     func discountPercentage(originalPrice: Money) -> Money {
