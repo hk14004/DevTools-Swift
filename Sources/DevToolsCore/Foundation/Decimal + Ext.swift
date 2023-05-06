@@ -12,6 +12,7 @@ public typealias Money = Decimal
 public extension Money {
     func asString(currencyCode: String = "") -> String {
         let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
         formatter.currencyCode = currencyCode
         if currencyCode.isEmpty {
             return NumberFormatter.localizedString(from: self as NSDecimalNumber, number: .currency)
