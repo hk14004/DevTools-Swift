@@ -1,8 +1,8 @@
 //
-//  Constraints.swift
+//  UIView + Constraints.swift
 //  
 //
-//  Created by Hardijs Ķirsis on 05/05/2023.
+//  Created by Hardijs Ķirsis on 06/05/2023.
 //
 
 import UIKit
