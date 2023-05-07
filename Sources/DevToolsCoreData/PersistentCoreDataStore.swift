@@ -72,7 +72,6 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         
                         if !self.bulkWriteInProgress {
                             try self.context.save()
-//                            try self.viewContext.save()
                         }
                         continuation.resume()
                     } catch (let err) {
@@ -184,7 +183,6 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         }
                         if !self.bulkWriteInProgress {
                             try self.context.save()
-//                            try self.viewContext.save()
                         }
                         continuation.resume()
                     } catch (let err) {
@@ -202,8 +200,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
             queue.async {
                 self.context.perform {
                     do {
-                        let objectIDs = items.map { $0.id }
-                        let predicate = NSPredicate(format: "id IN %@", objectIDs)
+                        let predicate = NSPredicate(value: true)
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
                         fetchRequest.predicate = predicate
                         
@@ -229,7 +226,6 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         
                         if !self.bulkWriteInProgress {
                             try self.context.save()
-//                            try self.viewContext.save()
                         }
                         continuation.resume()
                     } catch (let err) {
