@@ -19,12 +19,14 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     public typealias T = Domain
     private let queue: DispatchQueue = .init(label: "DevTools.PersistentCoreDataStore.\(Domain.self)")
     private let context: NSManagedObjectContext
+    private let viewContext: NSManagedObjectContext
     private var bulkWriteInProgress = false
     
     // MARK: Init
     
-    public init(context: NSManagedObjectContext) {
+    public init(context: NSManagedObjectContext, viewContext: NSManagedObjectContext) {
         self.context = context
+        self.viewContext = viewContext
         super.init()
     }
     
@@ -135,7 +137,8 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
-        return context.parent!.collectionPublisher(for: fetchRequest)
+        return viewContext.collectionPublisher(for: fetchRequest)
+            .subscribe(on: queue)
             .map({ storedArr in
                 try! storedArr.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))
             })
@@ -152,7 +155,8 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         } else {
             fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
         }
-        return context.parent!.collectionPublisher(for: fetchRequest)
+        return viewContext.collectionPublisher(for: fetchRequest)
+            .subscribe(on: queue)
             .map({ storedArr in
                 storedArr.map { persisted in
                     try! persisted.toDomain(fields: Set(T.StoreType.FieldType.allCases))
