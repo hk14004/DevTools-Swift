@@ -62,4 +62,12 @@ public extension Array where Element: UISectionModelProtocol {
     func hasSection(id: Element.Identifier) -> Bool {
         return contains(where: {$0.identifier == id})
     }
+    
+    mutating func addOrUpdate(section: Element) {
+        if hasSection(id: section.identifier) {
+            update(section: section)
+        } else {
+            insert(section, at: self.count)
+        }
+    }
 }
