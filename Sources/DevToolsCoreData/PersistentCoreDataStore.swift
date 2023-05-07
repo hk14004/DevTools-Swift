@@ -135,7 +135,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
-        return context.collectionPublisher(for: fetchRequest)
+        return context.parent!.collectionPublisher(for: fetchRequest)
             .map({ storedArr in
                 try! storedArr.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))
             })
@@ -152,7 +152,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         } else {
             fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
         }
-        return context.collectionPublisher(for: fetchRequest)
+        return context.parent!.collectionPublisher(for: fetchRequest)
             .map({ storedArr in
                 storedArr.map { persisted in
                     try! persisted.toDomain(fields: Set(T.StoreType.FieldType.allCases))
