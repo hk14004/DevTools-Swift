@@ -49,9 +49,11 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                     for operation in operations {
                         await operation()
                     }
-                    try? self.context.save()
-                    self.bulkWriteInProgress = false
-                    continuation.resume()
+                    self.queue.sync {
+                        try? self.context.save()
+                        self.bulkWriteInProgress = false
+                        continuation.resume()
+                    }
                 }
             }
         }
