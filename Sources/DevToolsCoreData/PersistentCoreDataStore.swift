@@ -36,6 +36,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         self.queue.sync {
             self.context = storeContainer.newBackgroundContext()
             self.context.automaticallyMergesChangesFromParent = true
+            viewContext.automaticallyMergesChangesFromParent = true
         }
     }
     
