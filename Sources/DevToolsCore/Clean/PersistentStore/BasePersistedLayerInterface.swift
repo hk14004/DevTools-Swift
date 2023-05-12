@@ -21,11 +21,16 @@ open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: Persi
         fatalError()
     }
     
-    open func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate, sortDescriptors: [NSSortDescriptor]) -> PagedResult<T> {
+    open func getListPage(pageOptions: PagedRequestOptions,
+                          predicate: NSPredicate,
+                          sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) -> PagedResult<T> {
         fatalError()
     }
     
-    open func getList(predicate: NSPredicate, sortDescriptors: [NSSortDescriptor]) -> [T] {
+    open func getList(predicate: NSPredicate,
+                      sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) -> [T] {
         fatalError()
     }
     
@@ -47,11 +52,16 @@ open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: Persi
         fatalError()
     }
     
-    open func getList(predicate: NSPredicate, sortDescriptors: [NSSortDescriptor]) async -> [T] {
+    open func getList(predicate: NSPredicate,
+                      sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) async -> [T] {
         fatalError()
     }
     
-    open func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate, sortDescriptors: [NSSortDescriptor]) async -> PagedResult<T> {
+    open func getListPage(pageOptions: PagedRequestOptions,
+                          predicate: NSPredicate,
+                          sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) async -> PagedResult<T> {
         fatalError()
     }
     
@@ -59,7 +69,9 @@ open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: Persi
         fatalError()
     }
     
-    open func observeList(predicate: NSPredicate, sortDescriptors: [NSSortDescriptor]) -> AnyPublisher<[T], Never> {
+    open func observeList(predicate: NSPredicate,
+                          sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) -> AnyPublisher<[T], Never> {
         fatalError()
     }
     
