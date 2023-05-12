@@ -10,6 +10,8 @@ import CoreData
 import DevToolsCore
 import Combine
 
+// TODO: Handle all throws
+
 public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: PersistableDomainModelProtocol,
                                                                                         Domain.StoreType: NSManagedObject,
                                                                                         Domain.StoreType.DomainModelType == Domain {
@@ -40,7 +42,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                     for operation in operations {
                         await operation()
                     }
-                    try! self.context.save()
+                    try? self.context.save()
                     self.bulkWriteInProgress = false
                     continuation.resume()
                 }
