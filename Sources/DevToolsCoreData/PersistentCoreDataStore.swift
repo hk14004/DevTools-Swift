@@ -19,17 +19,22 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     // MARK: Properties
     
     public typealias T = Domain
-    private let queue: DispatchQueue = .init(label: "DevTools.PersistentCoreDataStore.\(Domain.self)")
-    private let context: NSManagedObjectContext
+    private let queue: DispatchQueue
+    private var context: NSManagedObjectContext!
     private let viewContext: NSManagedObjectContext
+    private let storeContainer: NSPersistentContainer
     private var bulkWriteInProgress = false
     
     // MARK: Init
     
-    public init(context: NSManagedObjectContext, viewContext: NSManagedObjectContext) {
-        self.context = context
-        self.viewContext = viewContext
+    public init(workQueue: DispatchQueue, storeContainer: NSPersistentContainer) {
+        self.queue = workQueue
+        self.storeContainer = storeContainer
+        self.viewContext = storeContainer.viewContext
         super.init()
+        workQueue.sync {
+            self.context = storeContainer.newBackgroundContext()
+        }
     }
     
     // MARK: Overriden
