@@ -110,19 +110,18 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         }
     }
     
-    public override func getList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> [Domain] {
+
+    
+    public override func getList(predicate: NSPredicate,
+                                 sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) async -> [Domain] {
         await withCheckedContinuation { continuation in
             queue.async {
                 self.context.perform {
                     do {
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
                         fetchRequest.predicate = predicate
-                        if !sortedByKeyPath.isEmpty {
-                            fetchRequest.sortDescriptors = [
-                                .init(key: sortedByKeyPath, ascending: ascending,
-                                      selector: #selector(NSString.compare(_:)))
-                            ]
-                        }
+                        fetchRequest.sortDescriptors = sortDescriptors
                         
                         let result = try self.context.fetch(fetchRequest)
                         let r = result
@@ -139,17 +138,17 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         }
     }
     
-    public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevToolsCore.PagedResult<Domain> {
+    public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions,
+                                     predicate: NSPredicate,
+                                     sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()])
+    async -> DevToolsCore.PagedResult<Domain> {
         fatalError()
     }
     
     public override func observeSingle(id: String) -> AnyPublisher<Domain?, Never> {
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
-        fetchRequest.sortDescriptors = [
-            NSSortDescriptor(key: "id", ascending: true,
-                             selector: #selector(NSString.compare(_:)))
-        ]
+        fetchRequest.sortDescriptors = [NSSortDescriptor.makeStringIDSortDescriptor()]
         return viewContext.collectionPublisher(for: fetchRequest)
             .subscribe(on: queue)
             .map({ storedArr in
@@ -160,20 +159,12 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
             .eraseToAnyPublisher()
     }
     
-    public override func observeList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> AnyPublisher<[Domain], Never> {
+    public override func observeList(predicate: NSPredicate,
+                                     sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) -> AnyPublisher<[Domain], Never> {
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = predicate
-        if !sortedByKeyPath.isEmpty {
-            fetchRequest.sortDescriptors = [
-                .init(key: sortedByKeyPath, ascending: ascending,
-                      selector: #selector(NSString.compare(_:)))
-            ]
-        } else {
-            fetchRequest.sortDescriptors = [
-                NSSortDescriptor(key: "id", ascending: true,
-                                 selector: #selector(NSString.compare(_:)))
-            ]
-        }
+        fetchRequest.sortDescriptors = sortDescriptors
         return viewContext.collectionPublisher(for: fetchRequest)
             .subscribe(on: queue)
             .map({ storedArr in
@@ -258,3 +249,4 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
 }
 
 extension NSPredicate: @unchecked Sendable {}
+extension NSSortDescriptor: @unchecked Sendable {}

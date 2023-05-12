@@ -215,14 +215,14 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
         return result
     }
     
-    public override func getList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) async -> [T] {
+    public override func getList(predicate: NSPredicate = NSPredicate(value: true), sortDescriptors: [NSSortDescriptor]) async -> [T] {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
                     let realm = try! Realm(configuration: self.dbConfig)
                     let result = try? realm.objects(T.StoreType.self)
                         .filter(predicate)
-                        .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+//                        .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
                         .compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
                     continuation.resume(returning: result ?? [])
                 }
@@ -230,14 +230,14 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
         }
     }
     
-    public override func getList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> [T] {
+    public override func getList(predicate: NSPredicate = NSPredicate(value: true), sortDescriptors: [NSSortDescriptor]) -> [T] {
         var result: [T] = []
         queue.sync {
             autoreleasepool {
                 let realm = try! Realm(configuration: self.dbConfig)
                 let fetch = try? realm.objects(T.StoreType.self)
                     .filter(predicate)
-                    .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+//                    .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
                     .compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
                 result = fetch ?? []
             }
@@ -245,7 +245,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
         return result
     }
 
-    public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> DevToolsCore.PagedResult<Domain> {
+    public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions, predicate: NSPredicate, sortDescriptors: [NSSortDescriptor]) async -> DevToolsCore.PagedResult<Domain> {
         await withCheckedContinuation { continuation in
             queue.async {
                 autoreleasepool {
@@ -257,7 +257,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
                         let hasNextPage = fetchOffset + pageOptions.pageSize < total
                         let result = all
                             .filter(predicate)
-                            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+//                            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
                             .mapToDomain(fetchOffset: fetchOffset,
                                          fetchLimit: pageOptions.pageSize,
                                          fields: T.StoreType.FieldType.getSetOfAllFields())
@@ -274,7 +274,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
         }
     }
     
-    public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> DevToolsCore.PagedResult<Domain> {
+    public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions, predicate: NSPredicate, sortDescriptors: [NSSortDescriptor]) -> DevToolsCore.PagedResult<Domain> {
         var result: DevToolsCore.PagedResult<Domain>!
             queue.sync {
                 autoreleasepool {
@@ -286,7 +286,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
                         let hasNextPage = fetchOffset + pageOptions.pageSize < total
                         let _result = all
                             .filter(predicate)
-                            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+//                            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
                             .mapToDomain(fetchOffset: fetchOffset,
                                          fetchLimit: pageOptions.pageSize,
                                          fields: T.StoreType.FieldType.getSetOfAllFields())
@@ -316,11 +316,11 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
             .eraseToAnyPublisher()
     }
 
-    public override func observeList(predicate: NSPredicate = NSPredicate(value: true), sortedByKeyPath: String = "", ascending: Bool = true) -> AnyPublisher<[T], Never> {
+    public override func observeList(predicate: NSPredicate = NSPredicate(value: true), sortDescriptors: [NSSortDescriptor]) -> AnyPublisher<[T], Never> {
         let realm = try! Realm(configuration: dbConfig)
         return realm.objects(T.StoreType.self)
             .filter(predicate)
-            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
+//            .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
             .collectionPublisher
             .subscribe(on: queue)
             .freeze()

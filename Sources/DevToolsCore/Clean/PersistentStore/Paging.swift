@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Paging.swift
 //  
 //
 //  Created by Hardijs Ķirsis on 08/04/2023.

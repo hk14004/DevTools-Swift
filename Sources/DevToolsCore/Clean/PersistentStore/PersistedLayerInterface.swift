@@ -16,23 +16,20 @@ public protocol PersistedLayerInterface {
     @discardableResult func getSingle(id: String) -> T?
     
     @discardableResult func getList(predicate: NSPredicate,
-                                    sortedByKeyPath: String,
-                                    ascending: Bool) async -> [T]
+                                    sortDescriptors: [NSSortDescriptor]) async -> [T]
     @discardableResult func getList(predicate: NSPredicate,
-                                    sortedByKeyPath: String,
-                                    ascending: Bool) -> [T]
+                                    sortDescriptors: [NSSortDescriptor]) -> [T]
     
-    @discardableResult func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate,
-                                        sortedByKeyPath: String,
-                                        ascending: Bool) async -> PagedResult<T>
-    @discardableResult func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate,
-                                        sortedByKeyPath: String,
-                                        ascending: Bool) -> PagedResult<T>
+    @discardableResult func getListPage(pageOptions: PagedRequestOptions,
+                                        predicate: NSPredicate,
+                                        sortDescriptors: [NSSortDescriptor]) async -> PagedResult<T>
+    @discardableResult func getListPage(pageOptions: PagedRequestOptions,
+                                        predicate: NSPredicate,
+                                        sortDescriptors: [NSSortDescriptor]) -> PagedResult<T>
     
     @discardableResult func observeSingle(id: String) -> AnyPublisher<T?,Never>
     @discardableResult func observeList(predicate: NSPredicate,
-                                        sortedByKeyPath: String,
-                                        ascending: Bool) -> AnyPublisher<[T],Never>
+                                        sortDescriptors: [NSSortDescriptor]) -> AnyPublisher<[T],Never>
     
     // Write
     func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) async
@@ -45,68 +42,4 @@ public protocol PersistedLayerInterface {
     func replace(with items: [T], fields: Set<T.StoreType.FieldType>)
     
     func bulkWrite(operations: [() async -> Void]) async
-}
-
-open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: PersistedLayerInterface {
-    open func replace(with items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) {
-        fatalError()
-    }
-    
-    open func delete(_ itemIds: [String]) {
-        fatalError()
-    }
-    
-    open func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) {
-        fatalError()
-    }
-    
-    open func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> PagedResult<T> {
-        fatalError()
-    }
-    
-    open func getList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> [T] {
-        fatalError()
-    }
-    
-    open func getSingle(id: String) -> T? {
-        fatalError()
-    }
-    
-    public init() {}
-    
-    open func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
-        fatalError()
-    }
-    
-    open func replace(with items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
-        fatalError()
-    }
-    
-    open func getSingle(id: String) async -> T? {
-        fatalError()
-    }
-    
-    open func getList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> [T] {
-        fatalError()
-    }
-    
-    open func getListPage(pageOptions: PagedRequestOptions, predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) async -> PagedResult<T> {
-        fatalError()
-    }
-    
-    open func observeSingle(id: String) -> AnyPublisher<T?, Never> {
-        fatalError()
-    }
-    
-    open func observeList(predicate: NSPredicate, sortedByKeyPath: String, ascending: Bool) -> AnyPublisher<[T], Never> {
-        fatalError()
-    }
-    
-    open func delete(_ itemIds: [String]) async {
-        fatalError()
-    }
-    
-    open func bulkWrite(operations: [() async -> Void]) async {
-        fatalError()
-    }
 }
