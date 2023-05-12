@@ -50,9 +50,11 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         await operation()
                     }
                     self.queue.async {
-                        try? self.context.save()
-                        self.bulkWriteInProgress = false
-                        continuation.resume()
+                        self.context.performAndWait {
+                            try? self.context.save()
+                            self.bulkWriteInProgress = false
+                            continuation.resume()
+                        }
                     }
                 }
             }
@@ -112,7 +114,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         }
     }
     
-
+    
     
     public override func getList(predicate: NSPredicate,
                                  sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
