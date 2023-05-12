@@ -120,7 +120,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         if !sortedByKeyPath.isEmpty {
                             fetchRequest.sortDescriptors = [
                                 .init(key: sortedByKeyPath, ascending: ascending,
-                                      selector: #selector(NSString.localizedStandardCompare(_:)))
+                                      selector: #selector(NSString.compare(_:)))
                             ]
                         }
                         
@@ -148,7 +148,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
         fetchRequest.sortDescriptors = [
             NSSortDescriptor(key: "id", ascending: true,
-                             selector: #selector(NSString.localizedStandardCompare(_:)))
+                             selector: #selector(NSString.compare(_:)))
         ]
         return viewContext.collectionPublisher(for: fetchRequest)
             .subscribe(on: queue)
@@ -166,12 +166,12 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         if !sortedByKeyPath.isEmpty {
             fetchRequest.sortDescriptors = [
                 .init(key: sortedByKeyPath, ascending: ascending,
-                      selector: #selector(NSString.localizedStandardCompare(_:)))
+                      selector: #selector(NSString.compare(_:)))
             ]
         } else {
             fetchRequest.sortDescriptors = [
                 NSSortDescriptor(key: "id", ascending: true,
-                                 selector: #selector(NSString.localizedStandardCompare(_:)))
+                                 selector: #selector(NSString.compare(_:)))
             ]
         }
         return viewContext.collectionPublisher(for: fetchRequest)
