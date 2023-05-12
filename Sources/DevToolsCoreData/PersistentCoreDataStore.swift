@@ -225,17 +225,8 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         }
                         
                         for item in items {
-                            let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
-                            fetchRequest.predicate = NSPredicate(format: "id == %@", item.id as! CVarArg)
-                            
-                            let result = try self.context.fetch(fetchRequest)
-                            
-                            if let stored = result.first {
-                                stored.update(with: item, fields: fields)
-                            } else {
-                                let entity = T.StoreType(context: self.context)
-                                entity.update(with: item, fields: fields)
-                            }
+                            let entity = T.StoreType(context: self.context)
+                            entity.update(with: item, fields: fields)
                         }
                         
                         if !self.bulkWriteInProgress {
