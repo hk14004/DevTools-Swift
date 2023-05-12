@@ -61,7 +61,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                                      fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
         await withCheckedContinuation { continuation in
             queue.async {
-                self.context.perform {
+                self.context.performAndWait {
                     do {
                         for item in items {
                             let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
@@ -93,7 +93,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     public override func getSingle(id: String) async -> Domain? {
         await withCheckedContinuation { continuation in
             queue.async {
-                self.context.perform {
+                self.context.performAndWait {
                     do {
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
                         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
@@ -117,7 +117,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     ) async -> [Domain] {
         await withCheckedContinuation { continuation in
             queue.async {
-                self.context.perform {
+                self.context.performAndWait {
                     do {
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
                         fetchRequest.predicate = predicate
@@ -180,7 +180,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     public override func delete(_ itemIds: [String]) async {
         await withCheckedContinuation { continuation in
             queue.async {
-                self.context.perform {
+                self.context.performAndWait {
                     do {
                         let predicate = NSPredicate(format: "id IN %@", itemIds)
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
@@ -208,7 +208,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                                  fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
         await withCheckedContinuation { continuation in
             queue.async {
-                self.context.perform {
+                self.context.performAndWait {
                     do {
                         let predicate = NSPredicate(value: true)
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
