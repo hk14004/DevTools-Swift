@@ -111,7 +111,10 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
                         fetchRequest.predicate = predicate
                         if !sortedByKeyPath.isEmpty {
-                            fetchRequest.sortDescriptors = [.init(key: sortedByKeyPath, ascending: ascending)]
+                            fetchRequest.sortDescriptors = [
+                                .init(key: sortedByKeyPath, ascending: ascending,
+                                      selector: #selector(NSString.localizedStandardCompare(_:)))
+                            ]
                         }
                         
                         let result = try self.context.fetch(fetchRequest)
@@ -136,7 +139,10 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     public override func observeSingle(id: String) -> AnyPublisher<Domain?, Never> {
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
+        fetchRequest.sortDescriptors = [
+            NSSortDescriptor(key: "id", ascending: true,
+                             selector: #selector(NSString.localizedStandardCompare(_:)))
+        ]
         return viewContext.collectionPublisher(for: fetchRequest)
             .subscribe(on: queue)
             .map({ storedArr in
@@ -151,9 +157,15 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = predicate
         if !sortedByKeyPath.isEmpty {
-            fetchRequest.sortDescriptors = [.init(key: sortedByKeyPath, ascending: ascending)]
+            fetchRequest.sortDescriptors = [
+                .init(key: sortedByKeyPath, ascending: ascending,
+                      selector: #selector(NSString.localizedStandardCompare(_:)))
+            ]
         } else {
-            fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
+            fetchRequest.sortDescriptors = [
+                NSSortDescriptor(key: "id", ascending: true,
+                                 selector: #selector(NSString.localizedStandardCompare(_:)))
+            ]
         }
         return viewContext.collectionPublisher(for: fetchRequest)
             .subscribe(on: queue)
