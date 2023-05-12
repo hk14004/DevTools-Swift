@@ -27,12 +27,9 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     
     // MARK: Init
     
-    public init(queue: DispatchQueue?, storeContainer: NSPersistentContainer) {
-        if let queue = queue {
-            self.queue = queue
-        } else {
-            self.queue = DispatchQueue(label: "DevTools.PersistentCoreDataStore.\(Domain.self)")
-        }
+    public init(queue: DispatchQueue = DispatchQueue(label: "DevTools.PersistentCoreDataStore.\(Domain.self)"),
+                storeContainer: NSPersistentContainer) {
+        self.queue = queue
         self.storeContainer = storeContainer
         self.viewContext = storeContainer.viewContext
         super.init()
