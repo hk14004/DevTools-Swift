@@ -27,13 +27,18 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     
     // MARK: Init
     
-    public init(workQueue: DispatchQueue, storeContainer: NSPersistentContainer) {
-        self.queue = workQueue
+    public init(queue: DispatchQueue?, storeContainer: NSPersistentContainer) {
+        if let queue = queue {
+            self.queue = queue
+        } else {
+            self.queue = DispatchQueue(label: "DevTools.PersistentCoreDataStore.\(Domain.self)")
+        }
         self.storeContainer = storeContainer
         self.viewContext = storeContainer.viewContext
         super.init()
-        workQueue.sync {
+        self.queue.sync {
             self.context = storeContainer.newBackgroundContext()
+            self.context.automaticallyMergesChangesFromParent = true
         }
     }
     
