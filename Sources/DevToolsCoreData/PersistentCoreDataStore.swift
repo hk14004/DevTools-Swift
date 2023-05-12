@@ -35,16 +35,14 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     public override func bulkWrite(operations: [() async -> Void]) async {
         await withCheckedContinuation { continuation in
             queue.async {
-                autoreleasepool {
-                    self.bulkWriteInProgress = true
-                    Task {
-                        for operation in operations {
-                            await operation()
-                        }
-                        try! self.context.save()
-                        self.bulkWriteInProgress = false
-                        continuation.resume()
+                self.bulkWriteInProgress = true
+                Task {
+                    for operation in operations {
+                        await operation()
                     }
+                    try! self.context.save()
+                    self.bulkWriteInProgress = false
+                    continuation.resume()
                 }
             }
         }
