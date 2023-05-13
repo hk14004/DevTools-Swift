@@ -1,6 +1,6 @@
 //
 //  BasePersistedLayerInterface.swift
-//  
+//
 //
 //  Created by Hardijs Ķirsis on 12/05/2023.
 //
@@ -22,13 +22,13 @@ open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: Persi
     }
     
     open func getListPage(pageOptions: PagedRequestOptions,
-                          predicate: NSPredicate,
+                          predicate: NSPredicate = NSPredicate(value: true),
                           sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) -> PagedResult<T> {
         fatalError()
     }
     
-    open func getList(predicate: NSPredicate,
+    open func getList(predicate: NSPredicate = NSPredicate(value: true),
                       sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) -> [T] {
         fatalError()
@@ -52,14 +52,14 @@ open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: Persi
         fatalError()
     }
     
-    open func getList(predicate: NSPredicate,
+    open func getList(predicate: NSPredicate = NSPredicate(value: true),
                       sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) async -> [T] {
         fatalError()
     }
     
     open func getListPage(pageOptions: PagedRequestOptions,
-                          predicate: NSPredicate,
+                          predicate: NSPredicate = NSPredicate(value: true),
                           sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) async -> PagedResult<T> {
         fatalError()
@@ -69,7 +69,7 @@ open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: Persi
         fatalError()
     }
     
-    open func observeList(predicate: NSPredicate,
+    open func observeList(predicate: NSPredicate = NSPredicate(value: true),
                           sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) -> AnyPublisher<[T], Never> {
         fatalError()
