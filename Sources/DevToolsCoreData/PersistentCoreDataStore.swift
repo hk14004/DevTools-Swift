@@ -37,6 +37,12 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
             self.context = storeContainer.newBackgroundContext()
             self.context.automaticallyMergesChangesFromParent = true
         }
+        NotificationCenter.default.addObserver(self, selector: #selector(contextDidChange(notification:)),
+                                               name: .NSManagedObjectContextDidSave, object: context)
+    }
+    
+    @objc func contextDidChange(notification: Notification) {
+        viewContext.mergeChanges(fromContextDidSave: notification)
     }
     
     // MARK: Overriden
