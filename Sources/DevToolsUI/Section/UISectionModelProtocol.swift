@@ -9,25 +9,31 @@ import Foundation
 
 public protocol UISectionModelProtocol {
     associatedtype Cell: Hashable
+    associatedtype Identifier: CaseIterable, RawRepresentable, Hashable where Identifier.RawValue == String
     
-    var uuid: String { get }
+    var identifier: Identifier { get }
     var title: String { get set }
     var cells: [Cell] { get set}
 }
 
 fileprivate struct ExampleSection: UISectionModelProtocol {
     
+    enum Identifier: String, CaseIterable {
+        case SectionA
+        case SectionB
+    }
+    
     enum Cell: Hashable {
         case emptyCell
         case showText
     }
     
-    let uuid: String
+    let identifier: Identifier
     var title: String
     var cells: [Cell]
     
-    init(uuid: String, title: String, cells: [Cell]) {
-        self.uuid = uuid
+    init(identifier: Identifier, title: String, cells: [Cell]) {
+        self.identifier = identifier
         self.title = title
         self.cells = cells
     }
@@ -35,14 +41,33 @@ fileprivate struct ExampleSection: UISectionModelProtocol {
 
 public extension Array where Element: UISectionModelProtocol {
     mutating func update(section: Element) {
-        guard let sectionIndex = firstIndex(where: {$0.uuid == section.uuid}) else {
+        guard let sectionIndex = firstIndex(where: {$0.identifier == section.identifier}) else {
             return
         }
         remove(at: sectionIndex)
         insert(section, at: sectionIndex)
     }
     
-    func getSection(uuid: String) -> Element? {
-        return first(where: {$0.uuid == uuid})
+    func getSection(id: Element.Identifier) -> Element? {
+        return first(where: {$0.identifier == id})
+    }
+    
+    mutating func remove(section: Element) {
+        guard let sectionIndex = firstIndex(where: {$0.identifier == section.identifier}) else {
+            return
+        }
+        remove(at: sectionIndex)
+    }
+    
+    func hasSection(id: Element.Identifier) -> Bool {
+        return contains(where: {$0.identifier == id})
+    }
+    
+    mutating func addOrUpdate(section: Element) {
+        if hasSection(id: section.identifier) {
+            update(section: section)
+        } else {
+            insert(section, at: self.count)
+        }
     }
 }

@@ -11,8 +11,8 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
-            name: "DevTools",
-            targets: ["DevTools"]),
+            name: "DevToolsCore",
+            targets: ["DevToolsCore"]),
         .library(
             name: "DevToolsNavigation",
             targets: ["DevToolsNavigation"]),
@@ -25,6 +25,9 @@ let package = Package(
         .library(
             name: "DevToolsRealm",
             targets: ["DevToolsRealm"]),
+        .library(
+            name: "DevToolsCoreData",
+            targets: ["DevToolsCoreData"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -36,11 +39,8 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "DevTools",
+            name: "DevToolsCore",
             dependencies: []),
-        .testTarget(
-            name: "DevToolsTests",
-            dependencies: ["DevTools"]),
         .target(
             name: "DevToolsNavigation",
             dependencies: []),
@@ -52,6 +52,15 @@ let package = Package(
             dependencies: []),
         .target(
             name: "DevToolsRealm",
-            dependencies: [.product(name: "RealmSwift", package: "realm-cocoa"), "DevTools"]),
+            dependencies: [.product(name: "RealmSwift", package: "realm-cocoa"), "DevToolsCore"]),
+        .target(
+            name: "DevToolsCoreData",
+            dependencies: ["DevToolsCore"]),
+        .testTarget(
+            name: "DevToolsNetworkingTests",
+            dependencies: ["DevToolsNetworking"]),
+        .testTarget(
+            name: "DevToolsCoreTests",
+            dependencies: ["DevToolsCore"]),
     ]
 )
