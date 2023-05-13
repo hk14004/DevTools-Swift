@@ -53,6 +53,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         self.context.performAndWait {
                             try? self.context.save()
                             self.bulkWriteInProgress = false
+                            self.viewContext.refreshAllObjects()
                             continuation.resume()
                         }
                     }
@@ -83,6 +84,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         
                         if !self.bulkWriteInProgress {
                             try self.context.save()
+                            self.viewContext.refreshAllObjects()
                         }
                         continuation.resume()
                     } catch (let err) {
@@ -197,6 +199,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         }
                         if !self.bulkWriteInProgress {
                             try self.context.save()
+                            self.viewContext.refreshAllObjects()
                         }
                         continuation.resume()
                     } catch (let err) {
@@ -231,6 +234,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         
                         if !self.bulkWriteInProgress {
                             try self.context.save()
+                            self.viewContext.refreshAllObjects()
                         }
                         continuation.resume()
                     } catch (let err) {
