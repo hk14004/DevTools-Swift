@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension String {
+public extension String {
     func toSwiftUILocalised() -> LocalizedStringKey {
         .init(self)
     }
