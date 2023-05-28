@@ -10,8 +10,7 @@ import SwiftUI
 
 
 public extension String {
-
-    func toRuntimeLocalized() -> LocalizedRuntimeText {
+    func localizedRuntimeText() -> LocalizedRuntimeText {
         .init(key: LocalizedStringKey(self), localizedString: self.localized())
     }
 }
@@ -21,10 +20,17 @@ public struct LocalizedRuntimeText {
     public let localizedString: String
 }
 
-public class RuntimeLocalizationObserver: ObservableObject {
+public final class RuntimeLocalizationObserver: ObservableObject {
+
     init() {
-        RuntimeLocalization.shared.observeLanguage { [weak self] _ in
-            self?.objectWillChange.send()
-        }
+        RuntimeLocalization.shared.observeLanguage(observer: self, selector: #selector(onLanguageChanged))
+    }
+    
+    deinit {
+        RuntimeLocalization.shared.stopObservingLanguage(observer: self)
+    }
+    
+    @objc private func onLanguageChanged() {
+        objectWillChange.send()
     }
 }

@@ -44,5 +44,9 @@ extension RuntimeLocalization: RuntimeLanguageInterface {
     public func stopObservingLanguage(handle: ObserverHandle) {
         NotificationCenter.default.removeObserver(handle)
     }
+    
+    public func stopObservingLanguage(observer: Any) {
+        NotificationCenter.default.removeObserver(observer)
+    }
 
 }
