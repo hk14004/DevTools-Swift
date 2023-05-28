@@ -9,7 +9,7 @@ import UIKit
 
 open class LocalizedButton: UIButton {
     
-    //MARK: Properties
+    // MARK: Properties
     
     private let runtimeLanguageInterface: RuntimeLanguageInterface = RuntimeLocalization.shared
     
