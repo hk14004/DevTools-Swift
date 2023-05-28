@@ -49,7 +49,7 @@ let package = Package(
             dependencies: ["Moya"]),
         .target(
             name: "DevToolsUI",
-            dependencies: []),
+            dependencies: ["DevToolsCore"]),
         .target(
             name: "DevToolsRealm",
             dependencies: [.product(name: "RealmSwift", package: "realm-cocoa"), "DevToolsCore"]),
