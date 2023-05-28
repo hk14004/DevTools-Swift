@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 public extension String {
-    func localizedRuntimeString() -> String {
+    func runtimeLocalized() -> String {
         self.localized()
     }
 }
