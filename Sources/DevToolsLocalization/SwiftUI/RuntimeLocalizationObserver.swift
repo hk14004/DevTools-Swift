@@ -11,7 +11,7 @@ public final class RuntimeLocalizationObserver: ObservableObject {
 
     private let animate: Bool
     
-    public init(animate: Bool = true) {
+    public init(animate: Bool = false) {
         self.animate = animate
         RuntimeStringFileLocalization.shared.observeLanguage(observer: self, selector: #selector(onLanguageChanged))
     }
