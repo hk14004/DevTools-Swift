@@ -10,7 +10,7 @@ import SwiftUI
 public struct RuntimeLocalizedPreview: View {
     
     public init(language: String) {
-        RuntimeLocalization.shared.change(languageCode: language)
+        RuntimeStringFileLocalization.shared.change(languageCode: language)
     }
     
     public var body: some View {

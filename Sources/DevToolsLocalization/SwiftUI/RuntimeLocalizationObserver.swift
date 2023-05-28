@@ -9,15 +9,27 @@ import SwiftUI
 
 public final class RuntimeLocalizationObserver: ObservableObject {
 
-    public init() {
-        RuntimeLocalization.shared.observeLanguage(observer: self, selector: #selector(onLanguageChanged))
+    private let animate: Bool
+    
+    public init(animate: Bool = true) {
+        self.animate = animate
+        RuntimeStringFileLocalization.shared.observeLanguage(observer: self, selector: #selector(onLanguageChanged))
     }
     
     deinit {
-        RuntimeLocalization.shared.stopObservingLanguage(observer: self)
+        RuntimeStringFileLocalization.shared.stopObservingLanguage(observer: self)
     }
     
     @objc private func onLanguageChanged() {
-        objectWillChange.send()
+        func updateUI() {
+            objectWillChange.send()
+        }
+        if animate {
+            withAnimation {
+                updateUI()
+            }
+        } else {
+            updateUI()
+        }
     }
 }
