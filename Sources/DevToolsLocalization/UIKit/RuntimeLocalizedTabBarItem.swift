@@ -21,7 +21,7 @@ open class RuntimeLocalizedTabBarItem: UITabBarItem {
     
     //MARK: Initialization
     
-    override init() {
+    public override init() {
         super.init()
         commonInit()
     }
