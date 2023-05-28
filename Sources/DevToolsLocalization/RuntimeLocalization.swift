@@ -16,7 +16,11 @@ public final class RuntimeLocalization {
 // MARK: Public
 
 extension RuntimeLocalization: RuntimeLanguageInterface {
-    public func getAvailable() -> [String] {
+    public func getCurrentLanguage() -> String {
+        Localize.currentLanguage()
+    }
+    
+    public func getAvailableLanguages() -> [String] {
         Localize.availableLanguages(true)
     }
     
