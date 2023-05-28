@@ -28,12 +28,17 @@ let package = Package(
         .library(
             name: "DevToolsCoreData",
             targets: ["DevToolsCoreData"]),
+        .library(
+            name: "DevToolsLocalization",
+            targets: ["DevToolsLocalization"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/Moya/Moya", .upToNextMajor(from: "15.0.0")),
-        .package(url: "https://github.com/realm/realm-cocoa", .upToNextMajor(from: "10.0.0"))
+        .package(url: "https://github.com/realm/realm-cocoa", .upToNextMajor(from: "10.0.0")),
+        .package(url: "https://github.com/marmelroy/Localize-Swift.git", .upToNextMajor(from: "3.0.0"))
+        
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -56,6 +61,9 @@ let package = Package(
         .target(
             name: "DevToolsCoreData",
             dependencies: ["DevToolsCore"]),
+        .target(
+            name: "DevToolsLocalization",
+            dependencies: [.product(name: "Localize_Swift", package: "Localize-Swift"),"DevToolsCore"]),
         .testTarget(
             name: "DevToolsNetworkingTests",
             dependencies: ["DevToolsNetworking"]),
