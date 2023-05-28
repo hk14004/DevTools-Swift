@@ -8,21 +8,15 @@
 import Foundation
 import SwiftUI
 
-public enum TranslationSource {
-    case plist
-    case stringsFile
-}
-
-public extension String {
-    func stringFileLocalizable() -> LocalizedStringKey {
-        .init(self)
-    }
-}
 
 public extension String {
 
-    func translate(source: TranslationSource = .stringsFile) -> LocalizedStringKey {
-        return localized(using: nil, in: .main).stringFileLocalizable()
+    func toRuntimeLocalized() -> LocalizedRuntimeText {
+        .init(key: LocalizedStringKey(self), localizedString: self.localized())
     }
+}
 
+public struct LocalizedRuntimeText {
+    let key: LocalizedStringKey
+    let localizedString: String
 }
