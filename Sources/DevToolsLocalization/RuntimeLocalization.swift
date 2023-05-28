@@ -36,7 +36,7 @@ extension RuntimeLocalization: RuntimeLanguageInterface {
     
     public func observeChange(observer: Any, callback: @escaping VoidCallback) {
         NotificationCenter.default.addObserver(forName: NSNotification.Name(LCLLanguageChangeNotification),
-                                               object: observer, queue: .main) { _ in
+                                               object: nil, queue: .main) { _ in
             callback()
         }
     }
