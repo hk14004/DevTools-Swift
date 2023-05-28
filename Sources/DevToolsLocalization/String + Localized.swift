@@ -22,7 +22,7 @@ public struct LocalizedRuntimeText {
 
 public final class RuntimeLocalizationObserver: ObservableObject {
 
-    init() {
+    public init() {
         RuntimeLocalization.shared.observeLanguage(observer: self, selector: #selector(onLanguageChanged))
     }
     
