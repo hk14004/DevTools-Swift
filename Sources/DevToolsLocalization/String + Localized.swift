@@ -17,6 +17,6 @@ public extension String {
 }
 
 public struct LocalizedRuntimeText {
-    let key: LocalizedStringKey
-    let localizedString: String
+    public let key: LocalizedStringKey
+    public let localizedString: String
 }
