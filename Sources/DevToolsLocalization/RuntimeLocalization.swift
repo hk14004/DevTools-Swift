@@ -34,11 +34,15 @@ extension RuntimeLocalization: RuntimeLanguageInterface {
                                                object: nil)
     }
     
-    public func observeLanguage(callback: @escaping ((LanguageCode) -> ())) {
+    public func observeLanguage(callback: @escaping ((LanguageCode) -> ())) -> ObserverHandle {
         NotificationCenter.default.addObserver(forName: NSNotification.Name(LCLLanguageChangeNotification),
                                                object: nil, queue: .main) { _ in
             callback(Self.shared.getCurrentLanguage())
         }
+    }
+    
+    public func stopObservingLanguage(handle: ObserverHandle) {
+        NotificationCenter.default.removeObserver(handle)
     }
 
 }

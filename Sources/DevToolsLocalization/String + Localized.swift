@@ -20,3 +20,11 @@ public struct LocalizedRuntimeText {
     public let key: LocalizedStringKey
     public let localizedString: String
 }
+
+public class RuntimeLocalizationObserver: ObservableObject {
+    init() {
+        RuntimeLocalization.shared.observeLanguage { [weak self] _ in
+            self?.objectWillChange.send()
+        }
+    }
+}
