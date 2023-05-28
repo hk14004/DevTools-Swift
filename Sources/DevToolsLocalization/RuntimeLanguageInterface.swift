@@ -13,6 +13,6 @@ public protocol RuntimeLanguageInterface {
     func getCurrentLanguage() -> String
     func getAvailableLanguages() -> [String]
     func change(languageCode: String)
-    func observeChange(observer: Any, selector: Selector)
-    func observeChange(observer: Any, callback: @escaping VoidCallback)
+    func observeLanguage(observer: Any, selector: Selector)
+    func observeLanguage(callback: @escaping VoidCallback)
 }

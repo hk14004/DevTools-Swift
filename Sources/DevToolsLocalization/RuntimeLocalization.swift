@@ -28,13 +28,13 @@ extension RuntimeLocalization: RuntimeLanguageInterface {
         Localize.setCurrentLanguage(languageCode)
     }
     
-    public func observeChange(observer: Any, selector: Selector) {
+    public func observeLanguage(observer: Any, selector: Selector) {
         NotificationCenter.default.addObserver(observer, selector: selector,
                                                name: NSNotification.Name(LCLLanguageChangeNotification),
                                                object: nil)
     }
     
-    public func observeChange(observer: Any, callback: @escaping VoidCallback) {
+    public func observeLanguage(callback: @escaping VoidCallback) {
         NotificationCenter.default.addObserver(forName: NSNotification.Name(LCLLanguageChangeNotification),
                                                object: nil, queue: .main) { _ in
             callback()

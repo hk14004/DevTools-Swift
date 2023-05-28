@@ -63,6 +63,6 @@ extension LocalizedButton: LocalizedRuntimeComponent {
 
 extension LocalizedButton {
     private func observe() {
-        runtimeLanguageInterface.observeChange(observer: self, selector: #selector(updateText))
+        runtimeLanguageInterface.observeLanguage(observer: self, selector: #selector(updateText))
     }
 }
