@@ -7,13 +7,13 @@
 
 import UIKit
 
-class AppearanceProxy {
+public class AppearanceProxy {
     
 }
 
 // MARK: Public
 
-extension AppearanceProxy {
+public extension AppearanceProxy {
     
     // MARK: Content
     
