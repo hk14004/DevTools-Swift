@@ -43,35 +43,12 @@ public extension AppearanceProxy {
         UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
     }
     
-    static func setDefault(navigationBarBackgroundColor: UIColor) {
-        UINavigationBar.appearance().barTintColor = navigationBarBackgroundColor
-    }
-    
-    static func setDefault(navigationBarTitleTextAttributes: [NSAttributedString.Key: Any]) {
-        UINavigationBar.appearance().titleTextAttributes = navigationBarTitleTextAttributes
-    }
-    
-    static func setDefault(navigationBarTranslucent: Bool) {
-        UINavigationBar.appearance().isTranslucent = navigationBarTranslucent
-    }
-    
-    static func setDefault(navigationBarShadowImage: UIImage?) {
-        UINavigationBar.appearance().shadowImage = navigationBarShadowImage
-    }
-    
-    static func setDefault(navigationBarBackgroundImage: UIImage?) {
-        UINavigationBar.appearance().setBackgroundImage(navigationBarBackgroundImage, for: .default)
-    }
-    
-    static func setDefault(navigationBarBackIndicatorImage: UIImage?) {
-        UINavigationBar.appearance().backIndicatorImage = navigationBarBackIndicatorImage
-        UINavigationBar.appearance().backIndicatorTransitionMaskImage = navigationBarBackIndicatorImage
-    }
-    
-    static func setDefault(navigationBarTintColor: UIColor) {
-        UINavigationBar.appearance().tintColor = navigationBarTintColor
+    static func setDefault(navigationBarControlColor: UIColor) {
+        UINavigationBar.appearance().tintColor = navigationBarControlColor
     }
     
     // MARK: Status bar
+    
+    // MARK: Tab bar
     
 }
