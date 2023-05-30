@@ -47,17 +47,9 @@ public extension AppearanceProxy {
         UINavigationBar.appearance().tintColor = navigationBarControlColor
     }
     
-    static func setDefault(navigationBarBackButtonImage: UIImage, hideText: Bool) {
+    static func setDefault(navigationBarBackButtonImage: UIImage) {
         UINavigationBar.appearance().standardAppearance.setBackIndicatorImage(navigationBarBackButtonImage,
                                                                               transitionMaskImage: navigationBarBackButtonImage)
-        if hideText {
-            guard let backgroundColor = UINavigationBar.appearance().standardAppearance.backgroundColor else {
-                return
-            }
-            UINavigationBar.appearance().standardAppearance.backButtonAppearance.normal.titleTextAttributes = [
-                .foregroundColor: backgroundColor
-            ]
-        }
     }
     
     // MARK: Status bar
