@@ -51,8 +51,11 @@ public extension AppearanceProxy {
         UINavigationBar.appearance().standardAppearance.setBackIndicatorImage(navigationBarBackButtonImage,
                                                                               transitionMaskImage: navigationBarBackButtonImage)
         if hideText {
+            guard let backgroundColor = UINavigationBar.appearance().standardAppearance.backgroundColor else {
+                return
+            }
             UINavigationBar.appearance().standardAppearance.backButtonAppearance.normal.titleTextAttributes = [
-                .foregroundColor: UINavigationBar.appearance().standardAppearance.backgroundColor ?? .brown
+                .foregroundColor: backgroundColor
             ]
         }
     }
