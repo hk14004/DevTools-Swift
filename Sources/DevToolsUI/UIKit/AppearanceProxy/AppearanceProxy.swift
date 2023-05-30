@@ -15,6 +15,13 @@ public class AppearanceProxy {
 
 public extension AppearanceProxy {
     
+    // MARK: Accent
+    
+    static func setDefault(controlTintColor: UIColor) {
+        UIControl.appearance().tintColor = controlTintColor
+        UIProgressView.appearance().tintColor = controlTintColor
+    }
+    
     // MARK: Content
     
     static func setDefault(contentTextColor: UIColor) {
@@ -34,9 +41,7 @@ public extension AppearanceProxy {
         UIView.appearance().backgroundColor = contentBackgroundColor
     }
     
-    static func setDefault(controlTintColor: UIColor) {
-        UIControl.appearance().tintColor = controlTintColor
-    }
+
     
     // MARK: Navigation bar
     
