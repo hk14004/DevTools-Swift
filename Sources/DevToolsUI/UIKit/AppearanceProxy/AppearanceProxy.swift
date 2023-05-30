@@ -7,9 +7,7 @@
 
 import UIKit
 
-public class AppearanceProxy {
-    //    private var navBarAppearance: UINavigationBarAppearance?
-}
+public class AppearanceProxy {}
 
 // MARK: Public
 
@@ -47,9 +45,13 @@ public extension AppearanceProxy {
         UINavigationBar.appearance().tintColor = navigationBarControlColor
     }
     
-    static func setDefault(navigationBarBackButtonImage: UIImage) {
+    static func setDefault(navigationBarBackButtonImage: UIImage, showOnlyIcon: Bool) {
         UINavigationBar.appearance().standardAppearance.setBackIndicatorImage(navigationBarBackButtonImage,
                                                                               transitionMaskImage: navigationBarBackButtonImage)
+        if showOnlyIcon {
+            UINavigationBar.appearance().standardAppearance.backButtonAppearance.normal
+                .titlePositionAdjustment = .init(horizontal: -9999099, vertical: 0)
+        }
     }
     
     // MARK: Status bar
