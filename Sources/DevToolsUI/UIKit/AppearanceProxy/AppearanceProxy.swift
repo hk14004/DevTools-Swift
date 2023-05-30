@@ -8,7 +8,7 @@
 import UIKit
 
 public class AppearanceProxy {
-    let navBarAppearance = UINavigationBarAppearance()
+//    private var navBarAppearance: UINavigationBarAppearance?
 }
 
 // MARK: Public
@@ -45,6 +45,15 @@ public extension AppearanceProxy {
     
     static func setDefault(navigationBarControlColor: UIColor) {
         UINavigationBar.appearance().tintColor = navigationBarControlColor
+    }
+    
+    static func setDefault(navigationBarBackButtonImage: UIImage, removeBackText: Bool) {
+        if removeBackText {
+            UINavigationBar.appearance().standardAppearance.backButtonAppearance.normal.backgroundImage = navigationBarBackButtonImage
+        } else {
+            UINavigationBar.appearance().standardAppearance.setBackIndicatorImage(navigationBarBackButtonImage,
+                                                                                  transitionMaskImage: navigationBarBackButtonImage)
+        }
     }
     
     // MARK: Status bar
