@@ -8,7 +8,7 @@
 import UIKit
 
 public class AppearanceProxy {
-    
+    let navBarAppearance = UINavigationBarAppearance()
 }
 
 // MARK: Public
@@ -36,13 +36,12 @@ public extension AppearanceProxy {
         UITextView.appearance().font = contentFont
     }
     
-    static func setDefault(contentBackgroundColor: UIColor) {
-        UIView.appearance().backgroundColor = contentBackgroundColor
-    }
-    
-
-    
     // MARK: Navigation bar
+    
+    static func setDefault(navigationBarAppearance: UINavigationBarAppearance) {
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+    }
     
     static func setDefault(navigationBarBackgroundColor: UIColor) {
         UINavigationBar.appearance().barTintColor = navigationBarBackgroundColor
