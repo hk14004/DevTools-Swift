@@ -36,7 +36,7 @@ public extension AppearanceProxy {
     
     static func setDefault(controlTintColor: UIColor) {
         UIControl.appearance().tintColor = controlTintColor
-        UISwitch.appearance().tintColor = controlTintColor
+        UISwitch.appearance().thumbTintColor = controlTintColor
     }
     
     // MARK: Navigation bar
