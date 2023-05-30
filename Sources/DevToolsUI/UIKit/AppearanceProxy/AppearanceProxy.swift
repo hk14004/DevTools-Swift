@@ -28,7 +28,6 @@ public extension AppearanceProxy {
         UILabel.appearance().textColor = contentTextColor
         UITextField.appearance().textColor = contentTextColor
         UITextView.appearance().textColor = contentTextColor
-        UIButton.appearance().setTitleColor(contentTextColor, for: .normal)
     }
     
     static func setDefault(contentFont: UIFont) {
