@@ -45,6 +45,7 @@ public extension AppearanceProxy {
         UINavigationBar.appearance().tintColor = navigationBarControlColor
     }
     
+    // Must set your own nav bar appearance first
     static func setDefault(navigationBarBackButtonImage: UIImage, showOnlyIcon: Bool) {
         UINavigationBar.appearance().standardAppearance.setBackIndicatorImage(navigationBarBackButtonImage,
                                                                               transitionMaskImage: navigationBarBackButtonImage)
