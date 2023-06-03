@@ -16,7 +16,7 @@ public extension String {
     }
     
     func htmlToAttributedString() -> NSAttributedString? {
-        guard let data = data(using: .utf8) else {
+        guard let data = data(using: .unicode) else {
             return nil
         }
         
