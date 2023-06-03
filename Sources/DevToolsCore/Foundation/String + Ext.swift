@@ -34,8 +34,8 @@ public extension String {
         }
     }
     
-    func toAttributedStringFromHTML(htmlString: String, fontSize: CGFloat, fontColor: UIColor, fontName: String) -> NSAttributedString? {
-        guard let data = htmlString.data(using: .utf8) else {
+    func toAttributedStringFromHTML(fontSize: CGFloat, fontColor: UIColor, fontName: String) -> NSAttributedString? {
+        guard let data = data(using: .utf8) else {
             return nil
         }
         
