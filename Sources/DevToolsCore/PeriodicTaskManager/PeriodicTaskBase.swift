@@ -42,7 +42,7 @@ open class PeriodicTaskBase<TaskType: PeriodTaskTypeProtocol> {
             return
         }
         Task {
-            onAfterWork()
+            onBeforeWork()
             await work()
             onAfterWork()
         }
