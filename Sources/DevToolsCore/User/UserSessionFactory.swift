@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol UserSessionFactory {
+public protocol UserSessionFactory {
     associatedtype UserSessionType: UserSession
     func makeUserSession(with credentials: UserSessionType.CredentialsType) -> UserSessionType
 }
