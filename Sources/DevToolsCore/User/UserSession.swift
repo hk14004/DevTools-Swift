@@ -8,12 +8,12 @@
 import Foundation
 
 public protocol UserSession {
-    associatedtype T: AuthorizationCredentials
-    var credentials: T { get set }
+    associatedtype CredentialsType: AuthorizationCredentials
+    var credentials: CredentialsType { get set }
 }
 
 public protocol AuthorizationCredentials {
-    associatedtype T // May hold token and other related data
+    associatedtype AuthData // May hold token and other related data
     var id: String { get }
-    var authorizationData: T { get }
+    var authorizationData: AuthData { get }
 }
