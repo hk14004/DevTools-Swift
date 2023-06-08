@@ -8,14 +8,8 @@
 import Foundation
 import WebKit
 
-public protocol AuthorizedEntityProtocol {
-    associatedtype T // May hold token and other related data
-    var id: String { get }
-    var authorizationData: T { get }
-}
-
 public protocol WebViewCookieHandler {
-    associatedtype T = AuthorizedEntityProtocol
+    associatedtype T = AuthorizationCredentials
     func configure()
     func storeWebConfiguration(authorizedEntityID: String, configuration: WKWebViewConfiguration)
     func getStoredAuthorizedEntityWebConfiguration(authorizedEntityID: String) -> WKWebViewConfiguration?
@@ -65,7 +59,7 @@ extension WebViewCookieHandler {
         return cookie
     }
     
-    func clearCache(forEntity entity: T, completion: @escaping ()->()) where T: AuthorizedEntityProtocol {
+    func clearCache(forEntity entity: T, completion: @escaping ()->()) where T: AuthorizationCredentials {
         guard let config: WKWebViewConfiguration = getStoredAuthorizedEntityWebConfiguration(authorizedEntityID: entity.id) else  {
             completion()
             return

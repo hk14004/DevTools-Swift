@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol UserSessionDataSynchronizerProtocol: AnyObject {
+public protocol UserSessionDataSynchronizer: AnyObject {
     var syncingUserSession: Bool { get set }
     func syncUserSession() async throws
     func cancelSync()
