@@ -59,4 +59,12 @@ public extension AppearanceProxy {
     
     // MARK: Tab bar
     
+    static func setDefault(tabbarAppearance: UITabBarAppearance) {
+        UITabBar.appearance().standardAppearance = tabbarAppearance
+        if #available(iOS 15.0, *) {
+            UITabBar.appearance().scrollEdgeAppearance = tabbarAppearance
+        } else {
+            // Fallback on earlier versions
+        }
+    }
 }
