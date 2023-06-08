@@ -9,7 +9,7 @@ import Foundation
 
 public protocol UserSession {
     associatedtype T: AuthorizationCredentials
-    var credentils: T { get set }
+    var credentials: T { get set }
 }
 
 public protocol AuthorizationCredentials {
