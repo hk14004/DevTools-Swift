@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol UserSession: UserSessionDataSynchronizer {
+public protocol UserSession {
     associatedtype T: AuthorizationCredentials
     var credentils: T { get set }
 }

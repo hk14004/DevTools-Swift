@@ -20,7 +20,7 @@ public protocol AuthorizedUserSessionManager {
     func isSomebodyLoggedIn() -> Bool
     
     // Credentials
-    func storeCredentials(entity: T)
+    func storeCredentials(_ credentials: T)
     func getCredentials(id: String) -> T?
-    func deleteCredentials(id: String) -> T?
+    func deleteCredentials(id: String)
 }
