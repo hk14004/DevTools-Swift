@@ -8,19 +8,19 @@
 import Foundation
 
 public protocol UserSessionManager {
-    associatedtype CredentialsType: AuthorizationCredentials
-    associatedtype UserSessionType: UserSession
     
-    func startup() // Start available user sessions
+    associatedtype UserSessionType: UserSession where UserSessionType.CredentialsType == CredentialsStoreType.CredentialsType
+    associatedtype CredentialsStoreType: UserSessionCredentialsStore
+    associatedtype UserSessionFactoryType: UserSessionFactory where UserSessionFactoryType.UserSessionType == UserSessionType
     
-    // User session
-    func startUserSession(_ userSession: UserSessionType) // Hold instance and store something in keychain
-    func stopUserSession(_ userSession: UserSessionType) // Release stored instance
-    func getStartedUserSession(credentialsID id: String) -> UserSessionType?
+    var credentialsStore: CredentialsStoreType { get }
+    var userSessionFactory: UserSessionFactoryType { get }
+    
+    func startAllUserSessions() // Starts all user sessions gotten from credential store
+    func startUserSession(withCredentialsID id: String) // Create and hold instance
+    func stopUserSession(forCredentialsID id: String) // Release instance
+    func deleteUserSession(credentialsID: String) // Release instance, delete store
+    func getStartedUserSession(forCredentialsID id: String) -> UserSessionType?
     func isSomebodyLoggedIn() -> Bool
     
-    // Credentials
-    func storeCredentials(_ credentials: CredentialsType)
-    func getCredentials(id: String) -> CredentialsType?
-    func deleteCredentials(id: String)
 }
