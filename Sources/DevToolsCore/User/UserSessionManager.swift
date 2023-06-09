@@ -24,3 +24,47 @@ public protocol UserSessionManager {
     func isSomebodyLoggedIn() -> Bool
     
 }
+
+func makeSUT(userSession: any UserSession, credStore: any UserSessionCredentialsStore) -> any UserSessionManager {
+    return SwedbankUserSessionManager(credentialsStore: SwedbankUserSessionCredentialsStore())
+}
+
+class SwedbankUserSessionManager: UserSessionManager {
+    
+    
+    var credentialsStore: SwedbankUserSessionCredentialsStore
+    
+    init(credentialsStore: SwedbankUserSessionCredentialsStore) {
+        self.credentialsStore = credentialsStore
+    }
+    
+    func startAllUserSessions() {
+        
+    }
+    
+    func startUserSession(withCredentialsID id: String) {
+        
+    }
+    
+    func stopUserSession(forCredentialsID id: String) {
+        
+    }
+    
+    func deleteUserSession(credentialsID: String) {
+        
+    }
+    
+    func getStartedUserSession(forCredentialsID id: String) -> SwedbankUserSession? {
+        nil
+    }
+    
+    func isSomebodyLoggedIn() -> Bool {
+        false
+    }
+    
+    typealias UserSessionType = SwedbankUserSession
+    
+    typealias CredentialsStoreType = SwedbankUserSessionCredentialsStore
+    
+    
+}

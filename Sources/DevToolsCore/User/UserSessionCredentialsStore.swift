@@ -15,3 +15,29 @@ public protocol UserSessionCredentialsStore {
     func deleteCredentials(id: String)
     func deleteAllCredentials()
 }
+
+class SwedbankUserSessionCredentialsStore: UserSessionCredentialsStore {
+    func storeCredentials(_ credentials: SwedbankCredentials) {
+            
+    }
+    
+    func getCredentials(id: String) -> SwedbankCredentials? {
+        nil
+    }
+    
+    func getAllCredentials() -> [SwedbankCredentials] {
+        []
+    }
+    
+    func deleteCredentials(id: String) {
+        
+    }
+    
+    func deleteAllCredentials() {
+        
+    }
+    
+    typealias CredentialsType = SwedbankCredentials
+    
+    
+}

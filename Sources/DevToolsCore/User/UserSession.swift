@@ -17,3 +17,19 @@ public protocol AuthorizationCredentials {
     var id: String { get }
     var authorizationData: AuthData { get }
 }
+
+class SwedbankUserSession: UserSession {
+    var credentials: SwedbankCredentials
+    
+    init(credentials: SwedbankCredentials) {
+        self.credentials = credentials
+    }
+}
+
+struct SwedbankCredentials: AuthorizationCredentials {
+    struct Data {
+        let token: String
+    }
+    var id: String
+    var authorizationData: Data
+}
