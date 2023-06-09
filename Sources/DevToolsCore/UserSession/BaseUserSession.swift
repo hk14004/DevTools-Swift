@@ -1,5 +1,5 @@
 //
-//  AuthorizedUserSession.swift
+//  BaseUserSession.swift
 //  
 //
 //  Created by Hardijs on 31/12/2022.
@@ -7,23 +7,23 @@
 
 import Foundation
 
-public protocol UserSession {
+open class BaseUserSession<ConcreteCredentialType: AuthorizationCredentials>: UserSessionCredentialsHolding {
+    public var credentials: ConcreteCredentialType
+    
+    public init(credentials: ConcreteCredentialType) {
+        self.credentials = credentials
+    }
+}
+
+public protocol UserSessionCredentialsHolding {
     associatedtype CredentialsType: AuthorizationCredentials
-    var credentials: CredentialsType { get set }
+    var credentials: CredentialsType { get }
 }
 
 public protocol AuthorizationCredentials {
     associatedtype AuthData // May hold token and other related data
     var id: String { get }
     var authorizationData: AuthData { get }
-}
-
-class SwedbankUserSession: UserSession {
-    var credentials: SwedbankCredentials
-    
-    init(credentials: SwedbankCredentials) {
-        self.credentials = credentials
-    }
 }
 
 struct SwedbankCredentials: AuthorizationCredentials {

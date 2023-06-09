@@ -7,13 +7,14 @@
 
 import Foundation
 
-public protocol UserSessionDataSynchronizer: AnyObject {
+public protocol UserSessionDataSyncing: AnyObject {
     var syncingUserSession: Bool { get set }
     func syncUserSession() async throws
     func cancelSync()
 }
 
-public protocol GuestDataSynchronizer: AnyObject {
+public protocol GuestDataSyncing: AnyObject {
     var syncingGuestData: Bool { get set }
     func syncGuestData() async throws
+    func cancelSync()
 }
