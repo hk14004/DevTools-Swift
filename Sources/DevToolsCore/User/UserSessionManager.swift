@@ -11,10 +11,10 @@ public protocol UserSessionManager {
     
     associatedtype UserSessionType: UserSession where UserSessionType.CredentialsType == CredentialsStoreType.CredentialsType
     associatedtype CredentialsStoreType: UserSessionCredentialsStore
-    associatedtype UserSessionFactoryType: UserSessionFactory where UserSessionFactoryType.UserSessionType == UserSessionType
+//    associatedtype UserSessionFactoryType: UserSessionFactory where UserSessionFactoryType.UserSessionType == UserSessionType
     
     var credentialsStore: CredentialsStoreType { get }
-    var userSessionFactory: UserSessionFactoryType { get }
+//    var userSessionFactory: UserSessionFactoryType { get }
     
     func startAllUserSessions() // Starts all user sessions gotten from credential store
     func startUserSession(withCredentialsID id: String) // Create and hold instance
