@@ -11,7 +11,7 @@ open class BaseUserSessionFactory<T: AuthorizationCredentials> {
     
     public init() {}
     
-    public func makeUserSession(with credentials: T) -> BaseUserSession<T> {
+    open func makeUserSession(with credentials: T) -> BaseUserSession<T> {
         BaseUserSession(credentials: credentials)
     }
 }
