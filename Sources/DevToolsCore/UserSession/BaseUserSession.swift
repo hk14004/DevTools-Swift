@@ -25,11 +25,3 @@ public protocol AuthorizationCredentials {
     var id: String { get }
     var authorizationData: AuthData { get }
 }
-
-struct SwedbankCredentials: AuthorizationCredentials {
-    struct Data {
-        let token: String
-    }
-    var id: String
-    var authorizationData: Data
-}

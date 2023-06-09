@@ -44,27 +44,27 @@ open class BaseUserSessionManager<ConcreteCredentialsType: AuthorizationCredenti
     
     // MARK: UserSessionManager
     
-    public func startAllUserSessions() {
+    open func startAllUserSessions() {
         fatalError("implement")
     }
     
-    public func startUserSession(withCredentialsID id: String) {
+    open func startUserSession(withCredentialsID id: String) {
         fatalError("implement")
     }
     
-    public func stopUserSession(forCredentialsID id: String) {
+    open func stopUserSession(forCredentialsID id: String) {
         fatalError("implement")
     }
     
-    public func deleteUserSession(credentialsID: String) {
+    open func deleteUserSession(credentialsID: String) {
         fatalError("implement")
     }
     
-    public func getStartedUserSession(forCredentialsID id: String) -> BaseUserSession<ConcreteCredentialsType>? {
+    open func getStartedUserSession(forCredentialsID id: String) -> BaseUserSession<ConcreteCredentialsType>? {
         fatalError("implement")
     }
     
-    public func isSomebodyLoggedIn() -> Bool {
+    open func isSomebodyLoggedIn() -> Bool {
         fatalError("implement")
     }
 }

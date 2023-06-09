@@ -17,23 +17,23 @@ public protocol UserSessionCredentialsManaging {
 }
 
 open class BaseUserSessionCredentialsStore<ConcreteCredentialType: AuthorizationCredentials>: UserSessionCredentialsManaging  {
-    public func storeCredentials(_ credentials: ConcreteCredentialType) {
+    open func storeCredentials(_ credentials: ConcreteCredentialType) {
         fatalError("implement")
     }
     
-    public func getCredentials(id: String) -> ConcreteCredentialType? {
+    open func getCredentials(id: String) -> ConcreteCredentialType? {
         fatalError("implement")
     }
     
-    public func getAllCredentials() -> [ConcreteCredentialType] {
+    open func getAllCredentials() -> [ConcreteCredentialType] {
         fatalError("implement")
     }
     
-    public func deleteCredentials(id: String) {
+    open func deleteCredentials(id: String) {
         fatalError("implement")
     }
     
-    public func deleteAllCredentials() {
+    open func deleteAllCredentials() {
         fatalError("implement")
     }
 }
