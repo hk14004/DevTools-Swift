@@ -8,12 +8,13 @@
 import Foundation
 
 public protocol UserSessionManaging {
-    
+    typealias CredentialID = String
     associatedtype UserSessionType: UserSessionCredentialsHolding where UserSessionType.CredentialsType == CredentialsStoreType.CredentialsType
     associatedtype CredentialsStoreType: UserSessionCredentialsManaging
 //    associatedtype UserSessionFactoryType: UserSessionFactory where UserSessionFactoryType.UserSessionType == UserSessionType
     
     var credentialsStore: CredentialsStoreType { get }
+    var startedUserSessions: [CredentialID: UserSessionType] { get }
 //    var userSessionFactory: UserSessionFactoryType { get }
     
     func startAllUserSessions() // Starts all user sessions gotten from credential store
@@ -35,11 +36,13 @@ open class BaseUserSessionManager<ConcreteCredentialsType: AuthorizationCredenti
     // MARK: Properties
     
     public var credentialsStore: BaseUserSessionCredentialsStore<ConcreteCredentialsType>
+    public var startedUserSessions: [CredentialID : BaseUserSession<ConcreteCredentialsType>]
     
     // MARK: Init
     
     public init(credentialsStore: BaseUserSessionCredentialsStore<ConcreteCredentialsType>) {
         self.credentialsStore = credentialsStore
+        self.startedUserSessions = [:]
     }
     
     // MARK: UserSessionManager
