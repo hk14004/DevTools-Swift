@@ -15,7 +15,7 @@ public protocol UserSessionManaging {
     
     var credentialsStore: CredentialsStoreType { get }
     var startedUserSessions: [CredentialID: UserSessionType] { get }
-    var userSessionFactory: UserSessionFactory { get }
+    var userSessionFactory: BaseUserSessionFactory<UserSessionType.CredentialsType> { get }
     
     func startAllUserSessions() // Starts all user sessions gotten from credential store
     func startUserSession(withCredentialsID id: String) // Create and hold instance
@@ -39,11 +39,11 @@ open class BaseUserSessionManager<ConcreteCredentialsType: AuthorizationCredenti
     
     public var credentialsStore: BaseUserSessionCredentialsStore<ConcreteCredentialsType>
     public var startedUserSessions: [CredentialID : BaseUserSession<ConcreteCredentialsType>]
-    public var userSessionFactory: UserSessionFactory
+    public var userSessionFactory: BaseUserSessionFactory<ConcreteCredentialsType>
     
     // MARK: Init
     
-    public init(credentialsStore: BaseUserSessionCredentialsStore<ConcreteCredentialsType>, userSessionFactory: UserSessionFactory) {
+    public init(credentialsStore: BaseUserSessionCredentialsStore<ConcreteCredentialsType>, userSessionFactory: BaseUserSessionFactory<ConcreteCredentialsType>) {
         self.credentialsStore = credentialsStore
         self.userSessionFactory = userSessionFactory
         self.startedUserSessions = [:]
