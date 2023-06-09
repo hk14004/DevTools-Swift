@@ -11,11 +11,11 @@ public protocol UserSessionManaging {
     typealias CredentialID = String
     associatedtype UserSessionType: UserSessionCredentialsHolding where UserSessionType.CredentialsType == CredentialsStoreType.CredentialsType
     associatedtype CredentialsStoreType: UserSessionCredentialsManaging
-//    associatedtype UserSessionFactoryType: UserSessionFactory where UserSessionFactoryType.UserSessionType == UserSessionType
+    //    associatedtype UserSessionFactoryType: UserSessionFactory where UserSessionFactoryType.UserSessionType == UserSessionType
     
     var credentialsStore: CredentialsStoreType { get }
     var startedUserSessions: [CredentialID: UserSessionType] { get }
-//    var userSessionFactory: UserSessionFactoryType { get }
+    var userSessionFactory: UserSessionFactory { get }
     
     func startAllUserSessions() // Starts all user sessions gotten from credential store
     func startUserSession(withCredentialsID id: String) // Create and hold instance
@@ -28,6 +28,8 @@ public protocol UserSessionManaging {
 
 open class BaseUserSessionManager<ConcreteCredentialsType: AuthorizationCredentials>: UserSessionManaging {
     
+    
+    
     // MARK: Types
     
     public typealias UserSessionType = BaseUserSession<ConcreteCredentialsType>
@@ -37,37 +39,48 @@ open class BaseUserSessionManager<ConcreteCredentialsType: AuthorizationCredenti
     
     public var credentialsStore: BaseUserSessionCredentialsStore<ConcreteCredentialsType>
     public var startedUserSessions: [CredentialID : BaseUserSession<ConcreteCredentialsType>]
+    public var userSessionFactory: UserSessionFactory
     
     // MARK: Init
     
-    public init(credentialsStore: BaseUserSessionCredentialsStore<ConcreteCredentialsType>) {
+    public init(credentialsStore: BaseUserSessionCredentialsStore<ConcreteCredentialsType>, userSessionFactory: UserSessionFactory) {
         self.credentialsStore = credentialsStore
+        self.userSessionFactory = userSessionFactory
         self.startedUserSessions = [:]
     }
     
     // MARK: UserSessionManager
     
     open func startAllUserSessions() {
-        fatalError("implement")
+        let creds = credentialsStore.getAllCredentials()
+        creds.forEach { cred in
+            let session = userSessionFactory.makeUserSession(with: cred)
+            startedUserSessions[cred.id] = session
+        }
     }
     
     open func startUserSession(withCredentialsID id: String) {
-        fatalError("implement")
+        guard let cred = credentialsStore.getCredentials(id: id) else {
+            return
+        }
+        let session = userSessionFactory.makeUserSession(with: cred)
+        startedUserSessions[cred.id] = session
     }
     
     open func stopUserSession(forCredentialsID id: String) {
-        fatalError("implement")
+        startedUserSessions.removeValue(forKey: id)
     }
     
     open func deleteUserSession(credentialsID: String) {
-        fatalError("implement")
+        stopUserSession(forCredentialsID: credentialsID)
+        credentialsStore.deleteCredentials(id: credentialsID)
     }
     
     open func getStartedUserSession(forCredentialsID id: String) -> BaseUserSession<ConcreteCredentialsType>? {
-        fatalError("implement")
+        return startedUserSessions[id]
     }
     
     open func isSomebodyLoggedIn() -> Bool {
-        fatalError("implement")
+        return !startedUserSessions.keys.isEmpty
     }
 }
