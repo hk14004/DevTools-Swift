@@ -17,6 +17,9 @@ public protocol UserSessionCredentialsManaging {
 }
 
 open class BaseUserSessionCredentialsStore<ConcreteCredentialType: AuthorizationCredentials>: UserSessionCredentialsManaging  {
+    
+    public init() {}
+    
     open func storeCredentials(_ credentials: ConcreteCredentialType) {
         fatalError("implement")
     }
