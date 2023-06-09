@@ -28,8 +28,6 @@ public protocol UserSessionManaging {
 
 open class BaseUserSessionManager<ConcreteCredentialsType: AuthorizationCredentials>: UserSessionManaging {
     
-    
-    
     // MARK: Types
     
     public typealias UserSessionType = BaseUserSession<ConcreteCredentialsType>
