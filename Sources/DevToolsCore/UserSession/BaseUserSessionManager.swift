@@ -57,12 +57,9 @@ open class BaseUserSessionManager<ConcreteCredentialsType: AuthorizationCredenti
         }
     }
     
-    open func startUserSession(withCredentialsID id: String) {
-        guard let cred = credentialsStore.getCredentials(id: id) else {
-            return
-        }
-        let session = userSessionFactory.makeUserSession(with: cred)
-        startedUserSessions[cred.id] = session
+    open func startUserSession(with credentials: ConcreteCredentialsType) {
+        let session = userSessionFactory.makeUserSession(with: credentials)
+        startedUserSessions[credentials.id] = session
     }
     
     open func stopUserSession(forCredentialsID id: String) {
