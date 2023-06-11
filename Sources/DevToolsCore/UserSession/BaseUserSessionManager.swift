@@ -18,7 +18,7 @@ public protocol UserSessionManaging {
     var userSessionFactory: BaseUserSessionFactory<UserSessionType.CredentialsType> { get }
     
     func startAllUserSessions() // Starts all user sessions gotten from credential store
-    func startUserSession(withCredentialsID id: String) // Create and hold instance
+    func startUserSession(with credentials: CredentialsStoreType.CredentialsType) // Create and hold instance
     func stopUserSession(forCredentialsID id: String) // Release instance
     func deleteUserSession(credentialsID: String) // Release instance, delete store
     func getStartedUserSession(forCredentialsID id: String) -> UserSessionType?
