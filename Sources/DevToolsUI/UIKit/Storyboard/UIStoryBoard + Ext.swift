@@ -8,7 +8,6 @@
 import UIKit
 
 extension UIStoryboard {
-    @available(iOS 13.0, *)
     public static func instantiateViewController<T: UIViewController>(type: T.Type, creator: ((NSCoder) -> T)?) -> T! {
         let id = "\(T.self)"
         let storyboard = UIStoryboard(name: id, bundle: nil)
