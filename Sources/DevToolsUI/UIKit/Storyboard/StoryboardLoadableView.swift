@@ -14,6 +14,7 @@ public protocol StoryboardLoadableView: UIView {
 
 public extension StoryboardLoadableView {
     func commonXibInit() {
+        backgroundColor = .clear
         let name = String(describing: type(of: self))
         loadedXibView = Bundle.main.loadNibNamed(name, owner: self)!.first as? UIView
         addSubview(loadedXibView)
