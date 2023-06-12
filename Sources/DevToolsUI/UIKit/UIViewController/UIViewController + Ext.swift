@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension UIViewController {
+public extension UIViewController {
     static func getTopViewController() -> UIViewController? {
         guard let keyWindow = UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene })
