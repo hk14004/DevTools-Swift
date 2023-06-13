@@ -8,6 +8,9 @@
 import UIKit
 
 public class Value1TableViewCell: UITableViewCell {
+    
+    public static let reuseID = String(describing: Value1TableViewCell.self)
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .value1, reuseIdentifier: reuseIdentifier)
     }
