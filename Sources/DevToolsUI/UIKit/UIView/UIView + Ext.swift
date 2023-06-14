@@ -16,7 +16,11 @@ public extension UIView {
     }
     
     @available(iOS 13.4, *)
-    func setMargins(direction: UIAxis, constant: CGFloat) {
+    func setMargins(direction: UIAxis, constant: CGFloat, ignoreSuperViewMargins: Bool? = nil) {
+        if let ignoreSuperViewMargins = ignoreSuperViewMargins {
+            preservesSuperviewLayoutMargins = !ignoreSuperViewMargins
+        }
+        
         switch direction {
         case .both:
             directionalLayoutMargins = .init(top: constant, leading: constant,
