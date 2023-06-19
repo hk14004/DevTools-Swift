@@ -9,6 +9,12 @@ import Foundation
 import UIKit
 
 public extension String {
+    func toDateFromISO8601() -> Date? {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.date(from: self)
+    }
+    
     func isNumeric() -> Bool {
         return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
     }
