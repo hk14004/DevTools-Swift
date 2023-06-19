@@ -7,15 +7,15 @@
 
 import Foundation
 
-public protocol PeriodicTaskManagerProtocol {
+public protocol PeriodicTaskManager {
     
-    associatedtype TaskType: PeriodTaskTypeProtocol
+    associatedtype TaskType: PeriodTaskType
     
     var registeredTasks: [String: PeriodicTaskBase<TaskType>] { get }
     
 }
 
-open class PeriodicTaskManager<T: PeriodTaskTypeProtocol>: PeriodicTaskManagerProtocol {
+open class BasePeriodicTaskManager<T: PeriodTaskType>: PeriodicTaskManager {
     
     public typealias TaskType = T
     public var registeredTasks: [String: PeriodicTaskBase<T>] = [:]

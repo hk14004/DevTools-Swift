@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-open class PeriodicTaskBase<TaskType: PeriodTaskTypeProtocol> {
+open class PeriodicTaskBase<TaskType: PeriodTaskType> {
     
     // MARK: Properties
     

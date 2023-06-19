@@ -8,9 +8,9 @@
 import Foundation
 import Combine
 
-public protocol PeriodTaskTypeProtocol: RawRepresentable, CaseIterable where RawValue == String {}
+public protocol PeriodTaskType: RawRepresentable, CaseIterable where RawValue == String {}
 
-public extension PeriodTaskTypeProtocol  {
+public extension PeriodTaskType  {
     func getTaskID() -> String {
         return "PERIODIC_TASK(" + self.rawValue.uppercased() + ")"
     }

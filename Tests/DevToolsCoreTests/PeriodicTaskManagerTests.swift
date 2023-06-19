@@ -40,7 +40,7 @@ final class PeriodicTaskManagerTests: XCTestCase {
 
 }
 
-fileprivate enum TestPeriodicTaskType: String, PeriodTaskTypeProtocol {
+fileprivate enum TestPeriodicTaskType: String, PeriodTaskType {
     case refreshUserData
     case refreshGuestData
 }
