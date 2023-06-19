@@ -9,6 +9,10 @@ import Foundation
 import UIKit
 
 public extension String {
+    func isNumeric() -> Bool {
+        return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
+    }
+    
     func isEmailAddress() -> Bool {
         // Regular expression to validate email addresses
         let regex = try! NSRegularExpression(pattern: "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}", options: .caseInsensitive)
