@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  PeriodicTaskManager.swift
 //  
 //
 //  Created by Hardijs Ķirsis on 09/04/2023.

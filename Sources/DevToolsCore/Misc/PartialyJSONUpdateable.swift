@@ -33,6 +33,21 @@ extension JSONMappedField {
     }
 }
 
+extension Set where Element: JSONMappedField {
+    subscript(field: Element) -> Element? {
+        get {
+            return self.first { $0 == field }
+        }
+        set {
+            if let newValue = newValue {
+                update(with: newValue)
+            } else {
+                remove(field)
+            }
+        }
+    }
+}
+
 class ExamplePartialyUpdatableObject {
     
     var fullName: String = ""
