@@ -7,24 +7,24 @@
 
 import UIKit
 
-public protocol NavigationCoordinator: AnyObject {
-    typealias FreeCoodinatorClosure = (()->())?
-    var children: [NavigationCoordinator] { get set }
-    var router: RouterProtocol { get set }
-    var onFree: FreeCoodinatorClosure { get set}
+public protocol NavigationCoordinator {
+//    typealias FreeCoodinatorClosure = (()->())?
+//    var children: [NavigationCoordinator] { get set }
+//    var router: RouterProtocol { get set }
+//    var onFree: FreeCoodinatorClosure { get set}
     func start()
 }
 
-extension NavigationCoordinator {
-    public func store(coordinator: NavigationCoordinator) {
-        children.append(coordinator)
-        coordinator.onFree = { [weak self] in
-            self?.free(coordinator: coordinator)
-        }
-    }
-
-    public func free(coordinator: NavigationCoordinator) {
-        children = children.filter { $0 !== coordinator }
-        coordinator.onFree = nil
-    }
-}
+//extension NavigationCoordinator {
+//    public func store(coordinator: NavigationCoordinator) {
+//        children.append(coordinator)
+//        coordinator.onFree = { [weak self] in
+//            self?.free(coordinator: coordinator)
+//        }
+//    }
+//
+//    public func free(coordinator: NavigationCoordinator) {
+//        children = children.filter { $0 !== coordinator }
+//        coordinator.onFree = nil
+//    }
+//}
