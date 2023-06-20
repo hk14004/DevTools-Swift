@@ -45,14 +45,15 @@ public extension AppearanceProxy {
         UINavigationBar.appearance().tintColor = navigationBarControlColor
     }
     
-    // Must set your own nav bar appearance first
-    static func setDefault(navigationBarBackButtonImage: UIImage, showOnlyIcon: Bool) {
-        UINavigationBar.appearance().standardAppearance.setBackIndicatorImage(navigationBarBackButtonImage,
-                                                                              transitionMaskImage: navigationBarBackButtonImage)
-        if showOnlyIcon {
-            UINavigationBar.appearance().standardAppearance.backButtonAppearance.normal
-                .titlePositionAdjustment = .init(horizontal: -9999099, vertical: 0)
-        }
+    static func setDefault(hideBackButtonTitle: Bool, for appearance: UINavigationBarAppearance) {
+        appearance.backButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.backButtonAppearance.disabled.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.backButtonAppearance.highlighted.titleTextAttributes = [.foregroundColor: UIColor.clear]
+    }
+    
+    static func setDefault(backButtonImage: UIImage, for appearance: UINavigationBarAppearance) {
+        appearance.setBackIndicatorImage(backButtonImage,
+                                         transitionMaskImage: backButtonImage)
     }
     
     // MARK: Status bar
