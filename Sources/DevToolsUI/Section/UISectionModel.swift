@@ -90,12 +90,12 @@ public class NavigationItem: Equatable, Hashable {
     }
 }
 
-extension NavigationItem {
-    public static func == (lhs: NavigationItem, rhs: NavigationItem) -> Bool {
+public extension NavigationItem {
+    static func == (lhs: NavigationItem, rhs: NavigationItem) -> Bool {
         lhs.title == rhs.title && lhs.subtitle == rhs.subtitle
     }
     
-    public func hash(into hasher: inout Hasher) {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(subtitle)
     }
