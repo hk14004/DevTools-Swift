@@ -79,7 +79,7 @@ public class NavigationItem: Equatable, Hashable {
     let subtitle: String
     private let navigateClosure: VoidCallback
     
-    init(title: String, subtitle: String, navigateClosure: @escaping VoidCallback) {
+    public init(title: String, subtitle: String, navigateClosure: @escaping VoidCallback) {
         self.title = title
         self.subtitle = subtitle
         self.navigateClosure = navigateClosure
