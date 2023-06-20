@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevToolsCore
 
 public protocol UISectionModelProtocol {
     associatedtype Cell: Hashable
@@ -26,6 +27,7 @@ fileprivate struct ExampleSection: UISectionModelProtocol {
     enum Cell: Hashable {
         case emptyCell
         case showText
+        case navigate(NavigationItem)
     }
     
     let identifier: Identifier
@@ -69,5 +71,32 @@ public extension Array where Element: UISectionModelProtocol {
         } else {
             insert(section, at: self.count)
         }
+    }
+}
+
+public class NavigationItem: Equatable, Hashable {
+    let title: String
+    let subtitle: String
+    private let navigateClosure: VoidCallback
+    
+    init(title: String, subtitle: String, navigateClosure: @escaping VoidCallback) {
+        self.title = title
+        self.subtitle = subtitle
+        self.navigateClosure = navigateClosure
+    }
+    
+    func navigate() {
+        navigateClosure()
+    }
+}
+
+extension NavigationItem {
+    public static func == (lhs: NavigationItem, rhs: NavigationItem) -> Bool {
+        lhs.title == rhs.title && lhs.subtitle == rhs.subtitle
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(title)
+        hasher.combine(subtitle)
     }
 }
