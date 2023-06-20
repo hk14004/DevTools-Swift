@@ -17,5 +17,5 @@ public protocol RuntimeLocalization {
     func getAvailableLanguages() -> [String]
     func change(languageCode: String)
     func observeLanguage(observer: Any, selector: Selector)
-    func observeLanguage(callback: @escaping ((LanguageCode) -> ())) -> ObserverHandle
+    func observeLanguage(observer: Any, callback: @escaping ((LanguageCode) -> ())) -> ObserverHandle
 }

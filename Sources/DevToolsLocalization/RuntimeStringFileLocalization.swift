@@ -34,9 +34,9 @@ extension RuntimeStringFileLocalization: RuntimeLocalization {
                                                object: nil)
     }
     
-    public func observeLanguage(callback: @escaping ((LanguageCode) -> ())) -> ObserverHandle {
+    public func observeLanguage(observer: Any, callback: @escaping ((LanguageCode) -> ())) -> ObserverHandle {
         NotificationCenter.default.addObserver(forName: NSNotification.Name(LCLLanguageChangeNotification),
-                                               object: nil, queue: .main) { _ in
+                                               object: observer, queue: .main) { _ in
             callback(Self.shared.getCurrentLanguage())
         }
     }
