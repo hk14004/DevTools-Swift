@@ -75,8 +75,8 @@ public extension Array where Element: UISectionModel {
 }
 
 public class NavigationItem: Equatable, Hashable {
-    let title: String
-    let subtitle: String
+    public let title: String
+    public let subtitle: String
     private let navigateClosure: VoidCallback
     
     public init(title: String, subtitle: String, navigateClosure: @escaping VoidCallback) {
@@ -85,7 +85,7 @@ public class NavigationItem: Equatable, Hashable {
         self.navigateClosure = navigateClosure
     }
     
-    func navigate() {
+    public func navigate() {
         navigateClosure()
     }
 }
