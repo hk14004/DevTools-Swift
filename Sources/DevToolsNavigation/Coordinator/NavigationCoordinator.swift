@@ -12,6 +12,7 @@ public protocol NavigationCoordinator {
 //    var children: [NavigationCoordinator] { get set }
 //    var router: RouterProtocol { get set }
 //    var onFree: FreeCoodinatorClosure { get set}
+    var navigationController: UINavigationController { get set }
     func start()
 }
 
