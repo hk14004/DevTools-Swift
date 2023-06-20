@@ -8,7 +8,7 @@
 import Foundation
 import DevToolsCore
 
-public protocol UISectionModelProtocol {
+public protocol UISectionModel {
     associatedtype Cell: Hashable
     associatedtype Identifier: CaseIterable, RawRepresentable, Hashable where Identifier.RawValue == String
     
@@ -17,7 +17,7 @@ public protocol UISectionModelProtocol {
     var cells: [Cell] { get set}
 }
 
-fileprivate struct ExampleSection: UISectionModelProtocol {
+fileprivate struct ExampleSection: UISectionModel {
     
     enum Identifier: String, CaseIterable {
         case SectionA
@@ -41,7 +41,7 @@ fileprivate struct ExampleSection: UISectionModelProtocol {
     }
 }
 
-public extension Array where Element: UISectionModelProtocol {
+public extension Array where Element: UISectionModel {
     mutating func update(section: Element) {
         guard let sectionIndex = firstIndex(where: {$0.identifier == section.identifier}) else {
             return
