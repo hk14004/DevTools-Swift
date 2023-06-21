@@ -8,6 +8,6 @@
 import Foundation
 
 protocol RuntimeLocalizedUIKitComponent {
-    var localizedStringKey: String? { get set }
-    func updateLocalizedStrings()
+    var runtimeLocalizedKey: String? { get set }
+    func updateRuntimeLocalizedStrings()
 }

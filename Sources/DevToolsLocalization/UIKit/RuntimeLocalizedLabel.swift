@@ -14,9 +14,9 @@ open class RuntimeLocalizedLabel: UILabel {
     
     private let loc: RuntimeLocalization = RuntimeStringFileLocalization.shared
     
-    @IBInspectable open var localizedStringKey: String? {
+    @IBInspectable open var runtimeLocalizedKey: String? {
         didSet {
-            updateLocalizedStrings()
+            updateRuntimeLocalizedStrings()
         }
     }
     
@@ -40,11 +40,11 @@ open class RuntimeLocalizedLabel: UILabel {
     
     open override func awakeFromNib() {
         super.awakeFromNib()
-        updateLocalizedStrings()
+        updateRuntimeLocalizedStrings()
     }
     
     private func commonInit() {
-        updateLocalizedStrings()
+        updateRuntimeLocalizedStrings()
         observe()
     }
 }
@@ -52,8 +52,8 @@ open class RuntimeLocalizedLabel: UILabel {
 // MARK: LocalizedRuntimeComponent
 
 extension RuntimeLocalizedLabel: RuntimeLocalizedUIKitComponent {
-    @objc func updateLocalizedStrings() {
-        text = localizedStringKey?.localized()
+    @objc func updateRuntimeLocalizedStrings() {
+        text = runtimeLocalizedKey?.localized()
     }
 }
 
@@ -61,6 +61,6 @@ extension RuntimeLocalizedLabel: RuntimeLocalizedUIKitComponent {
 
 extension RuntimeLocalizedLabel {
     private func observe() {
-        loc.observeLanguage(observer: self, selector: #selector(updateLocalizedStrings))
+        loc.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
     }
 }

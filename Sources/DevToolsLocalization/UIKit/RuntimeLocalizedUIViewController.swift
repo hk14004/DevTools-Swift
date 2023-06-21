@@ -13,9 +13,9 @@ open class RuntimeLocalizedUIViewController: UIViewController {
     
     private let loc: RuntimeLocalization = RuntimeStringFileLocalization.shared
     
-    @IBInspectable open var localizedStringKey: String? {
+    @IBInspectable open var runtimeLocalizedTitleKey: String? {
         didSet {
-            updateLocalizedStrings()
+            updateRuntimeLocalizedStrings()
         }
     }
     
@@ -35,26 +35,20 @@ open class RuntimeLocalizedUIViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
-    // MARK: Overridden Functions
+    // MARK: Private
 
     private func commonInit() {
-        updateLocalizedStrings()
+        updateRuntimeLocalizedStrings()
         observe()
     }
-}
-
-// MARK: LocalizedRuntimeComponent
-
-extension RuntimeLocalizedUIViewController: RuntimeLocalizedUIKitComponent {
-    @objc func updateLocalizedStrings() {
-        title = localizedStringKey?.runtimeLocalized()
-    }
-}
-
-// MARK: Private
-
-extension RuntimeLocalizedUIViewController {
+    
     private func observe() {
-        loc.observeLanguage(observer: self, selector: #selector(updateLocalizedStrings))
+        loc.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
+    }
+    
+    // MARK: Public
+    
+    @objc open func updateRuntimeLocalizedStrings() {
+        title = runtimeLocalizedTitleKey?.runtimeLocalized()
     }
 }
