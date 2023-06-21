@@ -14,4 +14,7 @@ extension UINib {
     public static func instanciateNib<T: UICollectionViewCell>(type: T.Type) -> UINib! {
         return .init(nibName: "\(type)", bundle: nil)
     }
+    public static func instanciateNib<T: UITableViewHeaderFooterView>(type: T.Type) -> UINib! {
+        return .init(nibName: "\(type)", bundle: nil)
+    }
 }
