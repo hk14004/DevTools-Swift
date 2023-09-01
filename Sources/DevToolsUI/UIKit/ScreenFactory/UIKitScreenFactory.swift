@@ -7,4 +7,4 @@
 
 import UIKit
 
-protocol UIKitScreenFactory: ScreenFactory where ScreenType == UIViewController {}
+public protocol UIKitScreenFactory: ScreenFactory where ScreenType == UIViewController {}

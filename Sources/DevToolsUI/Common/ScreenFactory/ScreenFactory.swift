@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ScreenFactory {
+public protocol ScreenFactory {
     associatedtype ScreenType
     func make() -> ScreenType
 }

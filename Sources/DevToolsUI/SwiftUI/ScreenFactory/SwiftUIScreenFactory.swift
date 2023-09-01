@@ -7,4 +7,4 @@
 
 import SwiftUI
 
-protocol SwiftUIScreenFactory: ScreenFactory where ScreenType == any View {}
+public protocol SwiftUIScreenFactory: ScreenFactory where ScreenType == any View {}
