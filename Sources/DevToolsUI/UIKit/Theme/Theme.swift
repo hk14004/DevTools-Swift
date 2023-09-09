@@ -8,8 +8,6 @@
 import UIKit
 
 public protocol DevTheme {
-    associatedtype TypographyType: DevTypography
-    
     // MARK: - Misc
     var roundedCornerRadius: CGFloat { get set }
     
@@ -18,10 +16,9 @@ public protocol DevTheme {
     var backgroundColor: UIColor { get set }
     
     // MARK: - Buttons
-    var primaryUIControlColor: UIColor { get set }
+    var uIControlColor: UIColor { get set }
     
     // MARK: - Texts
-    var typography: TypographyType { get }
     var textColor: UIColor { get set }
     var secondaryTextColor: UIColor { get set }
     var placeHolderTextColor: UIColor { get set }
