@@ -6,7 +6,7 @@ public protocol DevNetworkRequestFactory {
     func urlRequest(requestConfig: DevRequestConfig) -> URLRequest
 }
 
-public class BaseNetworkRequestFactory: DevNetworkRequestFactory {
+open class BaseNetworkRequestFactory: DevNetworkRequestFactory {
     public func urlRequest(
         requestConfig: DevRequestConfig
     ) -> URLRequest {

@@ -6,7 +6,7 @@ public protocol DevNetworkClient: AnyObject {
     func execute<T: DevNetworkResponse>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error>
 }
 
-public class BaseNetworkClient: DevNetworkClient {
+open class BaseNetworkClient: DevNetworkClient {
     // MARK: - Variables
     private let dataProvider: DevNetworkDataProvider
     private let requestFactory: DevNetworkRequestFactory
