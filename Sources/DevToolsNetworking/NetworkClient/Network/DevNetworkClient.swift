@@ -3,7 +3,7 @@ import Foundation
 import DevToolsCore
 
 public protocol DevNetworkClient: AnyObject {
-    func execute<T: DevNetworkResponse>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error>
+    func execute<T: Codable>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error>
 }
 
 open class BaseNetworkClient: DevNetworkClient {
@@ -23,7 +23,7 @@ open class BaseNetworkClient: DevNetworkClient {
 
 // MARK: Public
 extension BaseNetworkClient {
-    public func execute<T>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error> where T: DevNetworkResponse {
+    public func execute<T: Codable>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error> {
         prepareRequest(with: requestConfig)
             .flatMap { [weak self] request -> AnyPublisher<T, Error> in
                 self?.executeRequest(request: request) ?? .empty()
@@ -48,13 +48,7 @@ extension BaseNetworkClient {
         ).eraseToAnyPublisher()
     }
     
-    private func executeRequest<T>(request: URLRequest) -> AnyPublisher<T, Error> where T: DevNetworkResponse {
-        dataProvider.output(for: request)
-            .decode(when: request)
-            .eraseToAnyPublisher()
-    }
-    
-    private func executeRequest<T>(request: URLRequest) -> AnyPublisher<[T], Error> where T: DevNetworkResponse {
+    private func executeRequest<T: Codable>(request: URLRequest) -> AnyPublisher<T, Error> {
         dataProvider.output(for: request)
             .decode(when: request)
             .eraseToAnyPublisher()
@@ -67,7 +61,7 @@ extension BaseNetworkClient {
         switch error {
         case NetworkError.unauthorized:
             return .fail(error)
-        case NetworkError.forbidden(_):
+        case NetworkError.forbidden:
             return .fail(error)
         default:
             return .fail(error)

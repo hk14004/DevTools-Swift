@@ -5,7 +5,7 @@ public enum NetworkError: Error {
     case reachability
     case unauthorized
     case unexpected(Error)
-    case forbidden(ApiErrorResponse? = nil)
+    case forbidden
     case unexpectedResponse
     case resourceNotFound
 }

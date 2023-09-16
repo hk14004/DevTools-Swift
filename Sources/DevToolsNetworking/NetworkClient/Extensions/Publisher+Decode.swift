@@ -8,7 +8,7 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
     func decode<T>(
         as type: T.Type = T.self,
         when request: URLRequest
-    ) -> AnyPublisher<T, Error> where T: DevNetworkResponse {
+    ) -> AnyPublisher<T, Error> where T: Codable {
         tryMap { data -> T in
             do {
                 logRequest(request)
@@ -17,35 +17,11 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
                     let response = data.response as? HTTPURLResponse,
                     200..<300 ~= response.statusCode
                 else {
-                    throw networkError(type: type, data: data.data, response: data.response)
+                    throw networkError(data: data.data, response: data.response)
                 }
-                return try T(data.data, response: data.response)
+                return try JSONDecoder().decode(T.self, from: data.data)
             } catch {
-                throw networkError(type: type, data: data.data, response: data.response)
-            }
-        }
-        .mapError { error -> Error in
-            mapError(error)
-        }
-        .eraseToAnyPublisher()
-    }
-    
-    func decode<T>(
-        when request: URLRequest
-    ) -> AnyPublisher<[T], Error> where T: DevNetworkResponse {
-        tryMap { data -> [T] in
-            do {
-                logRequest(request)
-                logResponse(data)
-                guard
-                    let response = data.response as? HTTPURLResponse,
-                    200..<300 ~= response.statusCode
-                else {
-                    throw networkError(type: T.self, data: data.data, response: data.response)
-                }
-                return try JSONDecoder().decode([T].self, from: data.data)
-            } catch {
-                throw networkError(type: T.self, data: data.data, response: data.response)
+                throw networkError(data: data.data, response: data.response)
             }
         }
         .mapError { error -> Error in
@@ -65,7 +41,6 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
     }
     
     private func networkError(
-        type: DevNetworkResponse.Type,
         data: Data,
         response: URLResponse
     ) -> NetworkError {
@@ -74,17 +49,14 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
         case 401:
             return .unauthorized
         case 403:
-            let apiErrorResponse = try? ApiErrorResponse(data, response: response)
-            return .forbidden(apiErrorResponse)
+            return .forbidden
         case 404:
-            guard type.shouldIgnoreNotFoundError else {
-                return .unexpectedResponse
-            }
             return .resourceNotFound
         default:
-            if let apiErrorResponse = try? ApiErrorResponse(data, response: response) {
-                return .apiErrorResponse(apiErrorResponse)
-            } else {
+            do {
+                let apiError = try JSONDecoder().decode(ApiErrorResponse.self, from: data)
+                return .apiErrorResponse(apiError)
+            } catch {
                 return .unexpectedResponse
             }
         }

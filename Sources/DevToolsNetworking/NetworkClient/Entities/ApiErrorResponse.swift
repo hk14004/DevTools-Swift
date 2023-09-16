@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ApiErrorResponse: Equatable, Decodable {
+public struct ApiErrorResponse: Codable {
     public let code: String
     public let message: String
 
@@ -9,6 +9,3 @@ public struct ApiErrorResponse: Equatable, Decodable {
         self.message = message
     }
 }
-
-// MARK: - NetworkResponse
-extension ApiErrorResponse: DevNetworkResponse { }
