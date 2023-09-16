@@ -4,7 +4,6 @@ import DevToolsCore
 
 public protocol DevNetworkClient: AnyObject {
     func execute<T: DevNetworkResponse>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error>
-    func execute<T: DevNetworkResponse>(_ requestConfig: DevRequestConfig) -> AnyPublisher<[T], Error>
 }
 
 public class BaseNetworkClient: DevNetworkClient {
@@ -20,7 +19,10 @@ public class BaseNetworkClient: DevNetworkClient {
         self.requestFactory = requestFactory
         self.dataProvider = dataProvider
     }
-    
+}
+
+// MARK: Public
+extension BaseNetworkClient {
     public func execute<T>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error> where T: DevNetworkResponse {
         prepareRequest(with: requestConfig)
             .flatMap { [weak self] request -> AnyPublisher<T, Error> in
@@ -34,21 +36,10 @@ public class BaseNetworkClient: DevNetworkClient {
             }
             .eraseToAnyPublisher()
     }
-    
-    public func execute<T>(_ requestConfig: DevRequestConfig) -> AnyPublisher<[T], Error> where T: DevNetworkResponse {
-        prepareRequest(with: requestConfig)
-            .flatMap { [weak self] request -> AnyPublisher<[T], Error> in
-                self?.executeRequest(request: request) ?? .empty()
-            }
-            .tryCatch { [weak self] error -> AnyPublisher<[T], Error> in
-                self?.catchRequestError(
-                    requestConfig: requestConfig,
-                    error: error
-                ) ?? .empty()
-            }
-            .eraseToAnyPublisher()
-    }
-    
+}
+
+// MARK: Private
+extension BaseNetworkClient {
     private func prepareRequest(with config: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
         .just(
             requestFactory.urlRequest(

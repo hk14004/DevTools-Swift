@@ -6,8 +6,8 @@ public protocol DevNetworkRequestFactory {
     func urlRequest(requestConfig: DevRequestConfig) -> URLRequest
 }
 
-private class ExampleNetworkRequestFactory: DevNetworkRequestFactory {
-    func urlRequest(
+public class BaseNetworkRequestFactory: DevNetworkRequestFactory {
+    public func urlRequest(
         requestConfig: DevRequestConfig
     ) -> URLRequest {
         let url = URL(
@@ -26,7 +26,7 @@ private class ExampleNetworkRequestFactory: DevNetworkRequestFactory {
         return request
     }
     
-    private func makeMandatoryHeaders() -> [String: String] {
+    public func makeMandatoryHeaders() -> [String: String] {
         let osVersion = UIDevice.current.systemVersion
         let appVersion = Bundle.main.releaseVersionNumber ?? ""
         let appBuildNumber = Bundle.main.buildVersionNumber ?? ""
