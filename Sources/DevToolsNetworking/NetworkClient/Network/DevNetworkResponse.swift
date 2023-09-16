@@ -1,11 +1,11 @@
 import Foundation
 
-public protocol NetworkResponse: Decodable {
+public protocol DevNetworkResponse: Decodable {
     static var shouldIgnoreNotFoundError: Bool { get }
     init(_ data: Data, response: URLResponse) throws
 }
 
-extension NetworkResponse {
+extension DevNetworkResponse {
     public static var shouldIgnoreNotFoundError: Bool { false }
     
     public init(_ data: Data, response: URLResponse) throws {

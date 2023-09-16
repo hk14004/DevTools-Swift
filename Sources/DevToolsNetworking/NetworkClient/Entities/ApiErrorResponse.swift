@@ -11,4 +11,4 @@ public struct ApiErrorResponse: Equatable, Decodable {
 }
 
 // MARK: - NetworkResponse
-extension ApiErrorResponse: NetworkResponse { }
+extension ApiErrorResponse: DevNetworkResponse { }

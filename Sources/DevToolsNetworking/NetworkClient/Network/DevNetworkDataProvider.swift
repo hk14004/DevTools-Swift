@@ -1,26 +1,26 @@
 import Combine
 import Foundation
 
-public protocol NetworkDataProvider {
+public protocol DevNetworkDataProvider {
     typealias Output = URLSession.DataTaskPublisher.Output
     
     func output(for request: URLRequest) -> AnyPublisher<Output, URLError>
 }
 
-public final class DefaultNetworkDataProvider: NSObject, NetworkDataProvider {
+private class ExampleNetworkDataProvider: NSObject, DevNetworkDataProvider {
     lazy var session = URLSession(
         configuration: URLSessionConfiguration.default,
         delegate: self,
         delegateQueue: nil
     )
     
-    public func output(for request: URLRequest) -> AnyPublisher<NetworkDataProvider.Output, URLError> {
+    public func output(for request: URLRequest) -> AnyPublisher<DevNetworkDataProvider.Output, URLError> {
         session.dataTaskPublisher(for: request).eraseToAnyPublisher()
     }
 }
 
 // MARK: - URLSessionDelegate
-extension DefaultNetworkDataProvider: URLSessionDelegate {
+extension ExampleNetworkDataProvider: URLSessionDelegate {
     public func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,

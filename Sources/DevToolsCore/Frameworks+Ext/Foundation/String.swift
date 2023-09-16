@@ -83,3 +83,9 @@ public extension String {
         return nil
     }
 }
+
+public extension String {
+    var urlEncoded: String? {
+        addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+    }
+}

@@ -8,7 +8,7 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
     func decode<T>(
         as type: T.Type = T.self,
         when request: URLRequest
-    ) -> AnyPublisher<T, Error> where T: NetworkResponse {
+    ) -> AnyPublisher<T, Error> where T: DevNetworkResponse {
         tryMap { data -> T in
             do {
                 logRequest(request)
@@ -32,7 +32,7 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
     
     func decode<T>(
         when request: URLRequest
-    ) -> AnyPublisher<[T], Error> where T: NetworkResponse {
+    ) -> AnyPublisher<[T], Error> where T: DevNetworkResponse {
         tryMap { data -> [T] in
             do {
                 logRequest(request)
@@ -65,7 +65,7 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
     }
     
     private func networkError(
-        type: NetworkResponse.Type,
+        type: DevNetworkResponse.Type,
         data: Data,
         response: URLResponse
     ) -> NetworkError {
