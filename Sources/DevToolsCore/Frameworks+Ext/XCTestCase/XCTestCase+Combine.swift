@@ -8,6 +8,35 @@
 import XCTest
 import Combine
 
+extension Result {
+    var isSuccess: Bool {
+        switch self {
+        case .success(_):
+            return true
+        case .failure(_):
+            return false
+        }
+    }
+    
+    var isFailure: Bool {
+        switch self {
+        case .success(_):
+            return false
+        case .failure(_):
+            return true
+        }
+    }
+    
+    var value: Result.Publisher.Output? {
+        switch self {
+        case .success(let value):
+            return value
+        case .failure(_):
+            return nil
+        }
+    }
+}
+
 public extension XCTestCase {
     func awaitPublisher<T: Publisher>(
         _ publisher: T,
