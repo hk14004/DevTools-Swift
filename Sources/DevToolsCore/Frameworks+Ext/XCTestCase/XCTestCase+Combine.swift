@@ -8,7 +8,7 @@
 import XCTest
 import Combine
 
-extension Result {
+public extension Result {
     var isSuccess: Bool {
         switch self {
         case .success(_):
