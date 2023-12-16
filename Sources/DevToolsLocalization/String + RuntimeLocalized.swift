@@ -1,5 +1,5 @@
 //
-//  String + Localized.swift
+//  String + RuntimeLocalized.swift
 //  
 //
 //  Created by Hardijs Ķirsis on 28/05/2023.
