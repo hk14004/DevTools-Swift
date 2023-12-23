@@ -17,7 +17,7 @@ public func |==|<T: ContentComparable>(lhs: T, rhs: T) -> Bool {
     return lhs.contentHash == rhs.contentHash
 }
 
-func |==|<T: ContentComparable>(lhs: [T], rhs: [T]) -> Bool {
+public func |==|<T: ContentComparable>(lhs: [T], rhs: [T]) -> Bool {
     guard lhs.count == rhs.count else {
         return false
     }
