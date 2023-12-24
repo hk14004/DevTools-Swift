@@ -20,6 +20,13 @@ public protocol DevTableSection: Hashable, DevContentComparable {
 public typealias DevTableSectionCell = Hashable & DevContentComparable
 
 public extension DevTableSection {
+    var contentHash: Int {
+        var hasher = Hasher()
+        hasher.combine(id)
+        hasher.combine(title)
+        hasher.combine(cells)
+        return hasher.finalize()
+    }
     static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.id == rhs.id
     }
