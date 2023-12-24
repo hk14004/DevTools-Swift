@@ -9,7 +9,7 @@ import Foundation
 import DevToolsCore
 
 public protocol DevTableSection {
-    associatedtype Cell: Hashable, ContentComparable
+    associatedtype Cell: Hashable, DevContentComparable
     associatedtype Identifier: CaseIterable, RawRepresentable, Hashable where Identifier.RawValue == String
     
     var identifier: Identifier { get }
@@ -17,26 +17,4 @@ public protocol DevTableSection {
     var cells: [Cell] { get set}
 }
 
-public extension ContentComparable where Self: Hashable {
-    var contentHash: Int {
-        var hasher = Hasher()
-        let mirror = Mirror(reflecting: self)
-        let children = mirror.children
-        
-        guard !children.isEmpty else {
-            return String(describing: self).hashValue
-        }
-        
-        for case let (_?, value) in children {
-            if let value = value as? ContentComparable {
-                hasher.combine(value.contentHash)
-                continue
-            }
-            if let hashable = value as? (any Hashable) {
-                hasher.combine(hashable)
-            }
-        }
-        
-        return hasher.finalize()
-    }
-}
+public typealias DevTableSectionCell = Hashable & DevContentComparable

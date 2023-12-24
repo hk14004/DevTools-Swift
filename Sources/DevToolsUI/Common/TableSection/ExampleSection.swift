@@ -14,7 +14,7 @@ fileprivate struct ExampleSection: DevTableSection {
         case SectionB
     }
     
-    enum Cell: Hashable, ContentComparable {
+    enum Cell: Hashable, DevContentComparable {
         case emptyCell
         case showText
         case navigate(NavigationItem)
@@ -31,7 +31,7 @@ fileprivate struct ExampleSection: DevTableSection {
     }
 }
 
-public class NavigationItem: Equatable, Hashable, ContentComparable {
+public class NavigationItem: Equatable, Hashable, DevContentComparable {
     public let title: String
     public let subtitle: String
     private let navigateClosure: VoidCallback

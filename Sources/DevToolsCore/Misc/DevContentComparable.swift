@@ -1,5 +1,5 @@
 //
-//  ContentComparable.swift
+//  DevContentComparable.swift
 //
 //
 //  Created by Hardijs Ķirsis on 24/12/2023.
@@ -9,15 +9,15 @@ import Foundation
 
 infix operator |==|: ComparisonPrecedence
 
-public protocol ContentComparable {
+public protocol DevContentComparable {
     var contentHash: Int { get }
 }
 
-public func |==|<T: ContentComparable>(lhs: T, rhs: T) -> Bool {
+public func |==|<T: DevContentComparable>(lhs: T, rhs: T) -> Bool {
     return lhs.contentHash == rhs.contentHash
 }
 
-public func |==|<T: ContentComparable>(lhs: [T], rhs: [T]) -> Bool {
+public func |==|<T: DevContentComparable>(lhs: [T], rhs: [T]) -> Bool {
     guard lhs.count == rhs.count else {
         return false
     }
@@ -29,6 +29,30 @@ public func |==|<T: ContentComparable>(lhs: [T], rhs: [T]) -> Bool {
     }
 
     return true
+}
+
+public extension DevContentComparable where Self: Hashable {
+    var contentHash: Int {
+        var hasher = Hasher()
+        let mirror = Mirror(reflecting: self)
+        let children = mirror.children
+        
+        guard !children.isEmpty else {
+            return String(describing: self).hashValue
+        }
+        
+        for case let (_?, value) in children {
+            if let value = value as? DevContentComparable {
+                hasher.combine(value.contentHash)
+                continue
+            }
+            if let hashable = value as? (any Hashable) {
+                hasher.combine(hashable)
+            }
+        }
+        
+        return hasher.finalize()
+    }
 }
 
 // MARK: Example
@@ -44,7 +68,7 @@ fileprivate class CellViewModel {
     }
 }
 
-extension CellViewModel: ContentComparable {
+extension CellViewModel: DevContentComparable {
     var contentHash: Int {
         var hasher = Hasher()
         hasher.combine(id)
