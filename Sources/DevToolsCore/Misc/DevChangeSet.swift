@@ -8,10 +8,10 @@
 import UIKit
 
 public struct DevChangeSet {
-    var inserted: [IndexPath]
-    var removed: [IndexPath]
-    var updated: [IndexPath]
-    var moved: [(from: IndexPath, to: IndexPath)]
+    public var inserted: [IndexPath]
+    public var removed: [IndexPath]
+    public var updated: [IndexPath]
+    public var moved: [(from: IndexPath, to: IndexPath)]
 }
 
 public extension DevChangeSet {
