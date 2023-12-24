@@ -7,16 +7,16 @@
 
 import UIKit
 
-public struct DevChangeSet {
+public struct DevIndexPathChangeSet {
     public var inserted: [IndexPath]
     public var removed: [IndexPath]
     public var updated: [IndexPath]
     public var moved: [(from: IndexPath, to: IndexPath)]
 }
 
-public extension DevChangeSet {
-    static func calculateChangeSet<Element: Hashable & DevContentComparable>(old: [Element], new: [Element]) -> DevChangeSet {
-        var changeSet = DevChangeSet(inserted: [], removed: [], updated: [], moved: [])
+public extension DevIndexPathChangeSet {
+    static func calculateChangeSet<Element: Hashable & DevContentComparable>(old: [Element], new: [Element]) -> DevIndexPathChangeSet {
+        var changeSet = DevIndexPathChangeSet(inserted: [], removed: [], updated: [], moved: [])
         
         let oldSet = Set(old)
         let newSet = Set(new)

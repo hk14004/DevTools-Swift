@@ -2,7 +2,7 @@ import UIKit
 import DevToolsCore
 
 public extension UITableView {
-    func animateChangeSet(_ change: DevChangeSet, completion: ((Bool)->())? = nil) {
+    func performBatchUpdate(changeSet change: DevIndexPathChangeSet, completion: ((Bool)->())? = nil) {
         performBatchUpdates {
             deleteRows(at: change.removed, with: .fade)
             insertRows(at: change.inserted, with: .fade)
