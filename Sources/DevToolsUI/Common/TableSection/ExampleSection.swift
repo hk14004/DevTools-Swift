@@ -9,7 +9,7 @@ import DevToolsCore
 
 fileprivate struct ExampleSection: DevTableSection {
     
-    enum Identifier: String, CaseIterable {
+    enum SectionID: String, CaseIterable {
         case SectionA
         case SectionB
     }
@@ -20,12 +20,12 @@ fileprivate struct ExampleSection: DevTableSection {
         case navigate(NavigationItem)
     }
     
-    let identifier: Identifier
+    let id: SectionID
     var title: String
     var cells: [Cell]
     
-    init(identifier: Identifier, title: String, cells: [Cell]) {
-        self.identifier = identifier
+    init(identifier: SectionID, title: String, cells: [Cell]) {
+        self.id = identifier
         self.title = title
         self.cells = cells
     }

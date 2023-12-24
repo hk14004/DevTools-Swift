@@ -10,9 +10,9 @@ import DevToolsCore
 
 public protocol DevTableSection: Hashable, DevContentComparable {
     associatedtype Cell: Hashable, DevContentComparable
-    associatedtype Identifier: CaseIterable, RawRepresentable, Hashable where Identifier.RawValue == String
+    associatedtype SectionID: CaseIterable, RawRepresentable, Hashable where SectionID.RawValue == String
     
-    var identifier: Identifier { get }
+    var id: SectionID { get }
     var title: String { get set }
     var cells: [Cell] { get set}
 }
@@ -20,7 +20,10 @@ public protocol DevTableSection: Hashable, DevContentComparable {
 public typealias DevTableSectionCell = Hashable & DevContentComparable
 
 public extension DevTableSection {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.id == rhs.id
+    }
     func hash(into hasher: inout Hasher) {
-        hasher.combine(self.identifier)
+        hasher.combine(self.id)
     }
 }
