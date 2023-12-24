@@ -24,7 +24,7 @@ public extension DevTableSection {
         var hasher = Hasher()
         hasher.combine(id)
         hasher.combine(title)
-        hasher.combine(cells)
+        hasher.combine(cells.contentHash)
         return hasher.finalize()
     }
     static func == (lhs: Self, rhs: Self) -> Bool {

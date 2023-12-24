@@ -31,7 +31,7 @@ public func |==|<T: DevContentComparable>(lhs: [T], rhs: [T]) -> Bool {
     return true
 }
 
-public extension DevContentComparable where Self: Hashable {
+public extension DevContentComparable {
     var contentHash: Int {
         var hasher = Hasher()
         let mirror = Mirror(reflecting: self)
@@ -51,6 +51,14 @@ public extension DevContentComparable where Self: Hashable {
             }
         }
         
+        return hasher.finalize()
+    }
+}
+
+public extension Collection where Element: DevContentComparable {
+    var contentHash: Int {
+        var hasher = Hasher()
+        forEach { hasher.combine($0.contentHash) }
         return hasher.finalize()
     }
 }
