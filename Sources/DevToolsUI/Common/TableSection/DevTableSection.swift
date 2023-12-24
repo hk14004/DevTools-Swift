@@ -21,8 +21,13 @@ public extension ContentComparable where Self: Hashable {
     var contentHash: Int {
         var hasher = Hasher()
         let mirror = Mirror(reflecting: self)
-
-        for case let (_?, value) in mirror.children {
+        let children = mirror.children
+        
+        guard !children.isEmpty else {
+            return String(describing: self).hashValue
+        }
+        
+        for case let (_?, value) in children {
             if let value = value as? ContentComparable {
                 hasher.combine(value.contentHash)
                 continue
@@ -31,7 +36,7 @@ public extension ContentComparable where Self: Hashable {
                 hasher.combine(hashable)
             }
         }
-
+        
         return hasher.finalize()
     }
 }
