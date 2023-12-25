@@ -34,3 +34,22 @@ public extension DevTableSection {
         hasher.combine(self.id)
     }
 }
+
+public extension DevHashChangeSet {
+    static func calculateCellChangeSet<Element: DevTableSection>(
+        old: [Element],
+        new: [Element]
+    ) -> DevHashChangeSet {
+        func getCells(section: [Element]) -> [Element.Cell] {
+            section.map { section in
+                section.cells
+            }
+            .flatMap { item in
+                item
+            }
+        }
+        let oldCells = getCells(section: old)
+        let newCells = getCells(section: new)
+        return DevHashChangeSet.calculateChangeSet(old: oldCells, new: newCells)
+    }
+}
