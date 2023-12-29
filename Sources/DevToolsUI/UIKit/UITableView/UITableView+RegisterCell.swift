@@ -1,6 +1,6 @@
 //
-//  UITableViewCell+RegisterCell.swift
-//  
+//  UITableView+RegisterCell.swift
+//
 //
 //  Created by Hardijs Ķirsis on 29/12/2023.
 //

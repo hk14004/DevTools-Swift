@@ -1,5 +1,5 @@
 //
-//  UITableViewCell + TableView.swift
+//  UITableViewCell+TableView.swift
 //  
 //
 //  Created by Hardijs Ķirsis on 06/05/2023.
