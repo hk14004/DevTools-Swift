@@ -17,7 +17,21 @@ public protocol DevTableSection: Hashable, DevContentComparable {
     var cells: [Cell] { get set}
 }
 
-public typealias DevTableSectionCell = Hashable & DevContentComparable
+public protocol DevTableSectionCell: DevContentComparable, Hashable {}
+
+public extension DevTableSectionCell {
+    var contentHash: Int {
+        fatalError("Must be implement by cell")
+    }
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        fatalError("Must be implement by cell")
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        fatalError("Must be implement by cell")
+    }
+}
 
 public extension DevTableSection {
     var contentHash: Int {
