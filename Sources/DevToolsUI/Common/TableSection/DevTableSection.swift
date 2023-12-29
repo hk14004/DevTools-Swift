@@ -8,29 +8,16 @@
 import Foundation
 import DevToolsCore
 
+public protocol DevTableSectionCell: DevContentComparable, Hashable {}
+public protocol DevTableSectionCellModel: DevContentComparable, Hashable {}
+
 public protocol DevTableSection: Hashable, DevContentComparable {
-    associatedtype Cell: Hashable, DevContentComparable
+    associatedtype Cell: DevTableSectionCell
     associatedtype SectionID: CaseIterable, RawRepresentable, Hashable where SectionID.RawValue == String
     
     var id: SectionID { get }
     var title: String { get set }
     var cells: [Cell] { get set}
-}
-
-public protocol DevTableSectionCell: DevContentComparable, Hashable {}
-
-public extension DevTableSectionCell {
-    var contentHash: Int {
-        fatalError("Must be implement by cell")
-    }
-    
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        fatalError("Must be implement by cell")
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        fatalError("Must be implement by cell")
-    }
 }
 
 public extension DevTableSection {

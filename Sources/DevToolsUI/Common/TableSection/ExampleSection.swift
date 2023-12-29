@@ -14,7 +14,7 @@ fileprivate struct ExampleSection: DevTableSection {
         case SectionB
     }
     
-    enum Cell: Hashable, DevContentComparable {
+    enum Cell: DevTableSectionCell {
         case emptyCell
         case showText
         case navigate(NavigationItem)
