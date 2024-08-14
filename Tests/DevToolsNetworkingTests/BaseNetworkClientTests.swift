@@ -95,25 +95,29 @@ final class BaseNetworkClientTests: XCTestCase {
         }
     }
     
-    func testExecuteRequestFailsNetworkError() throws {
-        testReachabilityError(urlError: URLError(.notConnectedToInternet))
-        testReachabilityError(urlError: URLError(.networkConnectionLost))
-        testReachabilityError(urlError: URLError(.dataNotAllowed))
-        testReachabilityError(urlError: URLError(.internationalRoamingOff))
-        testReachabilityError(urlError: URLError(.cannotConnectToHost))
-        testReachabilityError(urlError: URLError(.timedOut))
-        testReachabilityError(urlError: URLError(.secureConnectionFailed))
+    func testNetworkErrorReceivedForAllMethods() {
+        DevHTTPMethod.allCases.forEach {
+            runTestRequestFailsWithNetworkError(httpMethod: $0)
+        }
     }
     
-    private func testReachabilityError(urlError: URLError) {
+    private func runTestRequestFailsWithNetworkError(httpMethod: DevHTTPMethod) {
+        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.notConnectedToInternet))
+        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.networkConnectionLost))
+        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.dataNotAllowed))
+        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.internationalRoamingOff))
+        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.cannotConnectToHost))
+        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.timedOut))
+        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.secureConnectionFailed))
+    }
+    
+    private func runTestReachabilityError(requestConfig: MockDevRequestConfig, urlError: URLError) {
         // Given
-        let requestConfig = MockDevRequestConfig.mock(method: .get)
         mockDevNetworkRequestFactory.mockRequest = URLRequest(url: URL(string: requestConfig.baseURL)!)
         mockDevNetworkRequestFactory.requestCalled = { calledConfig in
             XCTAssertEqual(calledConfig as! MockDevRequestConfig, requestConfig)
         }
         mockNetworkDataProvider.mockOutput = .fail(urlError)
-        
         
         // When
         let publisher: AnyPublisher<MockJSONDecoded, Error> = sut.execute(requestConfig)

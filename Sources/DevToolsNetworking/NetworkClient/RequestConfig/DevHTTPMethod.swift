@@ -1,6 +1,6 @@
 import Foundation
 
-public enum DevHTTPMethod: String {
+public enum DevHTTPMethod: String, CaseIterable {
     case get
     case post
     case put
