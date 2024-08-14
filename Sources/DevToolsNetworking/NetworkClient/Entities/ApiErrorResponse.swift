@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ApiErrorResponse: Codable {
+public struct ApiErrorResponse: Codable, Equatable {
     public let code: String
     public let message: String
 

@@ -8,7 +8,8 @@ extension Error {
             URLError.dataNotAllowed,
             URLError.internationalRoamingOff,
             URLError.cannotConnectToHost,
-            URLError.timedOut:
+            URLError.timedOut,
+            URLError.secureConnectionFailed:
             return true
         default:
             return false

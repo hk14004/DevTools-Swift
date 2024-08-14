@@ -37,7 +37,7 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
         if error.isReachabilityError {
             return NetworkError.reachability
         }
-        return NetworkError.unexpected(error)
+        return NetworkError.unexpected(error.localizedDescription)
     }
     
     private func networkError(
