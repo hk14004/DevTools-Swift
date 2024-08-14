@@ -13,7 +13,6 @@ final class AuthorizationInterceptorTests: XCTestCase {
 
     func testSomething() throws {
         // Given
-        
         let exp1 = XCTestExpectation(description: "Completion handler should be called")
         let manager = RequestManager<TestTarget>()
         let sut = makeSUT()
