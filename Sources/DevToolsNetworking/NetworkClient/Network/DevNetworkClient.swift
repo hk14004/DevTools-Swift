@@ -28,12 +28,6 @@ extension BaseNetworkClient {
             .flatMap { [weak self] request -> AnyPublisher<T, Error> in
                 self?.executeRequest(request: request) ?? .empty()
             }
-            .tryCatch { [weak self] error -> AnyPublisher<T, Error> in
-                self?.catchRequestError(
-                    requestConfig: requestConfig,
-                    error: error
-                ) ?? .empty()
-            }
             .eraseToAnyPublisher()
     }
 }
@@ -52,19 +46,5 @@ extension BaseNetworkClient {
         dataProvider.output(for: request)
             .decode(when: request)
             .eraseToAnyPublisher()
-    }
-    
-    private func catchRequestError<T>(
-        requestConfig: DevRequestConfig,
-        error: Error
-    ) -> AnyPublisher<T, Error> {
-        switch error {
-        case NetworkError.unauthorized:
-            return .fail(error)
-        case NetworkError.forbidden:
-            return .fail(error)
-        default:
-            return .fail(error)
-        }
     }
 }
