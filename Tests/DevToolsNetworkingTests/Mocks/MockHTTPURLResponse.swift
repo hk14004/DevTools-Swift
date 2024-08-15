@@ -8,12 +8,12 @@
 import Foundation
 
 extension HTTPURLResponse {
-    static func mock(url: String) -> HTTPURLResponse {
+    static func mock(url: String, statusCode: Int = 200) -> HTTPURLResponse {
         HTTPURLResponse(
             url: URL(string: url)!,
-            mimeType: nil,
-            expectedContentLength: 0,
-            textEncodingName: nil
-        )
+            statusCode: statusCode,
+            httpVersion: nil,
+            headerFields: nil
+        )!
     }
 }
