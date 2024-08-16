@@ -1,6 +1,6 @@
 import Foundation
 
-extension URL {
+public extension URL {
     init(base: String, path: String, queryItems: [URLQueryItem]? = nil) {
         var urlComponents = URLComponents(string: "\(base)\(path)")
         urlComponents?.queryItems = queryItems

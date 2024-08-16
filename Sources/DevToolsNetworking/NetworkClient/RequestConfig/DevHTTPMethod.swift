@@ -1,9 +1,9 @@
 import Foundation
 
 public enum DevHTTPMethod: String, CaseIterable {
-    case get
-    case post
-    case put
-    case delete
+    case get = "GET"
+    case post = "POST"
+    case put = "PUT"
+    case delete = "DELETE"
     case patch = "PATCH"
 }

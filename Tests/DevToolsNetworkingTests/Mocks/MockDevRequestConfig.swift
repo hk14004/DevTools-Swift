@@ -24,6 +24,12 @@ extension MockDevRequestConfig {
         baseURL: String = "www.mock.com",
         path: String = "/mock",
         method: DevHTTPMethod,
+        queryItems: [URLQueryItem]? = [
+            URLQueryItem(name: "mock1", value: "mock1Value"),
+            URLQueryItem(name: "mock2", value: "mock2Value")
+        ],
+        bodyParameters: Data? = nil,
+        headers: [String : String]? = nil,
         authType: DevRequestAuthType = .none,
         timeoutInterval: TimeInterval = 0
     ) -> MockDevRequestConfig {
@@ -31,6 +37,9 @@ extension MockDevRequestConfig {
             baseURL: baseURL,
             path: path,
             method: method,
+            queryItems: queryItems,
+            bodyParameters: bodyParameters,
+            headers: headers,
             authType: authType,
             timeoutInterval: timeoutInterval
         )
