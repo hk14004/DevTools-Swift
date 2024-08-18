@@ -7,9 +7,9 @@
 
 import Foundation
 
-extension RequestManager {
-    public enum RetryMethod {
-        case `default`
-        case retry(maxRetryCount: Int, seconds: Int, exponentialBackOff: Bool)
-    }
-}
+//extension RequestManager {
+//    public enum RetryMethod {
+//        case `default`
+//        case retry(maxRetryCount: Int, seconds: Int, exponentialBackOff: Bool)
+//    }
+//}

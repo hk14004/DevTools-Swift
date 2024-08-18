@@ -1,66 +1,66 @@
+////
+////  MaintenanceInterceptor.swift
+////  
+////
+////  Created by Hardijs on 31/12/2022.
+////
 //
-//  MaintenanceInterceptor.swift
-//  
+//import Foundation
+//import Moya
 //
-//  Created by Hardijs on 31/12/2022.
+//open class MaintenanceInterceptor<T: TargetType> {
+//    
+//    public let maintenanceStatusCode: Int = 503
+//    private var lastRequestWasUnderMaintenance: Bool = false
+//    
+//    // MARK: Methods
+//    
+//    open func notifyMaintenanceChanged(enabled: Bool) {
+//        fatalError("Implement your maintenance trigger")
+//    }
+//}
 //
-
-import Foundation
-import Moya
-
-open class MaintenanceInterceptor<T: TargetType> {
-    
-    public let maintenanceStatusCode: Int = 503
-    private var lastRequestWasUnderMaintenance: Bool = false
-    
-    // MARK: Methods
-    
-    open func notifyMaintenanceChanged(enabled: Bool) {
-        fatalError("Implement your maintenance trigger")
-    }
-}
-
-// MARK: Private
-
-extension MaintenanceInterceptor {
-    private func getStatusCode(moyaResponse: Result<Moya.Response, Moya.MoyaError>) -> Int? {
-        switch moyaResponse {
-        case .success(let success):
-            return success.statusCode
-        case .failure(let failure):
-            return failure.response?.statusCode
-        }
-    }
-    
-}
-
-// MARK: NetworkLayerInterceptor
-
-extension MaintenanceInterceptor: NetworkLayerInterceptor {
-    
-    public func requestDidComplete<T>(requestID: String, result: Result<Moya.Response, Moya.MoyaError>, target: T) where T : Moya.TargetType {
-        guard let code = getStatusCode(moyaResponse: result) else {
-            // No response
-            return
-        }
-        let didReceiveMaintenanceMode = code == maintenanceStatusCode
-        
-        if lastRequestWasUnderMaintenance != didReceiveMaintenanceMode {
-            notifyMaintenanceChanged(enabled: didReceiveMaintenanceMode)
-        }
-        lastRequestWasUnderMaintenance = didReceiveMaintenanceMode
-    }
-    
-    public func requestCreated<T>(requestID: String, provider: Moya.MoyaProvider<T>, target: T, startRequest: @escaping () -> Void) where T : Moya.TargetType {
-        startRequest()
-    }
-    
-    public func requestDidLaunch<T>(requestID: String, target: T) where T : Moya.TargetType {}
-    
-    public func shouldRequestComplete<T>(requestID: String, provider: Moya.MoyaProvider<T>, result: Result<Moya.Response, Moya.MoyaError>, target: T, reLaunchClosure: @escaping () -> ()) -> Bool where T : Moya.TargetType {
-        return true
-    }
-    
-    public func requestDidCancel<T>(requestID: String, target: T) where T : Moya.TargetType {}
-    
-}
+//// MARK: Private
+//
+//extension MaintenanceInterceptor {
+//    private func getStatusCode(moyaResponse: Result<Moya.Response, Moya.MoyaError>) -> Int? {
+//        switch moyaResponse {
+//        case .success(let success):
+//            return success.statusCode
+//        case .failure(let failure):
+//            return failure.response?.statusCode
+//        }
+//    }
+//    
+//}
+//
+//// MARK: NetworkLayerInterceptor
+//
+//extension MaintenanceInterceptor: NetworkLayerInterceptor {
+//    
+//    public func requestDidComplete<T>(requestID: String, result: Result<Moya.Response, Moya.MoyaError>, target: T) where T : Moya.TargetType {
+//        guard let code = getStatusCode(moyaResponse: result) else {
+//            // No response
+//            return
+//        }
+//        let didReceiveMaintenanceMode = code == maintenanceStatusCode
+//        
+//        if lastRequestWasUnderMaintenance != didReceiveMaintenanceMode {
+//            notifyMaintenanceChanged(enabled: didReceiveMaintenanceMode)
+//        }
+//        lastRequestWasUnderMaintenance = didReceiveMaintenanceMode
+//    }
+//    
+//    public func requestCreated<T>(requestID: String, provider: Moya.MoyaProvider<T>, target: T, startRequest: @escaping () -> Void) where T : Moya.TargetType {
+//        startRequest()
+//    }
+//    
+//    public func requestDidLaunch<T>(requestID: String, target: T) where T : Moya.TargetType {}
+//    
+//    public func shouldRequestComplete<T>(requestID: String, provider: Moya.MoyaProvider<T>, result: Result<Moya.Response, Moya.MoyaError>, target: T, reLaunchClosure: @escaping () -> ()) -> Bool where T : Moya.TargetType {
+//        return true
+//    }
+//    
+//    public func requestDidCancel<T>(requestID: String, target: T) where T : Moya.TargetType {}
+//    
+//}

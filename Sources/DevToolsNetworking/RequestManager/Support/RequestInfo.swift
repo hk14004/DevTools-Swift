@@ -1,16 +1,16 @@
+////
+////  RequestInfo.swift
+////  
+////
+////  Created by Hardijs on 31/12/2022.
+////
 //
-//  RequestInfo.swift
-//  
+//import Moya
 //
-//  Created by Hardijs on 31/12/2022.
-//
-
-import Moya
-
-extension RequestManager {
-    struct RequestInfo {
-        weak var provider: MoyaProvider<T>?
-        var target: T
-        var completionHandlers: [(Result<Response, MoyaError>) -> Void]
-    }
-}
+//extension RequestManager {
+//    struct RequestInfo {
+//        weak var provider: MoyaProvider<T>?
+//        var target: T
+//        var completionHandlers: [(Result<Response, MoyaError>) -> Void]
+//    }
+//}
