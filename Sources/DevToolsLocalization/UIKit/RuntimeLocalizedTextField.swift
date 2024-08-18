@@ -13,9 +13,9 @@ open class RuntimeLocalizedTextField: UITextField {
     
     private let loc: RuntimeLocalization = RuntimeStringFileLocalization.shared
     
-    @IBInspectable open var localizedStringKey: String? {
+    @IBInspectable open var runtimeLocalizedKey: String? {
         didSet {
-            updateLocalizedStrings()
+            updateRuntimeLocalizedStrings()
         }
     }
     
@@ -39,11 +39,11 @@ open class RuntimeLocalizedTextField: UITextField {
     
     open override func awakeFromNib() {
         super.awakeFromNib()
-        updateLocalizedStrings()
+        updateRuntimeLocalizedStrings()
     }
     
     private func commonInit() {
-        updateLocalizedStrings()
+        updateRuntimeLocalizedStrings()
         observe()
     }
 }
@@ -51,8 +51,8 @@ open class RuntimeLocalizedTextField: UITextField {
 // MARK: LocalizedRuntimeComponent
 
 extension RuntimeLocalizedTextField: RuntimeLocalizedUIKitComponent {
-    @objc func updateLocalizedStrings() {
-        placeholder = localizedStringKey?.localized()
+    @objc func updateRuntimeLocalizedStrings() {
+        placeholder = runtimeLocalizedKey?.localized()
     }
 }
 
@@ -60,6 +60,6 @@ extension RuntimeLocalizedTextField: RuntimeLocalizedUIKitComponent {
 
 extension RuntimeLocalizedTextField {
     private func observe() {
-        loc.observeLanguage(observer: self, selector: #selector(updateLocalizedStrings))
+        loc.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
     }
 }

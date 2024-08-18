@@ -51,7 +51,7 @@ let package = Package(
             dependencies: []),
         .target(
             name: "DevToolsNetworking",
-            dependencies: ["Moya"]),
+            dependencies: ["DevToolsCore", "Moya"]),
         .target(
             name: "DevToolsUI",
             dependencies: ["DevToolsCore"]),

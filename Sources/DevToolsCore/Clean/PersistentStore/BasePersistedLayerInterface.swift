@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-open class BasePersistedLayerInterface<T: PersistableDomainModelProtocol>: PersistedLayerInterface {
+open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLayerInterface {
     open func replace(with items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) {
         fatalError()
     }

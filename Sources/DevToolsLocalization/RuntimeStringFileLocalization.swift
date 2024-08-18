@@ -8,9 +8,15 @@
 import Foundation
 import Localize_Swift
 import DevToolsCore
+import Combine
 
 public final class RuntimeStringFileLocalization {
     public static let shared = RuntimeStringFileLocalization()
+    private let currentLanguagePublisher: CurrentValueSubject<String, Never>
+    
+    private init() {
+        self.currentLanguagePublisher = .init(Localize.currentLanguage())
+    }
 }
 
 // MARK: Public
@@ -26,6 +32,11 @@ extension RuntimeStringFileLocalization: RuntimeLocalization {
     
     public func change(languageCode: String) {
         Localize.setCurrentLanguage(languageCode)
+        currentLanguagePublisher.send(languageCode)
+    }
+    
+    public func observeCurrentLanguage() -> AnyPublisher<String, Never> {
+        currentLanguagePublisher.eraseToAnyPublisher()
     }
     
     public func observeLanguage(observer: Any, selector: Selector) {
@@ -48,5 +59,4 @@ extension RuntimeStringFileLocalization: RuntimeLocalization {
     public func stopObservingLanguage(observer: Any) {
         NotificationCenter.default.removeObserver(observer)
     }
-
 }

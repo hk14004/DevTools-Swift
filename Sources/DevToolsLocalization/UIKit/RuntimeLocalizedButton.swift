@@ -13,9 +13,9 @@ open class RuntimeLocalizedButton: UIButton {
     
     private let loc: RuntimeLocalization = RuntimeStringFileLocalization.shared
     
-    @IBInspectable open var localizedStringKey: String? {
+    @IBInspectable open var runtimeLocalizedKey: String? {
         didSet {
-            updateLocalizedStrings()
+            updateRuntimeLocalizedStrings()
         }
     }
     
@@ -39,11 +39,11 @@ open class RuntimeLocalizedButton: UIButton {
     
     open override func awakeFromNib() {
         super.awakeFromNib()
-        updateLocalizedStrings()
+        updateRuntimeLocalizedStrings()
     }
     
     private func commonInit() {
-        updateLocalizedStrings()
+        updateRuntimeLocalizedStrings()
         observe()
     }
 }
@@ -51,11 +51,11 @@ open class RuntimeLocalizedButton: UIButton {
 // MARK: LocalizedRuntimeComponent
 
 extension RuntimeLocalizedButton: RuntimeLocalizedUIKitComponent {
-    @objc func updateLocalizedStrings() {
+    @objc func updateRuntimeLocalizedStrings() {
         guard titleLabel != nil else {
             return
         }
-        setTitle(localizedStringKey?.localized(), for: .normal)
+        setTitle(runtimeLocalizedKey?.localized(), for: .normal)
     }
 }
 
@@ -63,6 +63,6 @@ extension RuntimeLocalizedButton: RuntimeLocalizedUIKitComponent {
 
 extension RuntimeLocalizedButton {
     private func observe() {
-        loc.observeLanguage(observer: self, selector: #selector(updateLocalizedStrings))
+        loc.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
     }
 }

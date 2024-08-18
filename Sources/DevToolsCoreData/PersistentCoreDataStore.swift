@@ -12,7 +12,7 @@ import Combine
 
 // TODO: Handle all throws
 
-public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: PersistableDomainModelProtocol,
+public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: PersistableDomainModel,
                                                                                         Domain.StoreType: NSManagedObject,
                                                                                         Domain.StoreType.DomainModelType == Domain {
     

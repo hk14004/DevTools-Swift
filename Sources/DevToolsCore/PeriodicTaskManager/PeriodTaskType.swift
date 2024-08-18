@@ -1,0 +1,17 @@
+//
+//  PeriodTaskTypeProtocol.swift
+//  
+//
+//  Created by Hardijs Ķirsis on 09/04/2023.
+//
+
+import Foundation
+import Combine
+
+public protocol PeriodTaskType: RawRepresentable, CaseIterable where RawValue == String {}
+
+public extension PeriodTaskType  {
+    func getTaskID() -> String {
+        return "PERIODIC_TASK(" + self.rawValue.uppercased() + ")"
+    }
+}

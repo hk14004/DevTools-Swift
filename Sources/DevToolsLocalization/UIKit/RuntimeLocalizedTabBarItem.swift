@@ -13,9 +13,9 @@ open class RuntimeLocalizedTabBarItem: UITabBarItem {
     
     private let loc: RuntimeLocalization = RuntimeStringFileLocalization.shared
     
-    @IBInspectable open var localizedStringKey: String? {
+    @IBInspectable open var runtimeLocalizedKey: String? {
         didSet {
-            updateLocalizedStrings()
+            updateRuntimeLocalizedStrings()
         }
     }
     
@@ -39,11 +39,11 @@ open class RuntimeLocalizedTabBarItem: UITabBarItem {
     
     open override func awakeFromNib() {
         super.awakeFromNib()
-        updateLocalizedStrings()
+        updateRuntimeLocalizedStrings()
     }
     
     private func commonInit() {
-        updateLocalizedStrings()
+        updateRuntimeLocalizedStrings()
         observe()
     }
     
@@ -52,8 +52,8 @@ open class RuntimeLocalizedTabBarItem: UITabBarItem {
 // MARK: LocalizedRuntimeComponent
 
 extension RuntimeLocalizedTabBarItem: RuntimeLocalizedUIKitComponent {
-    @objc func updateLocalizedStrings() {
-        title = localizedStringKey?.localized()
+    @objc func updateRuntimeLocalizedStrings() {
+        title = runtimeLocalizedKey?.localized()
     }
 }
 
@@ -61,6 +61,6 @@ extension RuntimeLocalizedTabBarItem: RuntimeLocalizedUIKitComponent {
 
 extension RuntimeLocalizedTabBarItem {
     private func observe() {
-        loc.observeLanguage(observer: self, selector: #selector(updateLocalizedStrings))
+        loc.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
     }
 }

@@ -11,7 +11,7 @@ import Combine
 import Realm
 import RealmSwift
 
-public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: PersistableDomainModelProtocol,
+public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: PersistableDomainModel,
                                                                                    Domain.StoreType: RealmSwiftObject,
                                                                                    Domain.StoreType.DomainModelType == Domain {
     public typealias T = Domain

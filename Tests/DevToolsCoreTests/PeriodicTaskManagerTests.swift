@@ -10,17 +10,18 @@ import DevToolsCore
 
 final class PeriodicTaskManagerTests: XCTestCase {
 
+    fileprivate var currentTask: PeriodicTaskBase<TestPeriodicTaskType>?
+    
     func testInternalTimerTask() throws {
         // Given
         let workExp = XCTestExpectation(description: "Work")
         workExp.expectedFulfillmentCount = 2
         
         // When
-        /// Creating a periodic task that is timer fired
-        let task = InternalTimerPeriodicTask(taskType: .refreshUserData, expectation: workExp)
+        currentTask = InternalTimerPeriodicTask(taskType: .refreshUserData, expectation: workExp)
         
         // Then
-        wait(for: [workExp], timeout: 0.1)
+        wait(for: [workExp], timeout: defaultTimeout)
     }
     
     func testNotificationTriggeredTask() throws {
@@ -29,18 +30,17 @@ final class PeriodicTaskManagerTests: XCTestCase {
         workExp.expectedFulfillmentCount = 1
         
         // When
-        /// Creating a periodic task that is notification triggered
         let taskType = TestPeriodicTaskType.refreshGuestData
-        let task = NotificationTriggeredPeriodicTask(taskType: taskType, expectation: workExp)
+        currentTask = NotificationTriggeredPeriodicTask(taskType: taskType, expectation: workExp)
         NotificationCenter.default.post(name: NSNotification.Name(taskType.getTaskID()), object: nil, userInfo: nil)
         
         // Then
-        wait(for: [workExp], timeout: 0.1)
+        wait(for: [workExp], timeout: defaultTimeout)
     }
 
 }
 
-fileprivate enum TestPeriodicTaskType: String, PeriodTaskTypeProtocol {
+fileprivate enum TestPeriodicTaskType: String, PeriodTaskType {
     case refreshUserData
     case refreshGuestData
 }

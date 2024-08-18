@@ -8,7 +8,7 @@
 import RealmSwift
 import DevToolsCore
 
-extension Results where Element: PersistedModelProtocol {
+extension Results where Element: PersistedModel {
     func mapToDomain(fetchOffset: Int, fetchLimit: Int, fields: Set<Element.FieldType>) -> [Element.DomainModelType] {
         let endIndex: Int = {
            let wantIndex = fetchOffset + fetchLimit - 1

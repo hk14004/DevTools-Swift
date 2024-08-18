@@ -10,7 +10,9 @@ import SwiftUI
 public final class RuntimeLocalizationObserver: ObservableObject {
 
     private let animate: Bool
-    
+    public var languageCode: LanguageCode {
+        RuntimeStringFileLocalization.shared.getCurrentLanguage()
+    }
     public init(animate: Bool = false) {
         self.animate = animate
         RuntimeStringFileLocalization.shared.observeLanguage(observer: self, selector: #selector(onLanguageChanged))

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  PeriodicTaskBase.swift
 //  
 //
 //  Created by Hardijs Ķirsis on 09/04/2023.
@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-open class PeriodicTaskBase<TaskType: PeriodTaskTypeProtocol> {
+open class PeriodicTaskBase<TaskType: PeriodTaskType> {
     
     // MARK: Properties
     
@@ -42,7 +42,7 @@ open class PeriodicTaskBase<TaskType: PeriodTaskTypeProtocol> {
             return
         }
         Task {
-            onAfterWork()
+            onBeforeWork()
             await work()
             onAfterWork()
         }

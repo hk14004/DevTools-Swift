@@ -7,13 +7,18 @@
 
 import UIKit
 
-public class AppearanceProxy {
-    
-}
+public class AppearanceProxy {}
 
 // MARK: Public
 
 public extension AppearanceProxy {
+    
+    // MARK: Accent
+    
+    static func setDefault(controlTintColor: UIColor) {
+        UIControl.appearance().tintColor = controlTintColor
+        UIProgressView.appearance().tintColor = controlTintColor
+    }
     
     // MARK: Content
     
@@ -21,7 +26,6 @@ public extension AppearanceProxy {
         UILabel.appearance().textColor = contentTextColor
         UITextField.appearance().textColor = contentTextColor
         UITextView.appearance().textColor = contentTextColor
-        UIButton.appearance().setTitleColor(contentTextColor, for: .normal)
     }
     
     static func setDefault(contentFont: UIFont) {
@@ -30,45 +34,38 @@ public extension AppearanceProxy {
         UITextView.appearance().font = contentFont
     }
     
-    static func setDefault(contentBackgroundColor: UIColor) {
-        UIView.appearance().backgroundColor = contentBackgroundColor
-    }
-    
-    static func setDefault(controlTintColor: UIColor) {
-        UIControl.appearance().tintColor = controlTintColor
-    }
-    
     // MARK: Navigation bar
     
-    static func setDefault(navigationBarBackgroundColor: UIColor) {
-        UINavigationBar.appearance().barTintColor = navigationBarBackgroundColor
+    static func setDefault(navigationBarAppearance: UINavigationBarAppearance) {
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
     }
     
-    static func setDefault(navigationBarTitleTextAttributes: [NSAttributedString.Key: Any]) {
-        UINavigationBar.appearance().titleTextAttributes = navigationBarTitleTextAttributes
+    static func setDefault(navigationBarControlColor: UIColor) {
+        UINavigationBar.appearance().tintColor = navigationBarControlColor
     }
     
-    static func setDefault(navigationBarTranslucent: Bool) {
-        UINavigationBar.appearance().isTranslucent = navigationBarTranslucent
+    static func setDefault(hideBackButtonTitle: Bool, for appearance: UINavigationBarAppearance) {
+        appearance.backButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.backButtonAppearance.disabled.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.backButtonAppearance.highlighted.titleTextAttributes = [.foregroundColor: UIColor.clear]
     }
     
-    static func setDefault(navigationBarShadowImage: UIImage?) {
-        UINavigationBar.appearance().shadowImage = navigationBarShadowImage
-    }
-    
-    static func setDefault(navigationBarBackgroundImage: UIImage?) {
-        UINavigationBar.appearance().setBackgroundImage(navigationBarBackgroundImage, for: .default)
-    }
-    
-    static func setDefault(navigationBarBackIndicatorImage: UIImage?) {
-        UINavigationBar.appearance().backIndicatorImage = navigationBarBackIndicatorImage
-        UINavigationBar.appearance().backIndicatorTransitionMaskImage = navigationBarBackIndicatorImage
-    }
-    
-    static func setDefault(navigationBarTintColor: UIColor) {
-        UINavigationBar.appearance().tintColor = navigationBarTintColor
+    static func setDefault(backButtonImage: UIImage, for appearance: UINavigationBarAppearance) {
+        appearance.setBackIndicatorImage(backButtonImage,
+                                         transitionMaskImage: backButtonImage)
     }
     
     // MARK: Status bar
     
+    // MARK: Tab bar
+    
+    static func setDefault(tabbarAppearance: UITabBarAppearance) {
+        UITabBar.appearance().standardAppearance = tabbarAppearance
+        if #available(iOS 15.0, *) {
+            UITabBar.appearance().scrollEdgeAppearance = tabbarAppearance
+        } else {
+            // Fallback on earlier versions
+        }
+    }
 }
