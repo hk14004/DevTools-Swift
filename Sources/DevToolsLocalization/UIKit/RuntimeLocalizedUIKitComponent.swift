@@ -9,5 +9,6 @@ import Foundation
 
 protocol RuntimeLocalizedUIKitComponent {
     var runtimeLocalizedKey: String? { get set }
+    var runtimeLocalizedArguments: [CVarArg] { get set }
     func updateRuntimeLocalizedStrings()
 }

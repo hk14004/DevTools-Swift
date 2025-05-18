@@ -18,6 +18,11 @@ open class RuntimeLocalizedBarButtonItem: UIBarButtonItem {
             updateRuntimeLocalizedStrings()
         }
     }
+    open var runtimeLocalizedArguments: [CVarArg] = [] {
+        didSet {
+            updateRuntimeLocalizedStrings()
+        }
+    }
     
     //MARK: Initialization
     
@@ -53,7 +58,11 @@ open class RuntimeLocalizedBarButtonItem: UIBarButtonItem {
 
 extension RuntimeLocalizedBarButtonItem: RuntimeLocalizedUIKitComponent {
     @objc func updateRuntimeLocalizedStrings() {
-        title = runtimeLocalizedKey?.localized()
+        title = String(
+            format: runtimeLocalizedKey?.runtimeLocalized() ?? "",
+            locale: Locale.current,
+            arguments: runtimeLocalizedArguments
+        )
     }
 }
 

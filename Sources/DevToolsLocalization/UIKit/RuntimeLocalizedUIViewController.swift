@@ -19,6 +19,12 @@ open class RuntimeLocalizedUIViewController: UIViewController {
         }
     }
     
+    open var runtimeLocalizedArguments: [CVarArg] = [] {
+        didSet {
+            updateRuntimeLocalizedStrings()
+        }
+    }
+    
     // MARK: Initialization
     
     public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -49,6 +55,10 @@ open class RuntimeLocalizedUIViewController: UIViewController {
     // MARK: Public
     
     @objc open func updateRuntimeLocalizedStrings() {
-        title = runtimeLocalizedTitleKey?.runtimeLocalized()
+        title = String(
+            format: runtimeLocalizedTitleKey?.runtimeLocalized() ?? "",
+            locale: Locale.current,
+            arguments: runtimeLocalizedArguments
+        )
     }
 }
