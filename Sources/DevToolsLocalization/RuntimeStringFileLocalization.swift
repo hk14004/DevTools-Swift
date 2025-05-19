@@ -12,15 +12,13 @@ import Combine
 
 public final class RuntimeStringFileLocalization {
     public static let shared = RuntimeStringFileLocalization()
-    private let currentLanguagePublisher: CurrentValueSubject<String, Never>
+    public var bundle: Bundle = .main
+    private let currentLanguagePublisher = CurrentValueSubject<String, Never>(Localize.currentLanguage())
     
-    private init() {
-        self.currentLanguagePublisher = .init(Localize.currentLanguage())
-    }
+    private init() {}
 }
 
 // MARK: Public
-
 extension RuntimeStringFileLocalization: RuntimeLocalization {
     public func getCurrentLanguage() -> String {
         Localize.currentLanguage()

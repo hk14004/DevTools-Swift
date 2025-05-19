@@ -10,6 +10,6 @@ import SwiftUI
 
 public extension String {
     func runtimeLocalized() -> String {
-        self.localized()
+        localized(using: nil, in: RuntimeStringFileLocalization.shared.bundle)
     }
 }
