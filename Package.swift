@@ -35,8 +35,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/realm/realm-cocoa", .upToNextMajor(from: "10.0.0")),
-        .package(url: "https://github.com/marmelroy/Localize-Swift.git", .upToNextMajor(from: "3.0.0"))
+        .package(url: "https://github.com/realm/realm-cocoa", .upToNextMajor(from: "10.0.0"))
         
     ],
     targets: [
@@ -62,7 +61,7 @@ let package = Package(
             dependencies: ["DevToolsCore"]),
         .target(
             name: "DevToolsLocalization",
-            dependencies: [.product(name: "Localize_Swift", package: "Localize-Swift"),"DevToolsCore"]),
+            dependencies: ["DevToolsCore"]),
         .testTarget(
             name: "DevToolsNetworkingTests",
             dependencies: ["DevToolsNetworking"]),
