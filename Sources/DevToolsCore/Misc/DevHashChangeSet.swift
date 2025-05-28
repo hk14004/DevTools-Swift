@@ -5,6 +5,23 @@ public struct DevHashChangeSet {
     public var inserted: [CellID]
     public var removed: [CellID]
     public var updated: [CellID]
+    
+    public init(
+        inserted: [CellID] = [],
+        removed: [CellID] = [],
+        updated: [CellID] = []
+    ) {
+        self.inserted = inserted
+        self.removed = removed
+        self.updated = updated
+    }
+    
+    public init<Element: Hashable & DevContentComparable>(
+        old: [Element] = [],
+        new: [Element] = []
+    ) {
+        self = Self.calculateChangeSet(old: old, new: new)
+    }
 }
 
 public extension DevHashChangeSet {
