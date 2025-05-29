@@ -1,6 +1,6 @@
 //
 //  PersistentCoreDataStore.swift
-//  
+//
 //
 //  Created by Hardijs Ķirsis on 05/04/2023.
 //
@@ -159,13 +159,12 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
         fetchRequest.sortDescriptors = [NSSortDescriptor.makeStringIDSortDescriptor()]
-        return viewContext.collectionPublisher(for: fetchRequest)
+        return context.collectionPublisher(for: fetchRequest)
             .subscribe(on: queue)
             .map({ storedArr in
                 try! storedArr.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))
             })
             .replaceError(with: nil)
-            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
     
@@ -175,7 +174,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = sortDescriptors
-        return viewContext.collectionPublisher(for: fetchRequest)
+        return context.collectionPublisher(for: fetchRequest)
             .subscribe(on: queue)
             .map({ storedArr in
                 storedArr.map { persisted in
@@ -183,7 +182,6 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                 }
             })
             .replaceError(with: [])
-            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
     
