@@ -12,12 +12,12 @@ import Combine
 
 // TODO: Handle all throws
 
-public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: PersistableDomainModel,
-                                                                                        Domain.StoreType: NSManagedObject,
-                                                                                        Domain.StoreType.DomainModelType == Domain {
+public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain>
+where Domain: PersistableDomainModel,
+      Domain.StoreType: NSManagedObject,
+      Domain.StoreType.DomainModelType == Domain {
     
     // MARK: Properties
-    
     public typealias T = Domain
     private let queue: DispatchQueue
     private var context: NSManagedObjectContext!
@@ -26,19 +26,23 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     private var bulkWriteInProgress = false
     
     // MARK: Init
-    
-    public init(queue: DispatchQueue = DispatchQueue(label: "DevTools.PersistentCoreDataStore.\(Domain.self)"),
-                storeContainer: NSPersistentContainer) {
+    public init(
+        queue: DispatchQueue = DispatchQueue(label: "DevTools.PersistentCoreDataStore.\(Domain.self)"),
+        storeContainer: NSPersistentContainer
+    ) {
         self.queue = queue
         self.storeContainer = storeContainer
         self.viewContext = storeContainer.viewContext
         super.init()
-        self.queue.sync {
+        queue.sync {
             self.context = storeContainer.newBackgroundContext()
             self.context.automaticallyMergesChangesFromParent = true
         }
-        NotificationCenter.default.addObserver(self, selector: #selector(contextDidChange(notification:)),
-                                               name: .NSManagedObjectContextDidSave, object: context)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(contextDidChange(notification:)),
+            name: .NSManagedObjectContextDidSave, object: context
+        )
     }
     
     @objc func contextDidChange(notification: Notification) {
@@ -46,7 +50,6 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     }
     
     // MARK: Overriden
-    
     public override func bulkWrite(operations: [() async -> Void]) async {
         await withCheckedContinuation { continuation in
             queue.async {
@@ -67,8 +70,10 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         }
     }
     
-    public override func addOrUpdate(_ items: [Domain],
-                                     fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
+    public override func addOrUpdate(
+        _ items: [Domain],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 self.context.performAndWait {
@@ -103,13 +108,14 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     public override func getSingle(id: String) async -> Domain? {
         await withCheckedContinuation { continuation in
             queue.async {
-                self.context.performAndWait {
+                self.viewContext.performAndWait {
                     do {
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
                         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
                         
                         let result = try self.context.fetch(fetchRequest)
-                            .first?.toDomain(fields: T.StoreType.FieldType.getSetOfAllFields())
+                            .first?
+                            .toDomain(fields: T.StoreType.FieldType.getSetOfAllFields())
                         continuation.resume(returning: result)
                     } catch (let err) {
                         printError(err)
@@ -122,12 +128,13 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     
     
     
-    public override func getList(predicate: NSPredicate,
-                                 sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    public override func getList(
+        predicate: NSPredicate,
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) async -> [Domain] {
         await withCheckedContinuation { continuation in
             queue.async {
-                self.context.performAndWait {
+                self.viewContext.performAndWait {
                     do {
                         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
                         fetchRequest.predicate = predicate
@@ -135,9 +142,9 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
                         
                         let result = try self.context.fetch(fetchRequest)
                         let r = result
-                            .compactMap({ current in
+                            .compactMap { current in
                                 try? current.toDomain(fields: T.StoreType.FieldType.getSetOfAllFields())
-                            })
+                            }
                         continuation.resume(returning: r)
                     } catch (let err) {
                         printError(err)
@@ -148,9 +155,10 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         }
     }
     
-    public override func getListPage(pageOptions: DevToolsCore.PagedRequestOptions,
-                                     predicate: NSPredicate,
-                                     sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()])
+    public override func getListPage(
+        pageOptions: DevToolsCore.PagedRequestOptions,
+        predicate: NSPredicate,
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()])
     async -> DevToolsCore.PagedResult<Domain> {
         fatalError()
     }
@@ -159,28 +167,27 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
         fetchRequest.sortDescriptors = [NSSortDescriptor.makeStringIDSortDescriptor()]
-        return context.collectionPublisher(for: fetchRequest)
-            .subscribe(on: queue)
-            .map({ storedArr in
-                try! storedArr.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))
-            })
+        return viewContext.collectionPublisher(for: fetchRequest)
+            .map { storedItem in
+                try? storedItem.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))
+            }
             .replaceError(with: nil)
             .eraseToAnyPublisher()
     }
     
-    public override func observeList(predicate: NSPredicate,
-                                     sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    public override func observeList(
+        predicate: NSPredicate,
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) -> AnyPublisher<[Domain], Never> {
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = sortDescriptors
-        return context.collectionPublisher(for: fetchRequest)
-            .subscribe(on: queue)
-            .map({ storedArr in
-                storedArr.map { persisted in
-                    try! persisted.toDomain(fields: Set(T.StoreType.FieldType.allCases))
+        return viewContext.collectionPublisher(for: fetchRequest)
+            .map { storedItems in
+                storedItems.compactMap { persisted in
+                    try? persisted.toDomain(fields: Set(T.StoreType.FieldType.allCases))
                 }
-            })
+            }
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
@@ -212,8 +219,10 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
         }
     }
     
-    public override func replace(with items: [Domain],
-                                 fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
+    public override func replace(
+        with items: [Domain],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) async {
         await withCheckedContinuation { continuation in
             queue.async {
                 self.context.performAndWait {
@@ -247,5 +256,6 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
     }
 }
 
-extension NSPredicate: @unchecked Sendable {}
-extension NSSortDescriptor: @unchecked Sendable {}
+extension NSPredicate: @unchecked @retroactive Sendable {}
+extension NSSortDescriptor: @unchecked @retroactive Sendable {}
+extension PersistentCoreDataStore: @unchecked Sendable where Domain: Sendable {}
