@@ -107,20 +107,19 @@ where Domain: PersistableDomainModel,
     
     public override func getSingle(id: String) async -> Domain? {
         await withCheckedContinuation { continuation in
-            queue.async {
-                self.viewContext.performAndWait {
-                    do {
-                        let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
-                        fetchRequest.predicate = NSPredicate(format: "id == %@", id)
-                        
-                        let result = try self.context.fetch(fetchRequest)
-                            .first?
-                            .toDomain(fields: T.StoreType.FieldType.getSetOfAllFields())
-                        continuation.resume(returning: result)
-                    } catch (let err) {
-                        printError(err)
-                        continuation.resume(returning: nil)
-                    }
+            context.perform {
+                do {
+                    let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
+                    fetchRequest.predicate = NSPredicate(format: "id == %@", id)
+
+                    let result = try self.context.fetch(fetchRequest)
+                        .first?
+                        .toDomain(fields: T.StoreType.FieldType.getSetOfAllFields())
+                    
+                    continuation.resume(returning: result)
+                } catch {
+                    printError(error)
+                    continuation.resume(returning: nil)
                 }
             }
         }
@@ -133,23 +132,20 @@ where Domain: PersistableDomainModel,
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) async -> [Domain] {
         await withCheckedContinuation { continuation in
-            queue.async {
-                self.viewContext.performAndWait {
-                    do {
-                        let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
-                        fetchRequest.predicate = predicate
-                        fetchRequest.sortDescriptors = sortDescriptors
-                        
-                        let result = try self.context.fetch(fetchRequest)
-                        let r = result
-                            .compactMap { current in
-                                try? current.toDomain(fields: T.StoreType.FieldType.getSetOfAllFields())
-                            }
-                        continuation.resume(returning: r)
-                    } catch (let err) {
-                        printError(err)
-                        continuation.resume(returning: [])
+            context.perform {
+                do {
+                    let fetchRequest = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
+                    fetchRequest.predicate = predicate
+                    fetchRequest.sortDescriptors = sortDescriptors
+
+                    let storeObjects = try self.context.fetch(fetchRequest)
+                    let domainObjects = storeObjects.compactMap {
+                        try? $0.toDomain(fields: T.StoreType.FieldType.getSetOfAllFields())
                     }
+                    continuation.resume(returning: domainObjects)
+                } catch {
+                    printError(error)
+                    continuation.resume(returning: [])
                 }
             }
         }
@@ -167,7 +163,7 @@ where Domain: PersistableDomainModel,
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
         fetchRequest.sortDescriptors = [NSSortDescriptor.makeStringIDSortDescriptor()]
-        return viewContext.collectionPublisher(for: fetchRequest)
+        return context.collectionPublisher(for: fetchRequest)
             .map { storedItem in
                 try? storedItem.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))
             }
@@ -182,7 +178,7 @@ where Domain: PersistableDomainModel,
         let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = sortDescriptors
-        return viewContext.collectionPublisher(for: fetchRequest)
+        return context.collectionPublisher(for: fetchRequest)
             .map { storedItems in
                 storedItems.compactMap { persisted in
                     try? persisted.toDomain(fields: Set(T.StoreType.FieldType.allCases))
