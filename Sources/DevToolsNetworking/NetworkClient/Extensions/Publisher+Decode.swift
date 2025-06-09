@@ -69,8 +69,12 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
             ----------DevNetworkRequestSent--------------
             Request
             URL: \(request.url?.absoluteString ?? "<nil>")
-            Headers: \(formattedHeaders(request.allHTTPHeaderFields))
-            Body: \(prettyPrintedJSON(request.httpBody))
+            Headers: 
+            ---
+            \(formattedHeaders(request.allHTTPHeaderFields))
+            ---
+            Body: 
+            \(prettyPrintedJSON(request.httpBody))
             """
         )
     }
@@ -81,8 +85,12 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
             ----------DevNetworkResponseReceived----------
             Response
             Status Code: \((response.response as? HTTPURLResponse)?.statusCode ?? 0)
-            Headers: \(formattedHeaders((response.response as? HTTPURLResponse)?.allHeaderFields as? [String: Any]))
-            Body: \(prettyPrintedJSON(response.data))
+            Headers: 
+            ---
+            \(formattedHeaders((response.response as? HTTPURLResponse)?.allHeaderFields as? [String: Any]))
+            ---
+            Body: 
+            \(prettyPrintedJSON(response.data))
             """
         )
     }
