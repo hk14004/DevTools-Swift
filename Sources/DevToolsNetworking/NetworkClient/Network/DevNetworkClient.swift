@@ -10,13 +10,13 @@ open class BaseNetworkClient: DevNetworkClient {
     // MARK: - Variables
     private let dataProvider: DevNetworkDataProvider
     private let requestFactory: DevNetworkRequestFactory
-    private let authorizationHeaderProvider: DevAuthorizationHeaderProvider
+    private let authorizationHeaderProvider: DevAuthorizationHeaderProvider?
     
     // MARK: - Methods
     public init(
         dataProvider: DevNetworkDataProvider,
         requestFactory: DevNetworkRequestFactory,
-        authorizationHeaderProvider: DevAuthorizationHeaderProvider
+        authorizationHeaderProvider: DevAuthorizationHeaderProvider? = nil
     ) {
         self.requestFactory = requestFactory
         self.dataProvider = dataProvider
@@ -39,16 +39,15 @@ extension BaseNetworkClient {
 extension BaseNetworkClient {
     private func prepareRequest(with config: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
         let authorizationHeaders = config.requiresAuthorization
-        ? authorizationHeaderProvider.getAuthorizationHeaders()
+        ? authorizationHeaderProvider?.getAuthorizationHeaders() ?? .just(nil)
         : .just(nil)
         
         return authorizationHeaders
-            .flatMap { headers -> AnyPublisher<URLRequest, Error> in
-                return .just(
-                    self.requestFactory.urlRequest(
-                        requestConfig: config,
-                        authorizationHeaders: headers
-                    )
+            .map { headers in
+                self.requestFactory.urlRequest(
+                    requestConfig: config,
+                    authorizationHeaders: headers
+                    
                 )
             }
             .eraseToAnyPublisher()

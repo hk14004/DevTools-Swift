@@ -25,12 +25,6 @@ public extension DevAuthorizationHeaderProvider {
 }
 
 // MARK: Examples
-public  class EmptyAuthorizationHeaderProvider: DevAuthorizationHeaderProvider {
-    public func getAuthorizationHeaders() -> AnyPublisher<[String: String]?, Error> {
-        .just(nil)
-    }
-}
-
 private class BearerAuthorizationHeaderProvider: DevAuthorizationHeaderProvider {
     func getAuthorizationHeaders() -> AnyPublisher<[String: String]?, Error> {
         let fetchedToken = "123"
