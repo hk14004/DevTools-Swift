@@ -5,7 +5,7 @@
 //  Created by Hardijs Ķirsis on 24/12/2023.
 //
 
-import UIKit
+import Foundation
 
 public struct DevIndexPathChangeSet {
     public var inserted: [IndexPath]

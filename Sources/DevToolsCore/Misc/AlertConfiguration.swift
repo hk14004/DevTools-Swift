@@ -5,15 +5,14 @@
 //  Created by Hardijs Kirsis on 09/06/2025.
 //
 
-import UIKit
-import DevToolsCore
+import Foundation
 
 public struct AlertConfiguration {
     // MARK: Variables
     public let title: String
     public let message: String
     public let buttons: [Button]
-    public let style: UIAlertController.Style
+    public let style: Style
     public let accessibilityId: String?
     public let accessibilityLabel: String?
     
@@ -22,7 +21,7 @@ public struct AlertConfiguration {
         title: String = "",
         message: String = "",
         buttons: [Button] = [],
-        style: UIAlertController.Style = .alert,
+        style: Style = .alert,
         accessibilityId: String? = nil,
         accessibilityLabel: String? = nil
     ) {
@@ -40,10 +39,10 @@ extension AlertConfiguration {
         // MARK: Variables
         public let title: String
         public let action: VoidCallback
-        public let style: UIAlertAction.Style
+        public let style: AlertAction.Style
         public let isPreferredAction: Bool
         public let isSelected: Bool
-        public let isSelectedImage: UIImage?
+        public let selectedImageData: Data?
         public let accessibilityIdentifier: String?
         public let accessibilityLabel: String?
         
@@ -51,10 +50,10 @@ extension AlertConfiguration {
         public init(
             title: String,
             action: @escaping VoidCallback,
-            style: UIAlertAction.Style = .default,
+            style: AlertAction.Style = .default,
             isPreferredAction: Bool = false,
             isSelected: Bool = false,
-            isSelectedImage: UIImage? = nil,
+            selectedImageData: Data? = nil,
             accessibilityIdentifier: String? = nil,
             accessibilityLabel: String? = nil
         ) {
@@ -63,9 +62,24 @@ extension AlertConfiguration {
             self.style = style
             self.isPreferredAction = isPreferredAction
             self.isSelected = isSelected
-            self.isSelectedImage = isSelectedImage
+            self.selectedImageData = selectedImageData
             self.accessibilityIdentifier = accessibilityIdentifier
             self.accessibilityLabel = accessibilityLabel
+        }
+    }
+}
+
+public extension AlertConfiguration {
+    enum Style: Int {
+        case actionSheet = 0
+        case alert
+    }
+    
+    struct AlertAction {
+        public enum Style: Int {
+            case `default` = 0
+            case cancel
+            case destructive
         }
     }
 }

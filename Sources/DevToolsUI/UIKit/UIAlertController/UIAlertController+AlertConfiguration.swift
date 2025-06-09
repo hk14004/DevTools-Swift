@@ -13,7 +13,7 @@ extension UIAlertController {
         let alertStyle = if UIDevice.current.userInterfaceIdiom == .pad {
             Style.alert
         } else {
-            configuration.style
+            Style(rawValue: configuration.style.rawValue) ?? .alert
         }
 
         self.init(
@@ -25,14 +25,14 @@ extension UIAlertController {
         for button in configuration.buttons {
             let action = UIAlertAction(
                 title: button.title,
-                style: button.style
+                style: UIAlertAction.Style.init(rawValue: button.style.rawValue) ?? .default
             ) { _ in
                 button.action()
             }
             action.accessibilityIdentifier = button.accessibilityIdentifier
             action.accessibilityLabel = button.accessibilityLabel
-            if button.isSelected {
-                action.setValue(button.isSelectedImage, forKey: "image")
+            if button.isSelected, let data = button.selectedImageData {
+                action.setValue(UIImage(data: data), forKey: "image")
             }
 
             addAction(action)
