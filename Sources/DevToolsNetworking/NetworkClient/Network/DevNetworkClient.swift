@@ -38,13 +38,16 @@ extension BaseNetworkClient {
 // MARK: Private
 extension BaseNetworkClient {
     private func prepareRequest(with config: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
-        authorizationHeaderProvider.getAuthorizationHeaders()
-            .flatMap { [weak self] authorizationHeaders -> AnyPublisher<URLRequest, Error> in
-                guard let self else { return .empty() }
+        let authorizationHeaders = config.requiresAuthorization
+        ? authorizationHeaderProvider.getAuthorizationHeaders()
+        : .just(nil)
+        
+        return authorizationHeaders
+            .flatMap { headers -> AnyPublisher<URLRequest, Error> in
                 return .just(
-                    requestFactory.urlRequest(
+                    self.requestFactory.urlRequest(
                         requestConfig: config,
-                        authorizationHeaders: authorizationHeaders
+                        authorizationHeaders: headers
                     )
                 )
             }
