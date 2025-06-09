@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol UIPresentableError: Error {
+public protocol UIPresentableError: Error {
     var presentableContent: UIPresentableErrorContent { get }
 }
 
