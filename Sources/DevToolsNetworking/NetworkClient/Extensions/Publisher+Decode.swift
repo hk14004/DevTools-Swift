@@ -69,6 +69,7 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
             ----------DevNetworkRequestSent--------------
             Request
             URL: \(request.url?.absoluteString ?? "<nil>")
+            Method: \(request.httpMethod ?? "<nil>")
             Headers: 
             ---
             \(formattedHeaders(request.allHTTPHeaderFields))
