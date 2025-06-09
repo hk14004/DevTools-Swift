@@ -54,7 +54,7 @@ extension AlertConfiguration {
             style: UIAlertAction.Style = .default,
             isPreferredAction: Bool = false,
             isSelected: Bool = false,
-            isSelectedImage: UIImage?,
+            isSelectedImage: UIImage? = nil,
             accessibilityIdentifier: String? = nil,
             accessibilityLabel: String? = nil
         ) {
