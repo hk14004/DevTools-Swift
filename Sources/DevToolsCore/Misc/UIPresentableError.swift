@@ -12,8 +12,8 @@ public protocol UIPresentableError: Error {
 }
 
 public struct UIPresentableErrorContent {
-    let title: String
-    let message: String
+    public let title: String
+    public let message: String
     
     public init(title: String = "", message: String = "") {
         self.title = title
