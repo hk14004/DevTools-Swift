@@ -57,7 +57,7 @@ extension PersistentCoreDataStoreTests {
         // Act
         try await sut.delete(items.map { $0.id } )
         // Assert
-        let found = try sut.getList()
+        let found = try await sut.getList()
         XCTAssertTrue(found.isEmpty)
     }
     
@@ -70,7 +70,7 @@ extension PersistentCoreDataStoreTests {
         // Act
         try await sut.delete([items[1].id])
         // Assert
-        let found = try sut.getList()
+        let found = try await sut.getList()
         XCTAssertEqual(found, expectedItems)
     }
 }

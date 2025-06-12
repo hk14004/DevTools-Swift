@@ -57,7 +57,7 @@ extension PersistentCoreDataStoreTests {
         // Act
         try await sut.addOrUpdate(items)
         // Assert
-        let found = try sut.getList()
+        let found = try await sut.getList()
         XCTAssertEqual(found, items)
     }
     

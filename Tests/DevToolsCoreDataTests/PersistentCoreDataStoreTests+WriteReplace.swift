@@ -55,7 +55,7 @@ extension PersistentCoreDataStoreTests {
         // Act
         try await sut.replace(with: [])
         // Assert
-        let found = try sut.getList()
+        let found = try await sut.getList()
         XCTAssertTrue(found.isEmpty)
     }
     
@@ -67,7 +67,7 @@ extension PersistentCoreDataStoreTests {
         // Act
         try await sut.replace(with: replacedWithItems)
         // Assert
-        let found = try sut.getList()
+        let found = try await sut.getList()
         XCTAssertEqual(replacedWithItems, found)
     }
 }
