@@ -35,7 +35,7 @@ public protocol PersistedLayerInterface {
     func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) async throws
     func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) throws
     
-    func delete(_ itemIds: [String]) async
+    func delete(_ itemIds: [String]) async throws
     func delete(_ itemIds: [String]) throws
     
     func replace(with items: [T], fields: Set<T.StoreType.FieldType>) async

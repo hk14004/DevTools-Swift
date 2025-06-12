@@ -80,7 +80,7 @@ open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLaye
         fatalError()
     }
     
-    open func delete(_ itemIds: [String]) async {
+    open func delete(_ itemIds: [String]) async throws {
         fatalError()
     }
     

@@ -11,6 +11,5 @@ import Foundation
 
 public protocol PersistableDomainModel {
     associatedtype StoreType: PersistedModel
-    associatedtype ID : Hashable
-    var id: ID { get }
+    var id: String { get }
 }

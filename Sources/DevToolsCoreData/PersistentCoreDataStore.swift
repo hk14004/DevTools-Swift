@@ -16,7 +16,7 @@ public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain
 where Domain: PersistableDomainModel,
       Domain.StoreType: NSManagedObject,
       Domain.StoreType.DomainModelType == Domain {
-        
+    
     // MARK: Properties
     public typealias T = Domain
     private let queue: DispatchQueue
@@ -126,8 +126,20 @@ where Domain: PersistableDomainModel,
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) throws {
         try context.performAndWait {
+            let fetchRequest = makeFetchRequest(
+                predicate: makeIdInPredicate(items.map { "\($0.id)" })
+            )
+            
+            let existingDict = Dictionary<String, T.StoreType>(
+                uniqueKeysWithValues: try context.fetch(fetchRequest)
+                    .compactMap {
+                        guard let id = $0.id as? String else { return nil }
+                        return (id, $0)
+                    }
+            )
+            
             for item in items {
-                if let stored = try self.context.fetch(makeIDFetchRequest("\(item.id)")).first {
+                if let stored = existingDict["\(item.id)"] {
                     stored.update(with: item, fields: fields)
                 } else {
                     T.StoreType(context: self.context).update(with: item, fields: fields)
@@ -140,6 +152,7 @@ where Domain: PersistableDomainModel,
         }
     }
     
+    
     public override func addOrUpdate(
         _ items: [Domain],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
@@ -147,8 +160,20 @@ where Domain: PersistableDomainModel,
         try await withCheckedThrowingContinuation { continuation in
             self.context.perform {
                 do {
+                    let fetchRequest = self.makeFetchRequest(
+                        predicate: self.makeIdInPredicate(items.map { "\($0.id)" })
+                    )
+                    
+                    let existingDict = Dictionary<String, T.StoreType>(
+                        uniqueKeysWithValues: try self.context.fetch(fetchRequest)
+                            .compactMap {
+                                guard let id = $0.id as? String else { return nil }
+                                return (id, $0)
+                            }
+                    )
+                    
                     for item in items {
-                        if let stored = try self.context.fetch(self.makeIDFetchRequest("\(item.id)")).first {
+                        if let stored = existingDict["\(item.id)"] {
                             stored.update(with: item, fields: fields)
                         } else {
                             T.StoreType(context: self.context).update(with: item, fields: fields)
@@ -169,10 +194,10 @@ where Domain: PersistableDomainModel,
     // Delete
     public override func delete(_ itemIds: [String]) throws {
         try context.performAndWait {
-            let fetchRequest = makeFetchRequest(predicate: makeDeleteIdPredicate(itemIds))
+            let fetchRequest = makeFetchRequest(predicate: makeIdInPredicate(itemIds))
             let itemsToDelete = try context.fetch(fetchRequest)
             for item in itemsToDelete {
-                self.context.delete(item)
+                context.delete(item)
             }
             if !self.bulkWriteInProgress {
                 try self.context.save()
@@ -180,28 +205,22 @@ where Domain: PersistableDomainModel,
         }
     }
     
-    public override func delete(_ itemIds: [String]) async {
-        await withCheckedContinuation { continuation in
-            queue.async {
-                self.context.performAndWait {
-                    do {
-                        let predicate = NSPredicate(format: "id IN %@", itemIds)
-                        let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
-                        fetchRequest.predicate = predicate
-                        
-                        let objectsToDelete = try self.context.fetch(fetchRequest)
-                        
-                        for object in objectsToDelete {
-                            self.context.delete(object)
-                        }
-                        if !self.bulkWriteInProgress {
-                            try self.context.save()
-                        }
-                        continuation.resume()
-                    } catch (let err) {
-                        printError(err)
-                        continuation.resume()
+    public override func delete(_ itemIds: [String]) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            context.perform {
+                do {
+                    let fetchRequest = self.makeFetchRequest(predicate: self.makeIdInPredicate(itemIds))
+                    let itemsToDelete = try self.context.fetch(fetchRequest)
+                    
+                    for object in itemsToDelete {
+                        self.context.delete(object)
                     }
+                    if !self.bulkWriteInProgress {
+                        try self.context.save()
+                    }
+                    continuation.resume()
+                } catch  {
+                    continuation.resume(throwing: error)
                 }
             }
         }
@@ -298,7 +317,7 @@ where Domain: PersistableDomainModel,
         NSPredicate(format: "id == %@", id)
     }
     
-    private func makeDeleteIdPredicate(_ ids: [String]) -> NSPredicate {
+    private func makeIdInPredicate(_ ids: [String]) -> NSPredicate {
         NSPredicate(format: "id IN %@", ids)
     }
     
