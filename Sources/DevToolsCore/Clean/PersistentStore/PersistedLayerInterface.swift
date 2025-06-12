@@ -35,11 +35,11 @@ public protocol PersistedLayerInterface {
         sortDescriptors: [NSSortDescriptor]
     ) -> PagedResult<T>
     
-    @discardableResult func observeSingle(id: String) -> AnyPublisher<T?,Never>
+    @discardableResult func observeSingle(id: String) -> AnyPublisher<T?, Error>
     @discardableResult func observeList(
         predicate: NSPredicate,
         sortDescriptors: [NSSortDescriptor]
-    ) -> AnyPublisher<[T],Never>
+    ) -> AnyPublisher<[T], Error>
     
     // Write
     func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) async throws

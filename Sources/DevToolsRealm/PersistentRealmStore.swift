@@ -303,7 +303,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
         return result
     }
 
-    public override func observeSingle(id: String) -> AnyPublisher<T?, Never> {
+    public override func observeSingle(id: String) -> AnyPublisher<T?, Error> {
         let realm = try! Realm(configuration: dbConfig)
         return realm.objects(T.StoreType.self)
             .filter(NSPredicate(format: "id == %@", id))
@@ -311,12 +311,11 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
             .subscribe(on: queue)
             .freeze()
             .map {try! $0.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
-            .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 
-    public override func observeList(predicate: NSPredicate = NSPredicate(value: true), sortDescriptors: [NSSortDescriptor]) -> AnyPublisher<[T], Never> {
+    public override func observeList(predicate: NSPredicate = NSPredicate(value: true), sortDescriptors: [NSSortDescriptor]) -> AnyPublisher<[T], Error> {
         let realm = try! Realm(configuration: dbConfig)
         return realm.objects(T.StoreType.self)
             .filter(predicate)
@@ -325,7 +324,6 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
             .subscribe(on: queue)
             .freeze()
             .map {try! $0.compactMap{try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}}
-            .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }

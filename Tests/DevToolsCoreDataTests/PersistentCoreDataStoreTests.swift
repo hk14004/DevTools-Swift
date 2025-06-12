@@ -23,6 +23,7 @@ final class PersistentCoreDataStoreTests: XCTestCase {
     var context: NSManagedObjectContext!
     let mockDTO = MockDTO(id: Constant.mockID, name: Constant.mockName)
     lazy var sut = makeSUT()
+    var cancelBag: Set<AnyCancellable> = []
     
     override func setUpWithError() throws {
         try super.setUpWithError()

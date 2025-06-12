@@ -10,8 +10,6 @@ import CoreData
 import DevToolsCore
 import Combine
 
-// TODO: Handle all throws
-
 public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain>
 where Domain: PersistableDomainModel,
       Domain.StoreType: NSManagedObject,
@@ -280,7 +278,38 @@ where Domain: PersistableDomainModel,
         }
     }
     
-    // MARK: Overriden
+    // MARK: Observe
+
+    public override func observeSingle(id: String) -> AnyPublisher<T?, Error> {
+        let fetchRequest = makeFetchRequest(
+            predicate: makeIDPredicate(id),
+            sortDescriptors: [NSSortDescriptor.makeStringIDSortDescriptor()]
+        )
+        return context.collectionPublisher(for: fetchRequest)
+            .tryMap { storedItems in
+                try storedItems.first?.toDomain(fields: self.allStoredFields)
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    public override func observeList(
+        predicate: NSPredicate,
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) -> AnyPublisher<[T], Error> {
+        let fetchRequest = makeFetchRequest(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors
+        )
+        return context.collectionPublisher(for: fetchRequest)
+            .tryMap { storedItems in
+                try storedItems.map { item in
+                    try item.toDomain(fields: self.allStoredFields)
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    // MARK: Bulk
     public override func bulkWrite(operations: [() async -> Void]) async {
         await withCheckedContinuation { continuation in
             queue.async {
@@ -299,35 +328,6 @@ where Domain: PersistableDomainModel,
                 }
             }
         }
-    }
-    
-    public override func observeSingle(id: String) -> AnyPublisher<Domain?, Never> {
-        let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
-        fetchRequest.predicate = NSPredicate(format: "id == %@", id)
-        fetchRequest.sortDescriptors = [NSSortDescriptor.makeStringIDSortDescriptor()]
-        return context.collectionPublisher(for: fetchRequest)
-            .map { storedItem in
-                try? storedItem.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))
-            }
-            .replaceError(with: nil)
-            .eraseToAnyPublisher()
-    }
-    
-    public override func observeList(
-        predicate: NSPredicate,
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) -> AnyPublisher<[Domain], Never> {
-        let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
-        fetchRequest.predicate = predicate
-        fetchRequest.sortDescriptors = sortDescriptors
-        return context.collectionPublisher(for: fetchRequest)
-            .map { storedItems in
-                storedItems.compactMap { persisted in
-                    try? persisted.toDomain(fields: Set(T.StoreType.FieldType.allCases))
-                }
-            }
-            .replaceError(with: [])
-            .eraseToAnyPublisher()
     }
     
     // MARK: Helpers

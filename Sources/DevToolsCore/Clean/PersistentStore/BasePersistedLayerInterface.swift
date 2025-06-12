@@ -105,14 +105,14 @@ open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLaye
     
     // MARK: Observe
     
-    open func observeSingle(id: String) -> AnyPublisher<T?, Never> {
-        fatalError()
+    open func observeSingle(id: String) -> AnyPublisher<T?, Error> {
+        .fail(PersistenceError.notImplemented)
     }
     
     open func observeList(
         predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) -> AnyPublisher<[T], Never> {
-        fatalError()
+    ) -> AnyPublisher<[T], Error> {
+        .fail(PersistenceError.notImplemented)
     }
 }
