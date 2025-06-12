@@ -1,6 +1,6 @@
 //
 //  PersistedLayerInterface.swift
-//  
+//
 //
 //  Created by Hardijs on 31/01/2023.
 //
@@ -15,21 +15,31 @@ public protocol PersistedLayerInterface {
     @discardableResult func getSingle(id: String) async throws -> T?
     @discardableResult func getSingle(id: String) throws -> T?
     
-    @discardableResult func getList(predicate: NSPredicate,
-                                    sortDescriptors: [NSSortDescriptor]) async throws -> [T]
-    @discardableResult func getList(predicate: NSPredicate,
-                                    sortDescriptors: [NSSortDescriptor]) throws -> [T]
+    @discardableResult func getList(
+        predicate: NSPredicate,
+        sortDescriptors: [NSSortDescriptor]
+    ) async throws -> [T]
+    @discardableResult func getList(
+        predicate: NSPredicate,
+        sortDescriptors: [NSSortDescriptor]
+    ) throws -> [T]
     
-    @discardableResult func getListPage(pageOptions: PagedRequestOptions,
-                                        predicate: NSPredicate,
-                                        sortDescriptors: [NSSortDescriptor]) async -> PagedResult<T>
-    @discardableResult func getListPage(pageOptions: PagedRequestOptions,
-                                        predicate: NSPredicate,
-                                        sortDescriptors: [NSSortDescriptor]) -> PagedResult<T>
+    @discardableResult func getListPage(
+        pageOptions: PagedRequestOptions,
+        predicate: NSPredicate,
+        sortDescriptors: [NSSortDescriptor]
+    ) async -> PagedResult<T>
+    @discardableResult func getListPage(
+        pageOptions: PagedRequestOptions,
+        predicate: NSPredicate,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> PagedResult<T>
     
     @discardableResult func observeSingle(id: String) -> AnyPublisher<T?,Never>
-    @discardableResult func observeList(predicate: NSPredicate,
-                                        sortDescriptors: [NSSortDescriptor]) -> AnyPublisher<[T],Never>
+    @discardableResult func observeList(
+        predicate: NSPredicate,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AnyPublisher<[T],Never>
     
     // Write
     func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) async throws
@@ -38,8 +48,8 @@ public protocol PersistedLayerInterface {
     func delete(_ itemIds: [String]) async throws
     func delete(_ itemIds: [String]) throws
     
-    func replace(with items: [T], fields: Set<T.StoreType.FieldType>) async
-    func replace(with items: [T], fields: Set<T.StoreType.FieldType>)
+    func replace(with items: [T], fields: Set<T.StoreType.FieldType>) async throws
+    func replace(with items: [T], fields: Set<T.StoreType.FieldType>) throws
     
     func bulkWrite(operations: [() async -> Void]) async
 }

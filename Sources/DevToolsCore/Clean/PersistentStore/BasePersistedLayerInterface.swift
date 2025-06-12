@@ -65,37 +65,37 @@ open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLaye
         _ items: [T],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) throws {
-        fatalError()
+        throw PersistenceError.notImplemented
     }
     
     open func addOrUpdate(
         _ items: [T],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) async throws {
-        fatalError()
+        throw PersistenceError.notImplemented
     }
     
     // Delete
     open func delete(_ itemIds: [String]) throws {
-        fatalError()
+        throw PersistenceError.notImplemented
     }
     
     open func delete(_ itemIds: [String]) async throws {
-        fatalError()
+        throw PersistenceError.notImplemented
     }
     
     open func replace(
         with items: [T],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
-    ) {
-        fatalError()
+    ) throws {
+        throw PersistenceError.notImplemented
     }
 
     open func replace(
         with items: [T],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
-    ) async {
-        fatalError()
+    ) async throws {
+        throw PersistenceError.notImplemented
     }
     
     // Bulk

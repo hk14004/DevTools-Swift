@@ -226,37 +226,55 @@ where Domain: PersistableDomainModel,
         }
     }
     
+    // Replace
     public override func replace(
         with items: [Domain],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
-    ) async {
-        await withCheckedContinuation { continuation in
-            queue.async {
-                self.context.performAndWait {
-                    do {
-                        let predicate = NSPredicate(value: true)
-                        let fetchRequest: NSFetchRequest<T.StoreType> = NSFetchRequest<T.StoreType>(entityName: "\(T.StoreType.self)")
-                        fetchRequest.predicate = predicate
-                        
-                        let objectsToDelete = try self.context.fetch(fetchRequest)
-                        
-                        for object in objectsToDelete {
-                            self.context.delete(object)
-                        }
-                        
-                        for item in items {
-                            let entity = T.StoreType(context: self.context)
-                            entity.update(with: item, fields: fields)
-                        }
-                        
-                        if !self.bulkWriteInProgress {
-                            try self.context.save()
-                        }
-                        continuation.resume()
-                    } catch (let err) {
-                        printError(err)
-                        continuation.resume()
+    ) throws  {
+        try context.performAndWait {
+            let fetchRequest = makeFetchRequest(predicate: NSPredicate(value: true))
+            let itemsToDelete = try context.fetch(fetchRequest)
+            
+            for item in itemsToDelete {
+                self.context.delete(item)
+            }
+            
+            for item in items {
+                let entity = T.StoreType(context: context)
+                entity.update(with: item, fields: fields)
+            }
+            
+            if !self.bulkWriteInProgress {
+                try context.save()
+            }
+        }
+    }
+    
+    public override func replace(
+        with items: [Domain],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            context.perform {
+                do {
+                    let fetchRequest = self.makeFetchRequest(predicate: NSPredicate(value: true))
+                    let itemsToDelete = try self.context.fetch(fetchRequest)
+                    
+                    for item in itemsToDelete {
+                        self.context.delete(item)
                     }
+                    
+                    for item in items {
+                        let entity = T.StoreType(context: self.context)
+                        entity.update(with: item, fields: fields)
+                    }
+                    
+                    if !self.bulkWriteInProgress {
+                        try self.context.save()
+                    }
+                    continuation.resume()
+                } catch  {
+                    continuation.resume(throwing: error)
                 }
             }
         }
