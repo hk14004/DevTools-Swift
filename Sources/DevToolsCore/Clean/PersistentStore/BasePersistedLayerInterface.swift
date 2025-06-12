@@ -9,42 +9,13 @@ import Foundation
 import Combine
 
 open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLayerInterface {
-    open func replace(with items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) {
-        fatalError()
-    }
-    
-    open func delete(_ itemIds: [String]) {
-        fatalError()
-    }
-    
-    open func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) {
-        fatalError()
-    }
-    
-    open func getListPage(pageOptions: PagedRequestOptions,
-                          predicate: NSPredicate = NSPredicate(value: true),
-                          sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) -> PagedResult<T> {
-        fatalError()
-    }
-    
-    open func getList(predicate: NSPredicate = NSPredicate(value: true),
-                      sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) -> [T] {
-        fatalError()
-    }
-    
-    open func getSingle(id: String) -> T? {
-        fatalError()
-    }
+    // MARK: Lifecycle
     
     public init() {}
     
-    open func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
-        fatalError()
-    }
-    
-    open func replace(with items: [T], fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()) async {
+    // MARK: Read
+    // Single
+    open func getSingle(id: String) -> T? {
         fatalError()
     }
     
@@ -52,26 +23,56 @@ open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLaye
         fatalError()
     }
     
-    open func getList(predicate: NSPredicate = NSPredicate(value: true),
-                      sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    // List
+    open func getList(
+        predicate: NSPredicate = NSPredicate(value: true),
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) -> [T] {
+        fatalError()
+    }
+    
+    open func getList(
+        predicate: NSPredicate = NSPredicate(value: true),
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) async -> [T] {
         fatalError()
     }
     
-    open func getListPage(pageOptions: PagedRequestOptions,
-                          predicate: NSPredicate = NSPredicate(value: true),
-                          sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    // Paging
+    open func getListPage(
+        pageOptions: PagedRequestOptions,
+        predicate: NSPredicate = NSPredicate(value: true),
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) -> PagedResult<T> {
+        fatalError()
+    }
+
+    open func getListPage(
+        pageOptions: PagedRequestOptions,
+        predicate: NSPredicate = NSPredicate(value: true),
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) async -> PagedResult<T> {
         fatalError()
     }
     
-    open func observeSingle(id: String) -> AnyPublisher<T?, Never> {
+    // MARK: Write
+    // Amend
+    open func addOrUpdate(
+        _ items: [T],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) {
         fatalError()
     }
     
-    open func observeList(predicate: NSPredicate = NSPredicate(value: true),
-                          sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) -> AnyPublisher<[T], Never> {
+    open func addOrUpdate(
+        _ items: [T],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) async {
+        fatalError()
+    }
+    
+    // Delete
+    open func delete(_ itemIds: [String]) {
         fatalError()
     }
     
@@ -79,8 +80,35 @@ open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLaye
         fatalError()
     }
     
+    open func replace(
+        with items: [T],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) {
+        fatalError()
+    }
+
+    open func replace(
+        with items: [T],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) async {
+        fatalError()
+    }
+    
+    // Bulk
     open func bulkWrite(operations: [() async -> Void]) async {
         fatalError()
     }
+    
+    // MARK: Observe
+    
+    open func observeSingle(id: String) -> AnyPublisher<T?, Never> {
+        fatalError()
+    }
+    
+    open func observeList(
+        predicate: NSPredicate = NSPredicate(value: true),
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+    ) -> AnyPublisher<[T], Never> {
+        fatalError()
+    }
 }
-

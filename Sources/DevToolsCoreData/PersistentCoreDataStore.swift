@@ -20,7 +20,11 @@ where Domain: PersistableDomainModel,
     // MARK: Properties
     public typealias T = Domain
     private let queue: DispatchQueue
-    private var context: NSManagedObjectContext!
+    private lazy var context: NSManagedObjectContext = {
+        let context = storeContainer.newBackgroundContext()
+        context.automaticallyMergesChangesFromParent = true
+        return context
+    }()
     private let viewContext: NSManagedObjectContext
     private let storeContainer: NSPersistentContainer
     private var bulkWriteInProgress = false
@@ -34,19 +38,7 @@ where Domain: PersistableDomainModel,
         self.storeContainer = storeContainer
         self.viewContext = storeContainer.viewContext
         super.init()
-        queue.sync {
-            self.context = storeContainer.newBackgroundContext()
-            self.context.automaticallyMergesChangesFromParent = true
-        }
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(contextDidChange(notification:)),
-            name: .NSManagedObjectContextDidSave, object: context
-        )
-    }
-    
-    @objc func contextDidChange(notification: Notification) {
-        viewContext.mergeChanges(fromContextDidSave: notification)
+        configureNotifications()
     }
     
     // MARK: Overriden
@@ -249,6 +241,19 @@ where Domain: PersistableDomainModel,
                 }
             }
         }
+    }
+    
+    // MARK: Notifications
+    private func configureNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(contextDidChange(notification:)),
+            name: .NSManagedObjectContextDidSave, object: context
+        )
+    }
+    
+    @objc func contextDidChange(notification: Notification) {
+        viewContext.mergeChanges(fromContextDidSave: notification)
     }
 }
 
