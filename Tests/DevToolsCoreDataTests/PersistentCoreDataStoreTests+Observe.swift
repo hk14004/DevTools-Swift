@@ -9,6 +9,8 @@ import Foundation
 import XCTest
 
 extension PersistentCoreDataStoreTests {
+    // MARK: Single
+    
     func test_observeItem_emptyDB() throws {
         // Arrange
         let expectation = expectation(description: "Receive nil")
@@ -95,5 +97,99 @@ extension PersistentCoreDataStoreTests {
         
         // Assert
         XCTAssertNil(receivedValue)
+    }
+    
+    // MARK: List
+    
+    func test_observeList_emptyDB() throws {
+        // Arrange
+        let expectation = expectation(description: "Receive empty list")
+        var receivedValue: [MockDTO] = []
+        // Act
+        sut.observeList()
+            .sink { _ in
+                XCTFail()
+            } receiveValue: { value in
+                receivedValue = value
+                expectation.fulfill()
+            }
+            .store(in: &cancelBag)
+
+        waitForExpectations(timeout: 1)
+        
+        // Assert
+        XCTAssertTrue(receivedValue.isEmpty)
+    }
+    
+    func test_observeList_hasRecords() throws {
+        // Arrange
+        let items = MockDTO.mocks(count: 3)
+        try sut.addOrUpdate(items)
+        let expectation = expectation(description: "Receive persisted values")
+        var receivedValue: [MockDTO] = []
+        // Act
+        sut.observeList()
+            .sink { _ in
+                XCTFail()
+            } receiveValue: { value in
+                receivedValue = value
+                expectation.fulfill()
+            }
+            .store(in: &cancelBag)
+
+        waitForExpectations(timeout: 1)
+        
+        // Assert
+        XCTAssertEqual(receivedValue, items)
+    }
+    
+    func test_observeItems_receivedUpdate() throws {
+        // Arrange
+        let items = MockDTO.mocks(count: 3)
+        try sut.addOrUpdate(items)
+        let expectation = expectation(description: "Receive updated values")
+        var receivedValue: [MockDTO] = []
+        let updatedItem = MockDTO(id: items[1].id, name: "nameUpdated!")
+        let updatedList: [MockDTO] = [items[0], updatedItem, items[2]]
+        // Act
+        sut.observeList()
+            .dropFirst()
+            .sink { _ in
+                XCTFail()
+            } receiveValue: { value in
+                receivedValue = value
+                expectation.fulfill()
+            }
+            .store(in: &cancelBag)
+        
+        try sut.addOrUpdate([updatedItem])
+        waitForExpectations(timeout: 1)
+        
+        // Assert
+        XCTAssertEqual(receivedValue, updatedList)
+    }
+    
+    func test_observeList_itemsDeleted() throws {
+        // Arrange
+        let items = MockDTO.mocks(count: 3)
+        try sut.addOrUpdate(items)
+        let expectation = expectation(description: "Receive empty list")
+        var receivedValue: [MockDTO] = []
+        // Act
+        sut.observeList()
+            .dropFirst()
+            .sink { _ in
+                XCTFail()
+            } receiveValue: { value in
+                receivedValue = value
+                expectation.fulfill()
+            }
+            .store(in: &cancelBag)
+        
+        try sut.replace(with: [])
+        waitForExpectations(timeout: 1)
+        
+        // Assert
+        XCTAssertTrue(receivedValue.isEmpty)
     }
 }

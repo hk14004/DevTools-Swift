@@ -77,7 +77,7 @@ where Domain: PersistableDomainModel,
     }
     
     public override func getList(
-        predicate: NSPredicate,
+        predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) async throws -> [T] {
         try await withCheckedThrowingContinuation { continuation in
@@ -111,7 +111,7 @@ where Domain: PersistableDomainModel,
     
     public override func getListPage(
         pageOptions: PagedRequestOptions,
-        predicate: NSPredicate,
+        predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()])
     async -> PagedResult<Domain> {
         fatalError()
@@ -293,7 +293,7 @@ where Domain: PersistableDomainModel,
     }
     
     public override func observeList(
-        predicate: NSPredicate,
+        predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) -> AnyPublisher<[T], Error> {
         let fetchRequest = makeFetchRequest(
