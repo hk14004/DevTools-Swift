@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "DevTools",
     platforms: [
-        .iOS(.v14)
+        .iOS(.v15)
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -68,5 +68,8 @@ let package = Package(
         .testTarget(
             name: "DevToolsCoreTests",
             dependencies: ["DevToolsCore"]),
+        .testTarget(
+            name: "DevToolsCoreDataTests",
+            dependencies: ["DevToolsCoreData"])
     ]
 )

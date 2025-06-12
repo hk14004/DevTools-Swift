@@ -27,7 +27,7 @@ final class BaseNetworkRequestFactoryTests: XCTestCase {
                     method: method,
                     bodyParameters: makeValidJSON().data(using: .unicode),
                     headers: ["key" : "value"],
-                    authType: .none,
+                    requiresAuthorization: false,
                     timeoutInterval: 69
                 )
             )
@@ -38,7 +38,7 @@ final class BaseNetworkRequestFactoryTests: XCTestCase {
         // Given
         
         // When
-        let request = sut.urlRequest(requestConfig: config)
+        let request = sut.urlRequest(requestConfig: config, authorizationHeaders: nil)
         
         // Then
         XCTAssertEqual(request.timeoutInterval, config.timeoutInterval)

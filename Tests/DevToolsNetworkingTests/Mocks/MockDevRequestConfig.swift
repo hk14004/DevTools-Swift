@@ -15,7 +15,7 @@ struct MockDevRequestConfig: DevRequestConfig, Equatable {
     var queryItems: [URLQueryItem]?
     var bodyParameters: Data?
     var headers: [String : String]?
-    var authType: DevRequestAuthType
+    var requiresAuthorization: Bool
     var timeoutInterval: TimeInterval
 }
 
@@ -30,7 +30,7 @@ extension MockDevRequestConfig {
         ],
         bodyParameters: Data? = nil,
         headers: [String : String]? = nil,
-        authType: DevRequestAuthType = .none,
+        requiresAuthorization: Bool = false,
         timeoutInterval: TimeInterval = 0
     ) -> MockDevRequestConfig {
         MockDevRequestConfig(
@@ -40,7 +40,7 @@ extension MockDevRequestConfig {
             queryItems: queryItems,
             bodyParameters: bodyParameters,
             headers: headers,
-            authType: authType,
+            requiresAuthorization: requiresAuthorization,
             timeoutInterval: timeoutInterval
         )
     }

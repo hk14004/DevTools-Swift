@@ -8,6 +8,10 @@
 import Foundation
 import Combine
 
+enum PersistenceError: Error {
+    case notImplemented
+}
+
 open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLayerInterface {
     // MARK: Lifecycle
     
@@ -15,27 +19,27 @@ open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLaye
     
     // MARK: Read
     // Single
-    open func getSingle(id: String) -> T? {
-        fatalError()
+    open func getSingle(id: String) throws -> T? {
+        throw PersistenceError.notImplemented
     }
     
-    open func getSingle(id: String) async -> T? {
-        fatalError()
+    open func getSingle(id: String) async throws -> T? {
+        throw PersistenceError.notImplemented
     }
     
     // List
     open func getList(
         predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) -> [T] {
-        fatalError()
+    ) throws -> [T] {
+        throw PersistenceError.notImplemented
     }
     
     open func getList(
         predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) async -> [T] {
-        fatalError()
+    ) async throws -> [T] {
+        throw PersistenceError.notImplemented
     }
     
     // Paging
@@ -60,19 +64,19 @@ open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLaye
     open func addOrUpdate(
         _ items: [T],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
-    ) {
+    ) throws {
         fatalError()
     }
     
     open func addOrUpdate(
         _ items: [T],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
-    ) async {
+    ) async throws {
         fatalError()
     }
     
     // Delete
-    open func delete(_ itemIds: [String]) {
+    open func delete(_ itemIds: [String]) throws {
         fatalError()
     }
     

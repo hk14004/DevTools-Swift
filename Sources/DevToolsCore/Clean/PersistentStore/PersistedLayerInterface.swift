@@ -12,13 +12,13 @@ public protocol PersistedLayerInterface {
     associatedtype T: PersistableDomainModel
     
     // Read & Observe
-    @discardableResult func getSingle(id: String) async -> T?
-    @discardableResult func getSingle(id: String) -> T?
+    @discardableResult func getSingle(id: String) async throws -> T?
+    @discardableResult func getSingle(id: String) throws -> T?
     
     @discardableResult func getList(predicate: NSPredicate,
-                                    sortDescriptors: [NSSortDescriptor]) async -> [T]
+                                    sortDescriptors: [NSSortDescriptor]) async throws -> [T]
     @discardableResult func getList(predicate: NSPredicate,
-                                    sortDescriptors: [NSSortDescriptor]) -> [T]
+                                    sortDescriptors: [NSSortDescriptor]) throws -> [T]
     
     @discardableResult func getListPage(pageOptions: PagedRequestOptions,
                                         predicate: NSPredicate,
@@ -32,11 +32,11 @@ public protocol PersistedLayerInterface {
                                         sortDescriptors: [NSSortDescriptor]) -> AnyPublisher<[T],Never>
     
     // Write
-    func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) async
-    func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>)
+    func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) async throws
+    func addOrUpdate(_ items: [T], fields: Set<T.StoreType.FieldType>) throws
     
     func delete(_ itemIds: [String]) async
-    func delete(_ itemIds: [String])
+    func delete(_ itemIds: [String]) throws
     
     func replace(with items: [T], fields: Set<T.StoreType.FieldType>) async
     func replace(with items: [T], fields: Set<T.StoreType.FieldType>)
