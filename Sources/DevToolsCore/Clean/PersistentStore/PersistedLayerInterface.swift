@@ -51,5 +51,6 @@ public protocol PersistedLayerInterface {
     func replace(with items: [T], fields: Set<T.StoreType.FieldType>) async throws
     func replace(with items: [T], fields: Set<T.StoreType.FieldType>) throws
     
-    func bulkWrite(operations: [() async -> Void]) async
+    func bulkWrite(block: @escaping () throws -> Void) async throws
+    func bulkWrite(block: @escaping () throws -> Void) throws
 }

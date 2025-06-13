@@ -17,17 +17,12 @@ where Domain: PersistableDomainModel,
     
     // MARK: Properties
     public typealias T = Domain
-    private let queue: DispatchQueue
     private let context: NSManagedObjectContext
     private var bulkWriteInProgress = false
     private var allStoredFields = T.StoreType.FieldType.getSetOfAllFields()
     
     // MARK: Init
-    public init(
-        queue: DispatchQueue = DispatchQueue(label: "DevTools.PersistentCoreDataStore.\(Domain.self)"),
-        context: NSManagedObjectContext
-    ) {
-        self.queue = queue
+    public init(context: NSManagedObjectContext) {
         self.context = context
         super.init()
     }
@@ -310,23 +305,22 @@ where Domain: PersistableDomainModel,
     }
     
     // MARK: Bulk
-    public override func bulkWrite(operations: [() async -> Void]) async {
-        await withCheckedContinuation { continuation in
-            queue.async {
-                self.bulkWriteInProgress = true
-                Task {
-                    for operation in operations {
-                        await operation()
-                    }
-                    self.queue.async {
-                        self.context.performAndWait {
-                            try? self.context.save()
-                            self.bulkWriteInProgress = false
-                            continuation.resume()
-                        }
-                    }
-                }
-            }
+    
+    public override func bulkWrite(block: @escaping () throws -> Void) async throws {
+        try await context.perform {
+            self.bulkWriteInProgress = true
+            try block()
+            try self.context.save()
+            self.bulkWriteInProgress = false
+        }
+    }
+    
+    public override func bulkWrite(block: @escaping () throws -> Void) throws {
+        try context.performAndWait {
+            self.bulkWriteInProgress = true
+            try block()
+            try self.context.save()
+            self.bulkWriteInProgress = false
         }
     }
     

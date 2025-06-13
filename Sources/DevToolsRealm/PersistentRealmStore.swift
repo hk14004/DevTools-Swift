@@ -25,18 +25,14 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
     
     // MARK: Override
     
-    public override func bulkWrite(operations: [() async -> Void]) async {
-        await withCheckedContinuation { continuation in
+    public override func bulkWrite(block: @escaping () throws -> Void) async throws {
+        try await withCheckedThrowingContinuation { continuation in
             queue.async {
                 autoreleasepool {
                     let realm = try! Realm(configuration: self.dbConfig)
                     realm.bulkWrite {
-                        Task {
-                            for operation in operations {
-                                await operation()
-                            }
-                            continuation.resume()
-                        }
+                        try? block()
+                        continuation.resume()
                     }
                 }
             }

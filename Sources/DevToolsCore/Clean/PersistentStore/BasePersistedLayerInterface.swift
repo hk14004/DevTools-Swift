@@ -99,8 +99,12 @@ open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLaye
     }
     
     // Bulk
-    open func bulkWrite(operations: [() async -> Void]) async {
-        fatalError()
+    open func bulkWrite(block: @escaping () throws -> Void) async throws {
+        throw PersistenceError.notImplemented
+    }
+    
+    open func bulkWrite(block: @escaping () throws -> Void) throws {
+        throw PersistenceError.notImplemented
     }
     
     // MARK: Observe

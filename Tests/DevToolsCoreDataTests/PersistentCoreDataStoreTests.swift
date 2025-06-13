@@ -19,7 +19,6 @@ final class PersistentCoreDataStoreTests: XCTestCase {
         static let queueName = "test.queue"
         static let randomSuffix = "fhsaggfhjfhjf"
     }
-    let queue = DispatchQueue(label: Constant.queueName)
     var context: NSManagedObjectContext!
     let mockDTO = MockDTO(id: Constant.mockID, name: Constant.mockName)
     lazy var sut = makeSUT()
@@ -33,10 +32,7 @@ final class PersistentCoreDataStoreTests: XCTestCase {
 
 extension PersistentCoreDataStoreTests {
     func makeSUT() -> PersistentCoreDataStore<MockDTO> {
-        PersistentCoreDataStore(
-            queue: queue,
-            context: context
-        )
+        PersistentCoreDataStore(context: context)
     }
     
     func configureCoreDataStack() throws {
