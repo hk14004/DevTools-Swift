@@ -47,16 +47,16 @@ open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLaye
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) -> PagedResult<T> {
-        fatalError()
+    ) throws -> PagedResult<T> {
+        throw PersistenceError.notImplemented
     }
 
     open func getListPage(
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) async -> PagedResult<T> {
-        fatalError()
+    ) async throws -> PagedResult<T> {
+        throw PersistenceError.notImplemented
     }
     
     // MARK: Write

@@ -10,6 +10,7 @@ import CoreData
 import DevToolsCore
 import Combine
 
+// TODO: Check read block by write
 public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain>
 where Domain: PersistableDomainModel,
       Domain.StoreType: NSManagedObject,
@@ -100,16 +101,60 @@ where Domain: PersistableDomainModel,
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) -> PagedResult<T> {
-        fatalError()
+    ) throws -> PagedResult<T> {
+        let fetchRequest = makeFetchRequest(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors
+        )
+        let page = max(0, pageOptions.fetchPage - 1)
+        fetchRequest.fetchOffset = page * pageOptions.pageSize
+        fetchRequest.fetchLimit = pageOptions.pageSize + 1 // Fetch one extra to check for next page
+        
+        let domainItems = try context.fetch(fetchRequest)
+            .map { stored in
+                try stored.toDomain(fields: allStoredFields)
+            }
+        
+        return PagedResult(
+            pageNumber: max(0, pageOptions.fetchPage),
+            pageItems: Array(domainItems.prefix(pageOptions.pageSize)),
+            hasNextPage: domainItems.count > pageOptions.pageSize
+        )
     }
     
     public override func getListPage(
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()])
-    async -> PagedResult<Domain> {
-        fatalError()
+    async throws -> PagedResult<T> {
+        try await withCheckedThrowingContinuation { continuation in
+            context.perform {
+                do {
+                    let fetchRequest = self.makeFetchRequest(
+                        predicate: predicate,
+                        sortDescriptors: sortDescriptors
+                    )
+                    let page = max(0, pageOptions.fetchPage - 1)
+                    fetchRequest.fetchOffset = page * pageOptions.pageSize
+                    fetchRequest.fetchLimit = pageOptions.pageSize + 1 // Fetch one extra to check for next page
+                    
+                    let domainItems = try self.context.fetch(fetchRequest)
+                        .map { stored in
+                            try stored.toDomain(fields: self.allStoredFields)
+                        }
+                    
+                    continuation.resume(
+                        returning: PagedResult(
+                            pageNumber: max(0, pageOptions.fetchPage),
+                            pageItems: Array(domainItems.prefix(pageOptions.pageSize)),
+                            hasNextPage: domainItems.count > pageOptions.pageSize
+                        )
+                    )
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
     }
     
     // MARK: Write
@@ -274,7 +319,7 @@ where Domain: PersistableDomainModel,
     }
     
     // MARK: Observe
-
+    
     public override func observeSingle(id: String) -> AnyPublisher<T?, Error> {
         let fetchRequest = makeFetchRequest(
             predicate: makeIDPredicate(id),

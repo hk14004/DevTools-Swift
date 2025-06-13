@@ -28,12 +28,12 @@ public protocol PersistedLayerInterface {
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate,
         sortDescriptors: [NSSortDescriptor]
-    ) async -> PagedResult<T>
+    ) async throws -> PagedResult<T>
     @discardableResult func getListPage(
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate,
         sortDescriptors: [NSSortDescriptor]
-    ) -> PagedResult<T>
+    ) throws -> PagedResult<T>
     
     @discardableResult func observeSingle(id: String) -> AnyPublisher<T?, Error>
     @discardableResult func observeList(

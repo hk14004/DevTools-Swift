@@ -70,6 +70,6 @@ let package = Package(
             dependencies: ["DevToolsCore"]),
         .testTarget(
             name: "DevToolsCoreDataTests",
-            dependencies: ["DevToolsCoreData"])
+            dependencies: ["DevToolsCoreData", "DevToolsCore"])
     ]
 )

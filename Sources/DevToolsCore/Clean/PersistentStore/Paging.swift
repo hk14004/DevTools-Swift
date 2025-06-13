@@ -17,8 +17,18 @@ public struct PagedResult<T> {
         self.pageItems = pageItems
         self.hasNextPage = hasNextPage
     }
-    
 }
+
+extension PagedResult: Hashable {
+    public static func == (lhs: PagedResult<T>, rhs: PagedResult<T>) -> Bool {
+        return lhs.pageNumber == rhs.pageNumber
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(pageNumber)
+    }
+}
+
 public struct PagedRequestOptions {
     public let fetchPage: Int
     public let pageSize: Int
