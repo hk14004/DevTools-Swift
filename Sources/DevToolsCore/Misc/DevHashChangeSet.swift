@@ -30,26 +30,29 @@ public extension DevHashChangeSet {
         new: [Element]
     ) -> DevHashChangeSet {
         var changeSet = DevHashChangeSet(inserted: [], removed: [], updated: [])
-        
-        let oldSet = Set(old)
-        let newSet = Set(new)
-        
+
+        // Create lookup dictionaries for fast access
+        let oldDict = Dictionary(uniqueKeysWithValues: old.map { ($0.hashValue, $0) })
+        let newDict = Dictionary(uniqueKeysWithValues: new.map { ($0.hashValue, $0) })
+
+        let oldSet = Set(oldDict.keys)
+        let newSet = Set(newDict.keys)
+
         let insertedSet = newSet.subtracting(oldSet)
-        changeSet.inserted = Array(insertedSet).map(\.hashValue)
-        
+        changeSet.inserted = Array(insertedSet)
+
         let removedSet = oldSet.subtracting(newSet)
-        changeSet.removed = Array(removedSet).map(\.hashValue)
-        
-        // Calculate updated items
+        changeSet.removed = Array(removedSet)
+
+        // Comparison for updated items
         let commonSet = oldSet.intersection(newSet)
-        for element in commonSet {
-            if let oldElement = old.first(where: { $0.hashValue == element.hashValue }),
-               let newElement = new.first(where: { $0.hashValue == element.hashValue }),
+        for key in commonSet {
+            if let oldElement = oldDict[key], let newElement = newDict[key],
                !(oldElement |==| newElement) {
-                changeSet.updated.append(element.hashValue)
+                changeSet.updated.append(key)
             }
         }
-        
+
         return changeSet
     }
 }
