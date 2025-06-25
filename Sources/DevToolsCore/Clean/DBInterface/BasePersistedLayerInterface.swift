@@ -12,7 +12,7 @@ enum PersistenceError: Error {
     case notImplemented
 }
 
-open class BasePersistedLayerInterface<T: PersistableDomainModel>: PersistedLayerInterface {
+open class BasePersistedLayerInterface<T: DBInterfaceDTO>: PersistedLayerInterface {
     // MARK: Lifecycle
     
     public init() {}

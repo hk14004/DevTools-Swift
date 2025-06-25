@@ -14,17 +14,17 @@ public struct MockDTO: Equatable {
     public let name: String
 }
 
-extension MockDTO: PersistableDomainModel {
+extension MockDTO: DBInterfaceDTO {
     public typealias StoreType = MockCD
 }
 
-extension MockCD: PersistedModel {
-    public enum Field: String, PersistedModelField {
+extension MockCD: DBStoredObject {
+    public enum Field: String, DBObjectField {
         case id
         case name
     }
     
-    public func toDomain(fields: Set<Field>) throws -> MockDTO {
+    public func convert(fields: Set<Field>) throws -> MockDTO {
         .init(id: self.id ?? "", name: self.name ?? "")
     }
     

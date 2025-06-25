@@ -8,13 +8,13 @@
 import RealmSwift
 import DevToolsCore
 
-extension Results where Element: PersistedModel {
-    func mapToDomain(fetchOffset: Int, fetchLimit: Int, fields: Set<Element.FieldType>) -> [Element.DomainModelType] {
+extension Results where Element: DBStoredObject {
+    func mapToDomain(fetchOffset: Int, fetchLimit: Int, fields: Set<Element.FieldType>) -> [Element.DomainDTO] {
         let endIndex: Int = {
            let wantIndex = fetchOffset + fetchLimit - 1
             return [wantIndex, self.count-1].min()!
         }()
-        var items: [Element.DomainModelType] = []
+        var items: [Element.DomainDTO] = []
         guard fetchOffset <= endIndex else {
             return []
         }
@@ -22,7 +22,7 @@ extension Results where Element: PersistedModel {
             guard let stored = self[safe: index] else {
                 continue
             }
-            guard let converted = try? stored.toDomain(fields: fields) else {
+            guard let converted = try? stored.convert(fields: fields) else {
                 continue
             }
             items.append(converted)

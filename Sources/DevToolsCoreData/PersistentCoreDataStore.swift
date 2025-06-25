@@ -11,13 +11,12 @@ import DevToolsCore
 import Combine
 
 // TODO: Check read block by write
-public class PersistentCoreDataStore<Domain>: BasePersistedLayerInterface<Domain>
-where Domain: PersistableDomainModel,
-      Domain.StoreType: NSManagedObject,
-      Domain.StoreType.DomainModelType == Domain {
+public class PersistentCoreDataStore<T>: BasePersistedLayerInterface<T>
+where T: DBInterfaceDTO,
+      T.StoreType: NSManagedObject,
+      T.StoreType.DomainDTO == T {
     
     // MARK: Properties
-    public typealias T = Domain
     private let context: NSManagedObjectContext
     private var bulkWriteInProgress = false
     private var allStoredFields = T.StoreType.FieldType.getSetOfAllFields()
@@ -34,7 +33,7 @@ where Domain: PersistableDomainModel,
         try context.performAndWait {
             try self.context.fetch(makeIDFetchRequest(id))
                 .first?
-                .toDomain(fields: allStoredFields)
+                .convert(fields: allStoredFields)
         }
     }
     
@@ -44,7 +43,7 @@ where Domain: PersistableDomainModel,
                 do {
                     let result = try self.context.fetch(self.makeIDFetchRequest(id))
                         .first?
-                        .toDomain(fields: self.allStoredFields)
+                        .convert(fields: self.allStoredFields)
                     continuation.resume(returning: result)
                 } catch {
                     continuation.resume(throwing: error)
@@ -66,7 +65,7 @@ where Domain: PersistableDomainModel,
             
             let domainItems = try self.context.fetch(fetchRequest)
                 .map { stored in
-                    try stored.toDomain(fields: allStoredFields)
+                    try stored.convert(fields: allStoredFields)
                 }
             return domainItems
         }
@@ -86,7 +85,7 @@ where Domain: PersistableDomainModel,
                     
                     let domainItems = try self.context.fetch(fetchRequest)
                         .compactMap { stored in
-                            try stored.toDomain(fields: self.allStoredFields)
+                            try stored.convert(fields: self.allStoredFields)
                         }
                     continuation.resume(returning: domainItems)
                 } catch {
@@ -112,7 +111,7 @@ where Domain: PersistableDomainModel,
         
         let domainItems = try context.fetch(fetchRequest)
             .map { stored in
-                try stored.toDomain(fields: allStoredFields)
+                try stored.convert(fields: allStoredFields)
             }
         
         return PagedResult(
@@ -140,7 +139,7 @@ where Domain: PersistableDomainModel,
                     
                     let domainItems = try self.context.fetch(fetchRequest)
                         .map { stored in
-                            try stored.toDomain(fields: self.allStoredFields)
+                            try stored.convert(fields: self.allStoredFields)
                         }
                     
                     continuation.resume(
@@ -192,7 +191,7 @@ where Domain: PersistableDomainModel,
     
     
     public override func addOrUpdate(
-        _ items: [Domain],
+        _ items: [T],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) async throws {
         try await withCheckedThrowingContinuation { continuation in
@@ -266,7 +265,7 @@ where Domain: PersistableDomainModel,
     
     // Replace
     public override func replace(
-        with items: [Domain],
+        with items: [T],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) throws  {
         try context.performAndWait {
@@ -289,7 +288,7 @@ where Domain: PersistableDomainModel,
     }
     
     public override func replace(
-        with items: [Domain],
+        with items: [T],
         fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) async throws {
         try await withCheckedThrowingContinuation { continuation in
@@ -327,7 +326,7 @@ where Domain: PersistableDomainModel,
         )
         return context.collectionPublisher(for: fetchRequest)
             .tryMap { storedItems in
-                try storedItems.first?.toDomain(fields: self.allStoredFields)
+                try storedItems.first?.convert(fields: self.allStoredFields)
             }
             .eraseToAnyPublisher()
     }
@@ -343,7 +342,7 @@ where Domain: PersistableDomainModel,
         return context.collectionPublisher(for: fetchRequest)
             .tryMap { storedItems in
                 try storedItems.map { item in
-                    try item.toDomain(fields: self.allStoredFields)
+                    try item.convert(fields: self.allStoredFields)
                 }
             }
             .eraseToAnyPublisher()
@@ -395,4 +394,4 @@ where Domain: PersistableDomainModel,
 
 extension NSPredicate: @unchecked @retroactive Sendable {}
 extension NSSortDescriptor: @unchecked @retroactive Sendable {}
-extension PersistentCoreDataStore: @unchecked Sendable where Domain: Sendable {}
+extension PersistentCoreDataStore: @unchecked Sendable where T: Sendable {}

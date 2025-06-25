@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 public protocol PersistedLayerInterface {
-    associatedtype T: PersistableDomainModel
+    associatedtype T: DBInterfaceDTO
     
     // Read & Observe
     @discardableResult func getSingle(id: String) async throws -> T?

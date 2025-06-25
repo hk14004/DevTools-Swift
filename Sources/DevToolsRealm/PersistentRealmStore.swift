@@ -11,9 +11,9 @@ import Combine
 import Realm
 import RealmSwift
 
-public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: PersistableDomainModel,
+public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> where Domain: DBInterfaceDTO,
                                                                                    Domain.StoreType: RealmSwiftObject,
-                                                                                   Domain.StoreType.DomainModelType == Domain {
+                                                                                   Domain.StoreType.DomainDTO == Domain {
     public typealias T = Domain
     private let dbConfig: Realm.Configuration
     private let queue: DispatchQueue = .init(label: "DevTools.PersistentRealmStore.\(Domain.self)")
@@ -192,7 +192,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
             queue.async {
                 autoreleasepool {
                     let realm = try! Realm(configuration: self.dbConfig)
-                    let result = try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
+                    let result = try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.convert(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
                     continuation.resume(returning: result)
                 }
             }
@@ -204,7 +204,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
         queue.sync {
             autoreleasepool {
                 let realm = try! Realm(configuration: self.dbConfig)
-                result = try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.toDomain(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
+                result = try? realm.object(ofType: T.StoreType.self, forPrimaryKey: id)?.convert(fields: Set(T.StoreType.FieldType.allCases)) ?? nil
             }
         }
         
@@ -219,7 +219,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
                     let result = try? realm.objects(T.StoreType.self)
                         .filter(predicate)
 //                        .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
-                        .compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
+                        .compactMap {try $0.convert(fields: Set(T.StoreType.FieldType.allCases))}
                     continuation.resume(returning: result ?? [])
                 }
             }
@@ -234,7 +234,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
                 let fetch = try? realm.objects(T.StoreType.self)
                     .filter(predicate)
 //                    .optionallySorted(byKeyPath: sortedByKeyPath, ascending: ascending)
-                    .compactMap {try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
+                    .compactMap {try $0.convert(fields: Set(T.StoreType.FieldType.allCases))}
                 result = fetch ?? []
             }
         }
@@ -306,7 +306,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
             .collectionPublisher
             .subscribe(on: queue)
             .freeze()
-            .map {try! $0.first?.toDomain(fields: Set(T.StoreType.FieldType.allCases))}
+            .map {try! $0.first?.convert(fields: Set(T.StoreType.FieldType.allCases))}
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
@@ -319,7 +319,7 @@ public class PersistentRealmStore<Domain>: BasePersistedLayerInterface<Domain> w
             .collectionPublisher
             .subscribe(on: queue)
             .freeze()
-            .map {try! $0.compactMap{try $0.toDomain(fields: Set(T.StoreType.FieldType.allCases))}}
+            .map {try! $0.compactMap{try $0.convert(fields: Set(T.StoreType.FieldType.allCases))}}
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
