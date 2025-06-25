@@ -12,33 +12,47 @@ public protocol PersistedLayerInterface {
     associatedtype T: DBInterfaceDTO
     
     // Read & Observe
-    @discardableResult func getSingle(id: String) async throws -> T?
-    @discardableResult func getSingle(id: String) throws -> T?
+    @discardableResult func getSingle(
+        id: String,
+        fields: Set<T.StoreType.FieldType>
+    ) async throws -> T?
+    @discardableResult func getSingle(
+        id: String,
+        fields: Set<T.StoreType.FieldType>
+    ) throws -> T?
     
     @discardableResult func getList(
         predicate: NSPredicate,
-        sortDescriptors: [NSSortDescriptor]
+        sortDescriptors: [NSSortDescriptor],
+        fields: Set<T.StoreType.FieldType>
     ) async throws -> [T]
     @discardableResult func getList(
         predicate: NSPredicate,
-        sortDescriptors: [NSSortDescriptor]
+        sortDescriptors: [NSSortDescriptor],
+        fields: Set<T.StoreType.FieldType>
     ) throws -> [T]
     
     @discardableResult func getListPage(
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate,
-        sortDescriptors: [NSSortDescriptor]
+        sortDescriptors: [NSSortDescriptor],
+        fields: Set<T.StoreType.FieldType>
     ) async throws -> PagedResult<T>
     @discardableResult func getListPage(
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate,
-        sortDescriptors: [NSSortDescriptor]
+        sortDescriptors: [NSSortDescriptor],
+        fields: Set<T.StoreType.FieldType>
     ) throws -> PagedResult<T>
     
-    @discardableResult func observeSingle(id: String) -> AnyPublisher<T?, Error>
+    @discardableResult func observeSingle(
+        id: String,
+        fields: Set<T.StoreType.FieldType>
+    ) -> AnyPublisher<T?, Error>
     @discardableResult func observeList(
         predicate: NSPredicate,
-        sortDescriptors: [NSSortDescriptor]
+        sortDescriptors: [NSSortDescriptor],
+        fields: Set<T.StoreType.FieldType>
     ) -> AnyPublisher<[T], Error>
     
     // Write

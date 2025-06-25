@@ -19,7 +19,6 @@ where T: DBInterfaceDTO,
     // MARK: Properties
     private let context: NSManagedObjectContext
     private var bulkWriteInProgress = false
-    private var allStoredFields = T.StoreType.FieldType.getSetOfAllFields()
     
     // MARK: Init
     public init(context: NSManagedObjectContext) {
@@ -29,21 +28,27 @@ where T: DBInterfaceDTO,
     
     // MARK: Read
     // Single
-    public override func getSingle(id: String) throws -> T? {
+    public override func getSingle(
+        id: String,
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) throws -> T? {
         try context.performAndWait {
             try self.context.fetch(makeIDFetchRequest(id))
                 .first?
-                .convert(fields: allStoredFields)
+                .convert(fields: fields)
         }
     }
     
-    public override func getSingle(id: String) async throws -> T? {
+    public override func getSingle(
+        id: String,
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) async throws -> T? {
         try await withCheckedThrowingContinuation { continuation in
             context.perform {
                 do {
                     let result = try self.context.fetch(self.makeIDFetchRequest(id))
                         .first?
-                        .convert(fields: self.allStoredFields)
+                        .convert(fields: fields)
                     continuation.resume(returning: result)
                 } catch {
                     continuation.resume(throwing: error)
@@ -55,7 +60,8 @@ where T: DBInterfaceDTO,
     // List
     public override func getList(
         predicate: NSPredicate = NSPredicate(value: true),
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) throws -> [T] {
         try context.performAndWait {
             let fetchRequest = makeFetchRequest(
@@ -65,7 +71,7 @@ where T: DBInterfaceDTO,
             
             let domainItems = try self.context.fetch(fetchRequest)
                 .map { stored in
-                    try stored.convert(fields: allStoredFields)
+                    try stored.convert(fields: fields)
                 }
             return domainItems
         }
@@ -73,7 +79,8 @@ where T: DBInterfaceDTO,
     
     public override func getList(
         predicate: NSPredicate = NSPredicate(value: true),
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) async throws -> [T] {
         try await withCheckedThrowingContinuation { continuation in
             context.perform {
@@ -85,7 +92,7 @@ where T: DBInterfaceDTO,
                     
                     let domainItems = try self.context.fetch(fetchRequest)
                         .compactMap { stored in
-                            try stored.convert(fields: self.allStoredFields)
+                            try stored.convert(fields: fields)
                         }
                     continuation.resume(returning: domainItems)
                 } catch {
@@ -99,7 +106,8 @@ where T: DBInterfaceDTO,
     public override func getListPage(
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate = NSPredicate(value: true),
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) throws -> PagedResult<T> {
         let fetchRequest = makeFetchRequest(
             predicate: predicate,
@@ -111,7 +119,7 @@ where T: DBInterfaceDTO,
         
         let domainItems = try context.fetch(fetchRequest)
             .map { stored in
-                try stored.convert(fields: allStoredFields)
+                try stored.convert(fields: fields)
             }
         
         return PagedResult(
@@ -124,8 +132,9 @@ where T: DBInterfaceDTO,
     public override func getListPage(
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate = NSPredicate(value: true),
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()])
-    async throws -> PagedResult<T> {
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) async throws -> PagedResult<T> {
         try await withCheckedThrowingContinuation { continuation in
             context.perform {
                 do {
@@ -139,7 +148,7 @@ where T: DBInterfaceDTO,
                     
                     let domainItems = try self.context.fetch(fetchRequest)
                         .map { stored in
-                            try stored.convert(fields: self.allStoredFields)
+                            try stored.convert(fields: fields)
                         }
                     
                     continuation.resume(
@@ -319,21 +328,25 @@ where T: DBInterfaceDTO,
     
     // MARK: Observe
     
-    public override func observeSingle(id: String) -> AnyPublisher<T?, Error> {
+    public override func observeSingle(
+        id: String,
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) -> AnyPublisher<T?, Error> {
         let fetchRequest = makeFetchRequest(
             predicate: makeIDPredicate(id),
             sortDescriptors: [NSSortDescriptor.makeStringIDSortDescriptor()]
         )
         return context.collectionPublisher(for: fetchRequest)
             .tryMap { storedItems in
-                try storedItems.first?.convert(fields: self.allStoredFields)
+                try storedItems.first?.convert(fields: fields)
             }
             .eraseToAnyPublisher()
     }
     
     public override func observeList(
         predicate: NSPredicate = NSPredicate(value: true),
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) -> AnyPublisher<[T], Error> {
         let fetchRequest = makeFetchRequest(
             predicate: predicate,
@@ -342,7 +355,7 @@ where T: DBInterfaceDTO,
         return context.collectionPublisher(for: fetchRequest)
             .tryMap { storedItems in
                 try storedItems.map { item in
-                    try item.convert(fields: self.allStoredFields)
+                    try item.convert(fields: fields)
                 }
             }
             .eraseToAnyPublisher()

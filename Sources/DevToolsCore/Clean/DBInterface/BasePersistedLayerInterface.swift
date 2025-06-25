@@ -19,25 +19,33 @@ open class BasePersistedLayerInterface<T: DBInterfaceDTO>: PersistedLayerInterfa
     
     // MARK: Read
     // Single
-    open func getSingle(id: String) throws -> T? {
+    open func getSingle(
+        id: String,
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) throws -> T? {
         throw PersistenceError.notImplemented
     }
     
-    open func getSingle(id: String) async throws -> T? {
+    open func getSingle(
+        id: String,
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) async throws -> T? {
         throw PersistenceError.notImplemented
     }
     
     // List
     open func getList(
         predicate: NSPredicate = NSPredicate(value: true),
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) throws -> [T] {
         throw PersistenceError.notImplemented
     }
     
     open func getList(
         predicate: NSPredicate = NSPredicate(value: true),
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) async throws -> [T] {
         throw PersistenceError.notImplemented
     }
@@ -46,7 +54,8 @@ open class BasePersistedLayerInterface<T: DBInterfaceDTO>: PersistedLayerInterfa
     open func getListPage(
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate = NSPredicate(value: true),
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) throws -> PagedResult<T> {
         throw PersistenceError.notImplemented
     }
@@ -54,7 +63,8 @@ open class BasePersistedLayerInterface<T: DBInterfaceDTO>: PersistedLayerInterfa
     open func getListPage(
         pageOptions: PagedRequestOptions,
         predicate: NSPredicate = NSPredicate(value: true),
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) async throws -> PagedResult<T> {
         throw PersistenceError.notImplemented
     }
@@ -109,13 +119,17 @@ open class BasePersistedLayerInterface<T: DBInterfaceDTO>: PersistedLayerInterfa
     
     // MARK: Observe
     
-    open func observeSingle(id: String) -> AnyPublisher<T?, Error> {
+    open func observeSingle(
+        id: String,
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
+    ) -> AnyPublisher<T?, Error> {
         .fail(PersistenceError.notImplemented)
     }
     
     open func observeList(
         predicate: NSPredicate = NSPredicate(value: true),
-        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
+        sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()],
+        fields: Set<T.StoreType.FieldType> = T.StoreType.FieldType.getSetOfAllFields()
     ) -> AnyPublisher<[T], Error> {
         .fail(PersistenceError.notImplemented)
     }
