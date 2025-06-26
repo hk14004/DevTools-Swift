@@ -10,6 +10,10 @@ import CoreData
 import DevToolsCore
 import Combine
 
+public enum PersistentCoreDataStoreError: LocalizedError {
+    case underlying(Error)
+}
+
 // TODO: Check read block by write
 public class PersistentCoreDataStore<T>: BasePersistedLayerInterface<T>
 where T: DBInterfaceDTO,
@@ -193,7 +197,7 @@ where T: DBInterfaceDTO,
             }
             
             if !self.bulkWriteInProgress {
-                try self.context.save()
+                try self.attemptSave()
             }
         }
     }
@@ -227,7 +231,7 @@ where T: DBInterfaceDTO,
                     }
                     
                     if !self.bulkWriteInProgress {
-                        try self.context.save()
+                        try self.attemptSave()
                     }
                     continuation.resume()
                 } catch {
@@ -246,7 +250,7 @@ where T: DBInterfaceDTO,
                 context.delete(item)
             }
             if !self.bulkWriteInProgress {
-                try self.context.save()
+                try self.attemptSave()
             }
         }
     }
@@ -262,7 +266,7 @@ where T: DBInterfaceDTO,
                         self.context.delete(object)
                     }
                     if !self.bulkWriteInProgress {
-                        try self.context.save()
+                        try self.attemptSave()
                     }
                     continuation.resume()
                 } catch  {
@@ -291,7 +295,7 @@ where T: DBInterfaceDTO,
             }
             
             if !self.bulkWriteInProgress {
-                try context.save()
+                try attemptSave()
             }
         }
     }
@@ -316,7 +320,7 @@ where T: DBInterfaceDTO,
                     }
                     
                     if !self.bulkWriteInProgress {
-                        try self.context.save()
+                        try self.attemptSave()
                     }
                     continuation.resume()
                 } catch  {
@@ -362,26 +366,42 @@ where T: DBInterfaceDTO,
     }
     
     // MARK: Bulk
-    
     public override func bulkWrite(block: @escaping () throws -> Void) async throws {
         try await context.perform {
-            self.bulkWriteInProgress = true
-            try block()
-            try self.context.save()
-            self.bulkWriteInProgress = false
+            try self.performBulkWriteOperaton(block: block)
         }
     }
     
     public override func bulkWrite(block: @escaping () throws -> Void) throws {
         try context.performAndWait {
-            self.bulkWriteInProgress = true
-            try block()
-            try self.context.save()
-            self.bulkWriteInProgress = false
+            try performBulkWriteOperaton(block: block)
         }
     }
     
+    private func performBulkWriteOperaton(block: @escaping () throws -> Void) throws {
+        bulkWriteInProgress = true
+        do {
+            try block()
+        } catch {
+            context.rollback()
+            bulkWriteInProgress = false
+            throw PersistentCoreDataStoreError.underlying(error)
+        }
+        try self.attemptSave()
+        bulkWriteInProgress = true
+    }
+    
     // MARK: Helpers
+    private func attemptSave() throws {
+        guard context.hasChanges else { return }
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw PersistentCoreDataStoreError.underlying(error)
+        }
+    }
+    
     private func makeIDPredicate(_ id: String) -> NSPredicate {
         NSPredicate(format: "id == %@", id)
     }
