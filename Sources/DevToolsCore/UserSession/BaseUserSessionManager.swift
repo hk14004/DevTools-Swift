@@ -11,17 +11,17 @@ public protocol UserSessionManaging {
     typealias CredentialID = String
     associatedtype UserSessionType: UserSessionCredentialsHolding where UserSessionType.CredentialsType == CredentialsStoreType.CredentialsType
     associatedtype CredentialsStoreType: UserSessionCredentialsManaging
-    //    associatedtype UserSessionFactoryType: UserSessionFactory where UserSessionFactoryType.UserSessionType == UserSessionType
     
     var credentialsStore: CredentialsStoreType { get }
     var startedUserSessions: [CredentialID: UserSessionType] { get }
     var userSessionFactory: BaseUserSessionFactory<UserSessionType.CredentialsType> { get }
     
-    func startAllUserSessions() // Starts all user sessions gotten from credential store
+    func startAllUserSessions() // Starts all user sessions retrieved from credential store
     func startUserSession(with credentials: CredentialsStoreType.CredentialsType) // Create and hold instance
     func stopUserSession(forCredentialsID id: String) // Release instance
     func deleteUserSession(credentialsID: String) // Release instance, delete store
     func getStartedUserSession(forCredentialsID id: String) -> UserSessionType?
+    func getCredentials(credentialsID id: String) -> CredentialsStoreType.CredentialsType?
     func isSomebodyLoggedIn() -> Bool
     
 }
@@ -41,7 +41,10 @@ open class BaseUserSessionManager<ConcreteCredentialsType: AuthorizationCredenti
     
     // MARK: Init
     
-    public init(credentialsStore: BaseUserSessionCredentialsStore<ConcreteCredentialsType>, userSessionFactory: BaseUserSessionFactory<ConcreteCredentialsType>) {
+    public init(
+        credentialsStore: BaseUserSessionCredentialsStore<ConcreteCredentialsType>,
+        userSessionFactory: BaseUserSessionFactory<ConcreteCredentialsType>
+    ) {
         self.credentialsStore = credentialsStore
         self.userSessionFactory = userSessionFactory
         self.startedUserSessions = [:]
@@ -77,5 +80,9 @@ open class BaseUserSessionManager<ConcreteCredentialsType: AuthorizationCredenti
     
     open func isSomebodyLoggedIn() -> Bool {
         return !startedUserSessions.keys.isEmpty
+    }
+    
+    open func getCredentials(credentialsID id: String) -> ConcreteCredentialsType? {
+        credentialsStore.getCredentials(id: id)
     }
 }
