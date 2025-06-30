@@ -8,8 +8,8 @@ public protocol DevNetworkClient: AnyObject {
 
 open class BaseNetworkClient: DevNetworkClient {
     // MARK: - Variables
-    private let dataProvider: DevNetworkDataProvider
-    private let requestFactory: DevNetworkRequestFactory
+    public let dataProvider: DevNetworkDataProvider
+    public let requestFactory: DevNetworkRequestFactory
     
     // MARK: - Methods
     public init(
