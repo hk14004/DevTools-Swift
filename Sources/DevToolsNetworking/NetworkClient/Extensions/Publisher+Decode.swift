@@ -4,7 +4,7 @@ import OSLog
 
 extension Publisher where Output == URLSession.DataTaskPublisher.Output {
     // swiftlint:disable:next function_default_parameter_at_end
-    func decode<T>(
+    public func decode<T>(
         as type: T.Type = T.self,
         when request: URLRequest
     ) -> AnyPublisher<T, Error> where T: Codable {
