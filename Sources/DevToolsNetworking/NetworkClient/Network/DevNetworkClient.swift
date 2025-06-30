@@ -19,11 +19,8 @@ open class BaseNetworkClient: DevNetworkClient {
         self.requestFactory = requestFactory
         self.dataProvider = dataProvider
     }
-}
-
-// MARK: Public
-extension BaseNetworkClient {
-    public func execute<T: Codable>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error> {
+    
+    open func execute<T: Codable>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error> {
         prepareRequest(requestConfig: requestConfig)
             .flatMap { [weak self] request in
                 self?.dataProvider.output(for: request)
@@ -32,7 +29,7 @@ extension BaseNetworkClient {
             .eraseToAnyPublisher()
     }
     
-    public func prepareRequest(requestConfig: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
+    open func prepareRequest(requestConfig: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
         .just(
             requestFactory.urlRequest(
                 requestConfig: requestConfig,
