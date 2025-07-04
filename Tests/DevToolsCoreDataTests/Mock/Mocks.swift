@@ -18,26 +18,27 @@ extension MockDTO: DBInterfaceDTO {
     public typealias StoreType = MockCD
 }
 
-extension MockCD: DBStoredObject {
-    public enum Field: String, DBObjectField {
-        case id
-        case name
-    }
-    
-    public func convert(fields: Set<Field>) throws -> MockDTO {
-        .init(id: self.id ?? "", name: self.name ?? "")
-    }
-    
-    public func update(with model: MockDTO, fields: Set<Field>) {
-        self.id = model.id
-        self.name = model.name
-    }
-}
+extension MockCD: DBStoredObject {}
 
 extension MockDTO {
     static func mocks(count: Int) -> [MockDTO] {
         return Array(1...count).map { index in
             return MockDTO(id: "\(index)", name: "\(index)")
         }
+    }
+}
+
+struct MockConverter: ModelConverter {
+    func domainObject(from persistedModel: MockCD) throws -> MockDTO {
+        .init(id: persistedModel.id ?? "", name: persistedModel.name ?? "")
+    }
+    
+    func persistableObject(from domainModel: MockDTO) throws -> MockCD {
+        MockCD()
+    }
+    
+    func updatePersistedObject(with domainModel: MockDTO, object: MockCD) throws {
+        object.id = domainModel.id
+        object.name = domainModel.name
     }
 }

@@ -7,10 +7,4 @@
 
 import Foundation
 
-public protocol DBStoredObject: AnyObject, Identifiable {
-    associatedtype DomainDTO: DBInterfaceDTO
-    associatedtype FieldType: DBObjectField
-    
-    func convert(fields: Set<FieldType>) throws -> DomainDTO
-    func update(with model: DomainDTO, fields: Set<FieldType>)
-}
+public protocol DBStoredObject: AnyObject, Identifiable {}
