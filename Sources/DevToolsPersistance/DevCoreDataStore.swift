@@ -15,7 +15,7 @@ public enum DevCoreDataStoreError: LocalizedError {
 }
 
 // TODO: Check read block by write
-public class DevCoreDataStore<T, Converter>: DevBasePersistedLayerInterface<T>
+public class DevCoreDataStore<T, Converter>: DevPersistedLayerInterface
 where
     T: DevDBInterfaceDTO,
     T.StoreType: NSManagedObject,
@@ -33,25 +33,24 @@ where
     public init(context: NSManagedObjectContext, converter: Converter) {
         self.context = context
         self.converter = converter
-        super.init()
     }
     
     // MARK: Read
     // Single
-    public override func getSingle(id: String) throws -> T? {
+    public func getSingle(id: String) throws -> T? {
         try context.performAndWait {
             try performFetch(id: id)
         }
     }
-
-    public override func getSingle(id: String) async throws -> T? {
+    
+    public func getSingle(id: String) async throws -> T? {
         try await context.perform {
             try self.performFetch(id: id)
         }
     }
     
     // List
-    public override func getList(
+    public func getList(
         predicate: NSPredicate = .init(value: true),
         sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
     ) throws -> [T] {
@@ -60,7 +59,7 @@ where
         }
     }
     
-    public override func getList(
+    public func getList(
         predicate: NSPredicate = .init(value: true),
         sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
     ) async throws -> [T] {
@@ -70,81 +69,81 @@ where
     }
     
     // Paging
-    public override func getListPage(
-           pageOptions: DevPagedRequestOptions,
-           predicate: NSPredicate = .init(value: true),
-           sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
-       ) throws -> DevPagedResult<T> {
-           try context.performAndWait {
-               try performFetchPage(
-                   pageOptions: pageOptions,
-                   predicate: predicate,
-                   sortDescriptors: sortDescriptors
-               )
-           }
-       }
-       
-       // MARK: – Async Paging
-       public override func getListPage(
-           pageOptions: DevPagedRequestOptions,
-           predicate: NSPredicate = .init(value: true),
-           sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
-       ) async throws -> DevPagedResult<T> {
-           try await context.perform {
-               try self.performFetchPage(
-                   pageOptions: pageOptions,
-                   predicate: predicate,
-                   sortDescriptors: sortDescriptors
-               )
-           }
-       }
+    public func getListPage(
+        pageOptions: DevPagedRequestOptions,
+        predicate: NSPredicate = .init(value: true),
+        sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
+    ) throws -> DevPagedResult<T> {
+        try context.performAndWait {
+            try performFetchPage(
+                pageOptions: pageOptions,
+                predicate: predicate,
+                sortDescriptors: sortDescriptors
+            )
+        }
+    }
+    
+    // MARK: – Async Paging
+    public func getListPage(
+        pageOptions: DevPagedRequestOptions,
+        predicate: NSPredicate = .init(value: true),
+        sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
+    ) async throws -> DevPagedResult<T> {
+        try await context.perform {
+            try self.performFetchPage(
+                pageOptions: pageOptions,
+                predicate: predicate,
+                sortDescriptors: sortDescriptors
+            )
+        }
+    }
     
     // MARK: Write
     // Amend
-    public override func addOrUpdate(_ items: [T]) throws {
+    public func addOrUpdate(_ items: [T]) throws {
         try context.performAndWait {
             try performAddOrUpdate(items)
         }
     }
     
     // MARK: – Async Add/Update
-    public override func addOrUpdate(_ items: [T]) async throws {
+    public func addOrUpdate(_ items: [T]) async throws {
         try await context.perform {
             try self.performAddOrUpdate(items)
         }
     }
     
     // Delete
-    public override func delete(_ itemIds: [String]) throws {
+    public func delete(_ itemIds: [String]) throws {
         try context.performAndWait {
             try performDelete(itemIds)
         }
     }
     
     // MARK: – Async Delete
-    public override func delete(_ itemIds: [String]) async throws {
+    public func delete(_ itemIds: [String]) async throws {
         try await context.perform {
             try self.performDelete(itemIds)
         }
     }
     
     // Replace
-    public override func replace(with items: [T]) throws {
-            try context.performAndWait {
-                try performReplace(items)
-            }
+    public func replace(with items: [T]) throws {
+        try context.performAndWait {
+            try performReplace(items)
         }
-
-        // MARK: – Async Replace
-        public override func replace(with items: [T]) async throws {
-            try await context.perform {
-                try self.performReplace(items)
-            }
+    }
+    
+    // MARK: – Async Replace
+    public func replace(with items: [T]) async throws {
+        try await context.perform {
+            try self.performReplace(items)
         }
+    }
     
     // MARK: Observe
     
-    public override func observeSingle(id: String) -> AnyPublisher<T?, Error> {
+    public func observeSingle(id: String) -> AnyPublisher<T?, Error> {
         let fetchRequest = makeFetchRequest(
             predicate: makeIDPredicate(id),
             sortDescriptors: [NSSortDescriptor.makeStringIDSortDescriptor()]
@@ -158,7 +157,7 @@ where
             .eraseToAnyPublisher()
     }
     
-    public override func observeList(
+    public func observeList(
         predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) -> AnyPublisher<[T], Error> {
@@ -176,13 +175,13 @@ where
     }
     
     // MARK: Bulk
-    public override func bulkWrite(block: @escaping () throws -> Void) async throws {
+    public func bulkWrite(block: @escaping () throws -> Void) async throws {
         try await context.perform {
             try self.performBulkWriteOperaton(block: block)
         }
     }
     
-    public override func bulkWrite(block: @escaping () throws -> Void) throws {
+    public func bulkWrite(block: @escaping () throws -> Void) throws {
         try context.performAndWait {
             try performBulkWriteOperaton(block: block)
         }
@@ -271,66 +270,66 @@ extension DevCoreDataStore {
             predicate: predicate,
             sortDescriptors: sortDescriptors
         )
-
+        
         return try context
             .fetch(fetchRequest)
             .map { try converter.domainObject(from: $0) }
     }
     private func performFetchPage(
-            pageOptions: DevPagedRequestOptions,
-            predicate: NSPredicate = .init(value: true),
-            sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
-        ) throws -> DevPagedResult<T> {
-            let request = makeFetchRequest(
-                predicate: predicate,
-                sortDescriptors: sortDescriptors
-            )
-            
-            let zeroBasedPage = max(0, pageOptions.fetchPage - 1)
-            request.fetchOffset = zeroBasedPage * pageOptions.pageSize
-            request.fetchLimit  = pageOptions.pageSize + 1    // one extra to detect next page
-            
-            let allFetched = try context.fetch(request)
-                .map { try converter.domainObject(from: $0) }
-            
-            let pageItems  = Array(allFetched.prefix(pageOptions.pageSize))
-            let hasNext    = allFetched.count > pageOptions.pageSize
-            
-            return DevPagedResult(
-                pageNumber: pageOptions.fetchPage,
-                pageItems: pageItems,
-                hasNextPage: hasNext
-            )
-        }
+        pageOptions: DevPagedRequestOptions,
+        predicate: NSPredicate = .init(value: true),
+        sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
+    ) throws -> DevPagedResult<T> {
+        let request = makeFetchRequest(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors
+        )
+        
+        let zeroBasedPage = max(0, pageOptions.fetchPage - 1)
+        request.fetchOffset = zeroBasedPage * pageOptions.pageSize
+        request.fetchLimit  = pageOptions.pageSize + 1    // one extra to detect next page
+        
+        let allFetched = try context.fetch(request)
+            .map { try converter.domainObject(from: $0) }
+        
+        let pageItems  = Array(allFetched.prefix(pageOptions.pageSize))
+        let hasNext    = allFetched.count > pageOptions.pageSize
+        
+        return DevPagedResult(
+            pageNumber: pageOptions.fetchPage,
+            pageItems: pageItems,
+            hasNextPage: hasNext
+        )
+    }
     
     private func performAddOrUpdate(_ items: [T]) throws {
-            // 1. Fetch existing objects by ID
-            let ids = items.map { "\($0.id)" }
-            let fetchRequest = makeFetchRequest(
-                predicate: makeIdInPredicate(ids)
-            )
-            let existing = try context.fetch(fetchRequest)
-            let existingDict = Dictionary<String, T.StoreType>(
-                uniqueKeysWithValues: existing.compactMap { obj in
-                    guard let id = obj.id as? String else { return nil }
-                    return (id, obj)
-                }
-            )
-
-            // 2. Update or insert
-            for item in items {
-                if let stored = existingDict["\(item.id)"] {
-                    try converter.updatePersistedObject(with: item, object: stored)
-                } else {
-                    try converter.updatePersistedObject(with: item, object: T.StoreType(context: context))
-                }
+        // 1. Fetch existing objects by ID
+        let ids = items.map { "\($0.id)" }
+        let fetchRequest = makeFetchRequest(
+            predicate: makeIdInPredicate(ids)
+        )
+        let existing = try context.fetch(fetchRequest)
+        let existingDict = Dictionary<String, T.StoreType>(
+            uniqueKeysWithValues: existing.compactMap { obj in
+                guard let id = obj.id as? String else { return nil }
+                return (id, obj)
             }
-
-            // 3. Save if not in a bulk batch
-            if !bulkWriteInProgress {
-                try attemptSave()
+        )
+        
+        // 2. Update or insert
+        for item in items {
+            if let stored = existingDict["\(item.id)"] {
+                try converter.updatePersistedObject(with: item, object: stored)
+            } else {
+                try converter.updatePersistedObject(with: item, object: T.StoreType(context: context))
             }
         }
+        
+        // 3. Save if not in a bulk batch
+        if !bulkWriteInProgress {
+            try attemptSave()
+        }
+    }
     
     private func performDelete(_ itemIds: [String]) throws {
         let fetchRequest = makeFetchRequest(
@@ -346,22 +345,22 @@ extension DevCoreDataStore {
     }
     
     private func performReplace(_ items: [T]) throws {
-            // 1. Delete everything
-            let fetchRequest = makeFetchRequest(predicate: .init(value: true))
-            let allObjects = try context.fetch(fetchRequest)
-            for obj in allObjects {
-                context.delete(obj)
-            }
-
-            // 2. Insert new items
-            for item in items {
-                let entity = T.StoreType(context: context)
-                try converter.updatePersistedObject(with: item, object: entity)
-            }
-
-            // 3. Save if not in bulk
-            if !bulkWriteInProgress {
-                try attemptSave()
-            }
+        // 1. Delete everything
+        let fetchRequest = makeFetchRequest(predicate: .init(value: true))
+        let allObjects = try context.fetch(fetchRequest)
+        for obj in allObjects {
+            context.delete(obj)
         }
+        
+        // 2. Insert new items
+        for item in items {
+            let entity = T.StoreType(context: context)
+            try converter.updatePersistedObject(with: item, object: entity)
+        }
+        
+        // 3. Save if not in bulk
+        if !bulkWriteInProgress {
+            try attemptSave()
+        }
+    }
 }
