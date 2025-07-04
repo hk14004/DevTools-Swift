@@ -9,7 +9,7 @@ import Foundation
 
 public protocol DevModelConverter {
     associatedtype DomainType: DevDBInterfaceDTO
-    associatedtype PersistedType: DBStoredObject
+    associatedtype PersistedType: DevDBStoredObject
     
     func domainObject(from persistedModel: PersistedType) throws -> DomainType
     func updatePersistedObject(with domainModel: DomainType, object: PersistedType) throws

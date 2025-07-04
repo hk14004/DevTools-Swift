@@ -18,7 +18,7 @@ extension MockDTO: DevDBInterfaceDTO {
     public typealias StoreType = MockCD
 }
 
-extension MockCD: DBStoredObject {}
+extension MockCD: DevDBStoredObject {}
 
 extension MockDTO {
     static func mocks(count: Int) -> [MockDTO] {
