@@ -10,12 +10,12 @@ import CoreData
 import DevToolsCore
 import Combine
 
-public enum PersistentCoreDataStoreError: LocalizedError {
+public enum DevCoreDataStoreError: LocalizedError {
     case underlying(Error)
 }
 
 // TODO: Check read block by write
-public class PersistentCoreDataStore<T, Converter>: BasePersistedLayerInterface<T>
+public class DevCoreDataStore<T, Converter>: BasePersistedLayerInterface<T>
 where
     T: DBInterfaceDTO,
     T.StoreType: NSManagedObject,
@@ -195,7 +195,7 @@ where
         } catch {
             context.rollback()
             bulkWriteInProgress = false
-            throw PersistentCoreDataStoreError.underlying(error)
+            throw DevCoreDataStoreError.underlying(error)
         }
         try self.attemptSave()
         bulkWriteInProgress = true
@@ -208,7 +208,7 @@ where
             try context.save()
         } catch {
             context.rollback()
-            throw PersistentCoreDataStoreError.underlying(error)
+            throw DevCoreDataStoreError.underlying(error)
         }
     }
     
@@ -237,7 +237,7 @@ where
 
 extension NSPredicate: @unchecked @retroactive Sendable {}
 extension NSSortDescriptor: @unchecked @retroactive Sendable {}
-extension PersistentCoreDataStore: @unchecked Sendable where T: Sendable {}
+extension DevCoreDataStore: @unchecked Sendable where T: Sendable {}
 
 
 
@@ -255,7 +255,7 @@ extension NSManagedObjectContext {
     }
 }
 
-extension PersistentCoreDataStore {
+extension DevCoreDataStore {
     private func performFetch(id: String) throws -> T? {
         try context
             .fetch(makeIDFetchRequest(id))

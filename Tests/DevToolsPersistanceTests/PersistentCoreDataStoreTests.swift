@@ -7,7 +7,7 @@
 
 import XCTest
 import Combine
-import DevToolsCoreData
+import DevToolsPersistance
 import CoreData
 import DevToolsCore
 
@@ -31,8 +31,8 @@ final class PersistentCoreDataStoreTests: XCTestCase {
 }
 
 extension PersistentCoreDataStoreTests {
-    func makeSUT() -> PersistentCoreDataStore<MockDTO, MockConverter> {
-        PersistentCoreDataStore(context: context, converter: MockConverter())
+    func makeSUT() -> DevCoreDataStore<MockDTO, MockConverter> {
+        DevCoreDataStore(context: context, converter: MockConverter())
     }
     
     func configureCoreDataStack() throws {

@@ -23,8 +23,8 @@ let package = Package(
             name: "DevToolsUI",
             targets: ["DevToolsUI"]),
         .library(
-            name: "DevToolsCoreData",
-            targets: ["DevToolsCoreData"]),
+            name: "DevToolsPersistance",
+            targets: ["DevToolsPersistance"]),
         .library(
             name: "DevToolsLocalization",
             targets: ["DevToolsLocalization"]),
@@ -46,7 +46,7 @@ let package = Package(
             name: "DevToolsUI",
             dependencies: ["DevToolsCore"]),
         .target(
-            name: "DevToolsCoreData",
+            name: "DevToolsPersistance",
             dependencies: ["DevToolsCore"]),
         .target(
             name: "DevToolsLocalization",
@@ -58,7 +58,7 @@ let package = Package(
             name: "DevToolsCoreTests",
             dependencies: ["DevToolsCore"]),
         .testTarget(
-            name: "DevToolsCoreDataTests",
-            dependencies: ["DevToolsCoreData", "DevToolsCore"])
+            name: "DevToolsPersistanceTests",
+            dependencies: ["DevToolsPersistance", "DevToolsCore"])
     ]
 )
