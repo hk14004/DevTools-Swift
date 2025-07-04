@@ -10,10 +10,6 @@ import CoreData
 import DevToolsCore
 import Combine
 
-public enum DevCoreDataStoreError: LocalizedError {
-    case underlying(Error)
-}
-
 // TODO: Check read block by write
 public class DevCoreDataStore<T, Converter>: DevPersistedLayerInterface
 where
@@ -194,7 +190,7 @@ where
         } catch {
             context.rollback()
             bulkWriteInProgress = false
-            throw DevCoreDataStoreError.underlying(error)
+            throw DevPersistedLayerInterfaceError.underlying(error)
         }
         try self.attemptSave()
         bulkWriteInProgress = true
@@ -207,7 +203,7 @@ where
             try context.save()
         } catch {
             context.rollback()
-            throw DevCoreDataStoreError.underlying(error)
+            throw DevPersistedLayerInterfaceError.underlying(error)
         }
     }
     

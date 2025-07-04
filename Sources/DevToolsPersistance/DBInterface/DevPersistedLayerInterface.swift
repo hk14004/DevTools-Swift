@@ -1,5 +1,5 @@
 //
-//  PersistedLayerInterface.swift
+//  DevPersistedLayerInterface.swift
 //
 //
 //  Created by Hardijs on 31/01/2023.
@@ -53,4 +53,8 @@ public protocol DevPersistedLayerInterface {
     
     func bulkWrite(block: @escaping () throws -> Void) async throws
     func bulkWrite(block: @escaping () throws -> Void) throws
+}
+
+public enum DevPersistedLayerInterfaceError: LocalizedError {
+    case underlying(Error)
 }
