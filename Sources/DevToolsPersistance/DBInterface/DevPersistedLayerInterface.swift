@@ -7,9 +7,10 @@
 
 import Foundation
 import Combine
+import DevToolsCore
 
-public protocol PersistedLayerInterface {
-    associatedtype T: DBInterfaceDTO
+public protocol DevPersistedLayerInterface {
+    associatedtype T: DevDBInterfaceDTO
     
     // Read & Observe
     @discardableResult func getSingle(id: String) async throws -> T?
@@ -24,15 +25,15 @@ public protocol PersistedLayerInterface {
     ) throws -> [T]
     
     @discardableResult func getListPage(
-        pageOptions: PagedRequestOptions,
+        pageOptions: DevPagedRequestOptions,
         predicate: NSPredicate,
         sortDescriptors: [NSSortDescriptor]
-    ) async throws -> PagedResult<T>
+    ) async throws -> DevPagedResult<T>
     @discardableResult func getListPage(
-        pageOptions: PagedRequestOptions,
+        pageOptions: DevPagedRequestOptions,
         predicate: NSPredicate,
         sortDescriptors: [NSSortDescriptor]
-    ) throws -> PagedResult<T>
+    ) throws -> DevPagedResult<T>
     
     @discardableResult func observeSingle(id: String,) -> AnyPublisher<T?, Error>
     @discardableResult func observeList(

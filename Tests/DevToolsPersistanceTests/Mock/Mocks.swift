@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import DevToolsCore
+import DevToolsPersistance
 import CoreData
 
 public struct MockDTO: Equatable {
@@ -14,7 +14,7 @@ public struct MockDTO: Equatable {
     public let name: String
 }
 
-extension MockDTO: DBInterfaceDTO {
+extension MockDTO: DevDBInterfaceDTO {
     public typealias StoreType = MockCD
 }
 
@@ -28,7 +28,7 @@ extension MockDTO {
     }
 }
 
-struct MockConverter: ModelConverter {
+struct MockConverter: DevModelConverter {
     func domainObject(from persistedModel: MockCD) throws -> MockDTO {
         .init(id: persistedModel.id ?? "", name: persistedModel.name ?? "")
     }

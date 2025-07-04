@@ -1,5 +1,5 @@
 //
-//  PersistentCoreDataStore.swift
+//  DevCoreDataStore.swift
 //
 //
 //  Created by Hardijs Ķirsis on 05/04/2023.
@@ -15,11 +15,11 @@ public enum DevCoreDataStoreError: LocalizedError {
 }
 
 // TODO: Check read block by write
-public class DevCoreDataStore<T, Converter>: BasePersistedLayerInterface<T>
+public class DevCoreDataStore<T, Converter>: DevBasePersistedLayerInterface<T>
 where
-    T: DBInterfaceDTO,
+    T: DevDBInterfaceDTO,
     T.StoreType: NSManagedObject,
-    Converter: ModelConverter,
+    Converter: DevModelConverter,
     Converter.DomainType == T,
     Converter.PersistedType == T.StoreType
 {
@@ -71,10 +71,10 @@ where
     
     // Paging
     public override func getListPage(
-           pageOptions: PagedRequestOptions,
+           pageOptions: DevPagedRequestOptions,
            predicate: NSPredicate = .init(value: true),
            sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
-       ) throws -> PagedResult<T> {
+       ) throws -> DevPagedResult<T> {
            try context.performAndWait {
                try performFetchPage(
                    pageOptions: pageOptions,
@@ -86,10 +86,10 @@ where
        
        // MARK: – Async Paging
        public override func getListPage(
-           pageOptions: PagedRequestOptions,
+           pageOptions: DevPagedRequestOptions,
            predicate: NSPredicate = .init(value: true),
            sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
-       ) async throws -> PagedResult<T> {
+       ) async throws -> DevPagedResult<T> {
            try await context.perform {
                try self.performFetchPage(
                    pageOptions: pageOptions,
@@ -277,10 +277,10 @@ extension DevCoreDataStore {
             .map { try converter.domainObject(from: $0) }
     }
     private func performFetchPage(
-            pageOptions: PagedRequestOptions,
+            pageOptions: DevPagedRequestOptions,
             predicate: NSPredicate = .init(value: true),
             sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
-        ) throws -> PagedResult<T> {
+        ) throws -> DevPagedResult<T> {
             let request = makeFetchRequest(
                 predicate: predicate,
                 sortDescriptors: sortDescriptors
@@ -296,7 +296,7 @@ extension DevCoreDataStore {
             let pageItems  = Array(allFetched.prefix(pageOptions.pageSize))
             let hasNext    = allFetched.count > pageOptions.pageSize
             
-            return PagedResult(
+            return DevPagedResult(
                 pageNumber: pageOptions.fetchPage,
                 pageItems: pageItems,
                 hasNextPage: hasNext

@@ -1,5 +1,5 @@
 //
-//  XCTestCase+Combine.swift
+//  XCTest+Combine.swift
 //
 //
 //  Created by Hardijs Ķirsis on 24/10/2023.

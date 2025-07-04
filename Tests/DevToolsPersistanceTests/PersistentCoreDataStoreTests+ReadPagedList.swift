@@ -14,7 +14,7 @@ extension PersistentCoreDataStoreTests {
     func test_readPagedListSync_nothingFound_emptyDB() throws {
         // Arrange
         // Act
-        let result = try sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 1, pageSize: 0))
+        let result = try sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 1, pageSize: 0))
 
         // Assert
         XCTAssertTrue(result.pageItems.isEmpty)
@@ -27,7 +27,7 @@ extension PersistentCoreDataStoreTests {
         try sut.addOrUpdate(allItems)
         
         // Act
-        let result = try sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 1, pageSize: 3))
+        let result = try sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 1, pageSize: 3))
         
         // Assert
         XCTAssertEqual(result.pageItems, allItems)
@@ -41,7 +41,7 @@ extension PersistentCoreDataStoreTests {
         try sut.addOrUpdate(allItems)
         
         // Act
-        let result = try sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 1, pageSize: 9))
+        let result = try sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 1, pageSize: 9))
         
         // Assert
         XCTAssertEqual(result.pageItems, expectedPageItems)
@@ -59,10 +59,10 @@ extension PersistentCoreDataStoreTests {
         try sut.addOrUpdate(allItems)
         
         // Act
-        let page1 = try sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 1, pageSize: pageSize))
-        let page2 = try sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 2, pageSize: pageSize))
-        let page3 = try sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 3, pageSize: pageSize))
-        let page4 = try sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 4, pageSize: pageSize))
+        let page1 = try sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 1, pageSize: pageSize))
+        let page2 = try sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 2, pageSize: pageSize))
+        let page3 = try sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 3, pageSize: pageSize))
+        let page4 = try sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 4, pageSize: pageSize))
         
         // Assert
         XCTAssertEqual(page1.pageItems, expected1PageItems)
@@ -82,7 +82,7 @@ extension PersistentCoreDataStoreTests {
         
         // Act
         let result = try sut.getListPage(
-            pageOptions: PagedRequestOptions(
+            pageOptions: DevPagedRequestOptions(
                 fetchPage: 1,
                 pageSize: 9
             ),
@@ -99,7 +99,7 @@ extension PersistentCoreDataStoreTests {
     func test_readPagedListAsync_nothingFound_emptyDB() async throws {
         // Arrange
         // Act
-        let result = try await sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 1, pageSize: 0))
+        let result = try await sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 1, pageSize: 0))
 
         // Assert
         XCTAssertTrue(result.pageItems.isEmpty)
@@ -112,7 +112,7 @@ extension PersistentCoreDataStoreTests {
         try await sut.addOrUpdate(allItems)
         
         // Act
-        let result = try await sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 1, pageSize: 3))
+        let result = try await sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 1, pageSize: 3))
         
         // Assert
         XCTAssertEqual(result.pageItems, allItems)
@@ -126,7 +126,7 @@ extension PersistentCoreDataStoreTests {
         try await sut.addOrUpdate(allItems)
         
         // Act
-        let result = try await  sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 1, pageSize: 9))
+        let result = try await  sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 1, pageSize: 9))
         
         // Assert
         XCTAssertEqual(result.pageItems, expectedPageItems)
@@ -144,10 +144,10 @@ extension PersistentCoreDataStoreTests {
         try await sut.addOrUpdate(allItems)
         
         // Act
-        let page1 = try await  sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 1, pageSize: pageSize))
-        let page2 = try await sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 2, pageSize: pageSize))
-        let page3 = try await sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 3, pageSize: pageSize))
-        let page4 = try await sut.getListPage(pageOptions: PagedRequestOptions(fetchPage: 4, pageSize: pageSize))
+        let page1 = try await  sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 1, pageSize: pageSize))
+        let page2 = try await sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 2, pageSize: pageSize))
+        let page3 = try await sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 3, pageSize: pageSize))
+        let page4 = try await sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 4, pageSize: pageSize))
         
         // Assert
         XCTAssertEqual(page1.pageItems, expected1PageItems)
@@ -167,7 +167,7 @@ extension PersistentCoreDataStoreTests {
         
         // Act
         let result = try await sut.getListPage(
-            pageOptions: PagedRequestOptions(
+            pageOptions: DevPagedRequestOptions(
                 fetchPage: 1,
                 pageSize: 9
             ),

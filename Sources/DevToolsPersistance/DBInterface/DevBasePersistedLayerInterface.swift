@@ -7,12 +7,13 @@
 
 import Foundation
 import Combine
+import DevToolsCore
 
 enum PersistenceError: Error {
     case notImplemented
 }
 
-open class BasePersistedLayerInterface<T: DBInterfaceDTO>: PersistedLayerInterface {
+open class DevBasePersistedLayerInterface<T: DevDBInterfaceDTO>: DevPersistedLayerInterface {
     // MARK: Lifecycle
     
     public init() {}
@@ -44,18 +45,18 @@ open class BasePersistedLayerInterface<T: DBInterfaceDTO>: PersistedLayerInterfa
     
     // Paging
     open func getListPage(
-        pageOptions: PagedRequestOptions,
+        pageOptions: DevPagedRequestOptions,
         predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) throws -> PagedResult<T> {
+    ) throws -> DevPagedResult<T> {
         throw PersistenceError.notImplemented
     }
 
     open func getListPage(
-        pageOptions: PagedRequestOptions,
+        pageOptions: DevPagedRequestOptions,
         predicate: NSPredicate = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
-    ) async throws -> PagedResult<T> {
+    ) async throws -> DevPagedResult<T> {
         throw PersistenceError.notImplemented
     }
     

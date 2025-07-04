@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol DBInterfaceDTO {
+public protocol DevDBInterfaceDTO {
     associatedtype StoreType: DBStoredObject
     var id: String { get }
 }

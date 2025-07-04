@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct PagedResult<T> {
+public struct DevPagedResult<T> {
     public let pageNumber: Int
     public let pageItems: [T]
     public let hasNextPage: Bool
@@ -19,8 +19,8 @@ public struct PagedResult<T> {
     }
 }
 
-extension PagedResult: Hashable {
-    public static func == (lhs: PagedResult<T>, rhs: PagedResult<T>) -> Bool {
+extension DevPagedResult: Hashable {
+    public static func == (lhs: DevPagedResult<T>, rhs: DevPagedResult<T>) -> Bool {
         return lhs.pageNumber == rhs.pageNumber
     }
 
@@ -29,7 +29,7 @@ extension PagedResult: Hashable {
     }
 }
 
-public struct PagedRequestOptions {
+public struct DevPagedRequestOptions {
     public let fetchPage: Int
     public let pageSize: Int
     
