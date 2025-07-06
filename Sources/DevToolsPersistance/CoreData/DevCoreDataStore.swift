@@ -11,7 +11,7 @@ import DevToolsCore
 import Combine
 
 // TODO: Check read block by write
-public class DevCoreDataStore<T, Converter>: DevPersistedLayerInterface
+public class DevCoreDataStore<T, Converter>: DevCoreDataInterface
 where
     T: DevDBInterfaceDTO,
     T.StoreType: NSManagedObject,
