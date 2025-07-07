@@ -10,7 +10,7 @@ import CoreData
 import DevToolsCore
 import Combine
 
-// TODO: Check read block by write
+// TODO: Implement async barrier?
 public class DevCoreDataStore<T, Converter>: DevCoreDataInterface
 where
     T: DevDBInterfaceDTO,
