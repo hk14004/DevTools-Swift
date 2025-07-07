@@ -15,11 +15,12 @@ public protocol ReachabilityNotifier {
 public class DefaultReachabilityNotifier: ReachabilityNotifier {
     // MARK: Properties
     private var reachability: Reachability?
-    public var isReachable = CurrentValueSubject<Bool, Never>(false)
+    public var isReachable = CurrentValueSubject<Bool, Never>(true)
     
     // MARK: LifeCycle
-    init() {
+    public init() {
         reachability = try? Reachability()
+        try? reachability?.startNotifier()
         reachability?.whenReachable = { [weak self] _ in
             guard let self, !isReachable.value else { return }
             isReachable.send(true)
@@ -29,5 +30,9 @@ public class DefaultReachabilityNotifier: ReachabilityNotifier {
             guard let self, isReachable.value else { return }
             isReachable.send(false)
         }
+    }
+    
+    deinit {
+        reachability?.stopNotifier()
     }
 }
