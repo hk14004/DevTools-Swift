@@ -19,6 +19,11 @@ open class RuntimeLocalizedLabel: UILabel {
             updateRuntimeLocalizedStrings()
         }
     }
+    open var runtimeLocalizedArguments: [CVarArg] = [] {
+        didSet {
+            updateRuntimeLocalizedStrings()
+        }
+    }
     
     //MARK: Initialization
     
@@ -52,8 +57,12 @@ open class RuntimeLocalizedLabel: UILabel {
 // MARK: LocalizedRuntimeComponent
 
 extension RuntimeLocalizedLabel: RuntimeLocalizedUIKitComponent {
-    @objc func updateRuntimeLocalizedStrings() {
-        text = runtimeLocalizedKey?.localized()
+    @objc open func updateRuntimeLocalizedStrings() {
+        text = String(
+            format: runtimeLocalizedKey?.runtimeLocalized() ?? "",
+            locale: Locale.current,
+            arguments: runtimeLocalizedArguments
+        )
     }
 }
 

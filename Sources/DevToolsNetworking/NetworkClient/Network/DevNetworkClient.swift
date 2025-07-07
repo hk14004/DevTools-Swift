@@ -8,8 +8,8 @@ public protocol DevNetworkClient: AnyObject {
 
 open class BaseNetworkClient: DevNetworkClient {
     // MARK: - Variables
-    private let dataProvider: DevNetworkDataProvider
-    private let requestFactory: DevNetworkRequestFactory
+    public let dataProvider: DevNetworkDataProvider
+    public let requestFactory: DevNetworkRequestFactory
     
     // MARK: - Methods
     public init(
@@ -19,32 +19,22 @@ open class BaseNetworkClient: DevNetworkClient {
         self.requestFactory = requestFactory
         self.dataProvider = dataProvider
     }
-}
-
-// MARK: Public
-extension BaseNetworkClient {
-    public func execute<T: Codable>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error> {
-        prepareRequest(with: requestConfig)
-            .flatMap { [weak self] request -> AnyPublisher<T, Error> in
-                self?.executeRequest(request: request) ?? .empty()
+    
+    open func execute<T: Codable>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error> {
+        prepareRequest(requestConfig: requestConfig)
+            .flatMap { [weak self] request in
+                self?.dataProvider.output(for: request)
+                    .decode(when: request) ?? .empty()
             }
             .eraseToAnyPublisher()
     }
-}
-
-// MARK: Private
-extension BaseNetworkClient {
-    private func prepareRequest(with config: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
+    
+    open func prepareRequest(requestConfig: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
         .just(
             requestFactory.urlRequest(
-                requestConfig: config
+                requestConfig: requestConfig,
+                authorizationHeaders: nil
             )
-        ).eraseToAnyPublisher()
-    }
-    
-    private func executeRequest<T: Codable>(request: URLRequest) -> AnyPublisher<T, Error> {
-        dataProvider.output(for: request)
-            .decode(when: request)
-            .eraseToAnyPublisher()
+        )
     }
 }

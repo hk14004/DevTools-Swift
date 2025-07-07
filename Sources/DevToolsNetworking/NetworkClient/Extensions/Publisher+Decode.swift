@@ -1,11 +1,10 @@
 import Combine
 import Foundation
+import OSLog
 
 extension Publisher where Output == URLSession.DataTaskPublisher.Output {
-    private var logSeparator: String { "----------------------------------------------------" }
-    
     // swiftlint:disable:next function_default_parameter_at_end
-    func decode<T>(
+    public func decode<T>(
         as type: T.Type = T.self,
         when request: URLRequest
     ) -> AnyPublisher<T, Error> where T: Codable {
@@ -63,18 +62,52 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
     }
     
     // MARK: - Log
+    
     private func logRequest(_ request: URLRequest) {
-        print(logSeparator)
-        print("Request - URL: \(request.url?.absoluteString ?? "<nil>")")
-        print("Request - Headers: \(request.allHTTPHeaderFields ?? [:])")
-        let body = request.httpBody.map { String(data: $0, encoding: .utf8) ?? "<nil>" }
-        print("Request - Body: \(body ?? "<nil>")")
-        print(logSeparator)
+        Logger.network.info(
+            """
+            ----------DevNetworkRequestSent--------------
+            Request
+            URL: \(request.url?.absoluteString ?? "<nil>")
+            Method: \(request.httpMethod ?? "<nil>")
+            Headers: 
+            ---
+            \(formattedHeaders(request.allHTTPHeaderFields))
+            ---
+            Body: 
+            \(prettyPrintedJSON(request.httpBody))
+            """
+        )
     }
     
     private func logResponse(_ response: URLSession.DataTaskPublisher.Output) {
-        print("Response - Status Code: \((response.response as? HTTPURLResponse)?.statusCode ?? 0)")
-        print("Response - \(String(data: response.data, encoding: .utf8) ?? "<nil>")")
-        print(logSeparator)
+        Logger.network.info(
+            """
+            ----------DevNetworkResponseReceived----------
+            Response
+            Status Code: \((response.response as? HTTPURLResponse)?.statusCode ?? 0)
+            Headers: 
+            ---
+            \(formattedHeaders((response.response as? HTTPURLResponse)?.allHeaderFields as? [String: Any]))
+            ---
+            Body: 
+            \(prettyPrintedJSON(response.data))
+            """
+        )
+    }
+    
+    private func formattedHeaders(_ headers: [String: Any]?) -> String {
+        guard let headers = headers, !headers.isEmpty else { return "<nil>" }
+        return headers.map { "\($0): \($1)" }.joined(separator: "\n")
+    }
+    
+    private func prettyPrintedJSON(_ data: Data?) -> String {
+        guard let data = data else { return "<nil>" }
+        if let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
+           let prettyData = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted]),
+           let prettyString = String(data: prettyData, encoding: .utf8) {
+            return prettyString
+        }
+        return String(data: data, encoding: .utf8) ?? "<non-utf8 body> - \(data.count) bytes"
     }
 }

@@ -7,7 +7,7 @@ public protocol DevRequestConfig {
     var queryItems: [URLQueryItem]? { get }
     var bodyParameters: Data? { get }
     var headers: [String: String]? { get }
-    var authType: DevRequestAuthType { get }
+    var requiresAuthorization: Bool { get }
     var timeoutInterval: TimeInterval { get }
 }
 

@@ -3,7 +3,10 @@ import UIKit
 import DevToolsCore
 
 public protocol DevNetworkRequestFactory {
-    func urlRequest(requestConfig: DevRequestConfig) -> URLRequest
+    func urlRequest(
+        requestConfig: DevRequestConfig,
+        authorizationHeaders: [String: String]?
+    ) -> URLRequest
 }
 
 open class BaseNetworkRequestFactory: DevNetworkRequestFactory {
@@ -11,7 +14,8 @@ open class BaseNetworkRequestFactory: DevNetworkRequestFactory {
     public init() {}
     
     public func urlRequest(
-        requestConfig: DevRequestConfig
+        requestConfig: DevRequestConfig,
+        authorizationHeaders: [String: String]?
     ) -> URLRequest {
         let url = URL(
             base: requestConfig.baseURL,
@@ -23,6 +27,9 @@ open class BaseNetworkRequestFactory: DevNetworkRequestFactory {
         var headers = makeMandatoryHeaders()
         if let additionalHeaders = requestConfig.headers {
             headers.merge(additionalHeaders, uniquingKeysWith: { _, new in new })
+        }
+        if let authorizationHeaders = authorizationHeaders, requestConfig.requiresAuthorization {
+            headers.merge(authorizationHeaders, uniquingKeysWith: { _, new in new })
         }
         request.allHTTPHeaderFields = headers
         request.httpBody = requestConfig.bodyParameters

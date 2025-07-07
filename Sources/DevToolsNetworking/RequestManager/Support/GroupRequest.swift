@@ -1,27 +1,27 @@
+////
+////  GroupRequest.swift
+////  
+////
+////  Created by Hardijs on 31/12/2022.
+////
 //
-//  GroupRequest.swift
-//  
+//import Foundation
+//import Moya
 //
-//  Created by Hardijs on 31/12/2022.
+//extension RequestManager {
+//    public struct GroupRequest<T: TargetType> {
+//            let id: String
+//            let requests: [RequestMetaData]
+//        
+//        struct RequestMetaData {
+//            let targetType: T
+//            let requestID: String
+//            let retryMethod: RetryMethod
+//        }
+//    }
 //
-
-import Foundation
-import Moya
-
-extension RequestManager {
-    public struct GroupRequest<T: TargetType> {
-            let id: String
-            let requests: [RequestMetaData]
-        
-        struct RequestMetaData {
-            let targetType: T
-            let requestID: String
-            let retryMethod: RetryMethod
-        }
-    }
-
-    public enum GroupRequestBehaviour {
-        case parallel
-        case oneAfterAnother
-    }
-}
+//    public enum GroupRequestBehaviour {
+//        case parallel
+//        case oneAfterAnother
+//    }
+//}

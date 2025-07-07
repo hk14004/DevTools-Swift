@@ -18,6 +18,11 @@ open class RuntimeLocalizedTabBarItem: UITabBarItem {
             updateRuntimeLocalizedStrings()
         }
     }
+    open var runtimeLocalizedArguments: [CVarArg] = [] {
+        didSet {
+            updateRuntimeLocalizedStrings()
+        }
+    }
     
     //MARK: Initialization
     
@@ -52,8 +57,12 @@ open class RuntimeLocalizedTabBarItem: UITabBarItem {
 // MARK: LocalizedRuntimeComponent
 
 extension RuntimeLocalizedTabBarItem: RuntimeLocalizedUIKitComponent {
-    @objc func updateRuntimeLocalizedStrings() {
-        title = runtimeLocalizedKey?.localized()
+    @objc open func updateRuntimeLocalizedStrings() {
+        title = String(
+            format: runtimeLocalizedKey?.runtimeLocalized() ?? "",
+            locale: Locale.current,
+            arguments: runtimeLocalizedArguments
+        )
     }
 }
 

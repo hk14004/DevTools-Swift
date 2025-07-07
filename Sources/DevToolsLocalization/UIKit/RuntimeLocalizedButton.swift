@@ -18,6 +18,11 @@ open class RuntimeLocalizedButton: UIButton {
             updateRuntimeLocalizedStrings()
         }
     }
+    open var runtimeLocalizedArguments: [CVarArg] = [] {
+        didSet {
+            updateRuntimeLocalizedStrings()
+        }
+    }
     
     //MARK: Initialization
     
@@ -55,7 +60,11 @@ extension RuntimeLocalizedButton: RuntimeLocalizedUIKitComponent {
         guard titleLabel != nil else {
             return
         }
-        setTitle(runtimeLocalizedKey?.localized(), for: .normal)
+        setTitle(String(
+                format: runtimeLocalizedKey?.runtimeLocalized() ?? "",
+                locale: Locale.current,
+                arguments: runtimeLocalizedArguments), for: .normal
+        )
     }
 }
 

@@ -7,8 +7,8 @@
 
 import Foundation
 
-extension RequestManager {
-    enum RequestManagerError: Swift.Error {
-        case canceledRequest
-    }
-}
+//extension RequestManager {
+//    enum RequestManagerError: Swift.Error {
+//        case canceledRequest
+//    }
+//}

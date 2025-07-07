@@ -18,6 +18,11 @@ open class RuntimeLocalizedTextField: UITextField {
             updateRuntimeLocalizedStrings()
         }
     }
+    open var runtimeLocalizedArguments: [CVarArg] = [] {
+        didSet {
+            updateRuntimeLocalizedStrings()
+        }
+    }
     
     //MARK: Initialization
     
@@ -51,8 +56,12 @@ open class RuntimeLocalizedTextField: UITextField {
 // MARK: LocalizedRuntimeComponent
 
 extension RuntimeLocalizedTextField: RuntimeLocalizedUIKitComponent {
-    @objc func updateRuntimeLocalizedStrings() {
-        placeholder = runtimeLocalizedKey?.localized()
+    @objc open func updateRuntimeLocalizedStrings() {
+        placeholder = String(
+            format: runtimeLocalizedKey?.runtimeLocalized() ?? "",
+            locale: Locale.current,
+            arguments: runtimeLocalizedArguments
+        )
     }
 }
 
