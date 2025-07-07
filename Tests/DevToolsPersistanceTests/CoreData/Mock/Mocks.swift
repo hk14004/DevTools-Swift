@@ -9,35 +9,35 @@ import Foundation
 import DevToolsPersistance
 import CoreData
 
-public struct MockDTO: Equatable {
+public struct MockCD_DTO: Equatable {
     public let id: String
     public let name: String
 }
 
-extension MockDTO: DevDBInterfaceDTO {
+extension MockCD_DTO: DevDBInterfaceDTO {
     public typealias StoreType = MockCD
 }
 
 extension MockCD: DevDBStoredObject {}
 
-extension MockDTO {
-    static func mocks(count: Int) -> [MockDTO] {
+extension MockCD_DTO {
+    static func mocks(count: Int) -> [MockCD_DTO] {
         return Array(1...count).map { index in
-            return MockDTO(id: "\(index)", name: "\(index)")
+            return MockCD_DTO(id: "\(index)", name: "\(index)")
         }
     }
 }
 
-struct MockConverter: DevModelConverter {
-    func domainObject(from persistedModel: MockCD) throws -> MockDTO {
+struct MockCD_Converter: DevModelConverter {
+    func domainObject(from persistedModel: MockCD) throws -> MockCD_DTO {
         .init(id: persistedModel.id ?? "", name: persistedModel.name ?? "")
     }
     
-    func persistableObject(from domainModel: MockDTO) throws -> MockCD {
+    func persistableObject(from domainModel: MockCD_DTO) throws -> MockCD {
         MockCD()
     }
     
-    func updatePersistedObject(with domainModel: MockDTO, object: MockCD) throws {
+    func updatePersistedObject(with domainModel: MockCD_DTO, object: MockCD) throws {
         object.id = domainModel.id
         object.name = domainModel.name
     }

@@ -20,7 +20,7 @@ final class PersistentCoreDataStoreTests: XCTestCase {
         static let randomSuffix = "fhsaggfhjfhjf"
     }
     var context: NSManagedObjectContext!
-    let mockDTO = MockDTO(id: Constant.mockID, name: Constant.mockName)
+    let mockDTO = MockCD_DTO(id: Constant.mockID, name: Constant.mockName)
     lazy var sut = makeSUT()
     var cancelBag: Set<AnyCancellable> = []
     
@@ -31,8 +31,8 @@ final class PersistentCoreDataStoreTests: XCTestCase {
 }
 
 extension PersistentCoreDataStoreTests {
-    func makeSUT() -> DevCoreDataStore<MockDTO, MockConverter> {
-        DevCoreDataStore(context: context, converter: MockConverter())
+    func makeSUT() -> DevCoreDataStore<MockCD_DTO, MockCD_Converter> {
+        DevCoreDataStore(context: context, converter: MockCD_Converter())
     }
     
     func configureCoreDataStack() throws {

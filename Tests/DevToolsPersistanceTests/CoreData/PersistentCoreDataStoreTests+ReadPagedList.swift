@@ -23,7 +23,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_readPagedListSync_consumedAll_noNextPage() throws {
         // Arrange
-        let allItems = MockDTO.mocks(count: 3)
+        let allItems = MockCD_DTO.mocks(count: 3)
         try sut.addOrUpdate(allItems)
         
         // Act
@@ -36,7 +36,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_readPagedListSync_consumedSome_hasNextPage() throws {
         // Arrange
-        let allItems = MockDTO.mocks(count: 10)
+        let allItems = MockCD_DTO.mocks(count: 10)
         let expectedPageItems = Array(allItems[0..<allItems.count - 1])
         try sut.addOrUpdate(allItems)
         
@@ -51,7 +51,7 @@ extension PersistentCoreDataStoreTests {
     func test_readPagedListSync_consumedAllPages() throws {
         // Arrange
         let pageSize: Int = 3
-        let allItems = MockDTO.mocks(count: 10)
+        let allItems = MockCD_DTO.mocks(count: 10)
         let expected1PageItems = Array(allItems[pageSize*0..<pageSize])
         let expected2PageItems = Array(allItems[pageSize*1..<pageSize*2])
         let expected3PageItems = Array(allItems[pageSize*2..<pageSize*3])
@@ -77,7 +77,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_readPagedListSync_nothingFound_incorrectID() throws {
         // Arrange
-        let allItems = MockDTO.mocks(count: 3)
+        let allItems = MockCD_DTO.mocks(count: 3)
         try sut.addOrUpdate(allItems)
         
         // Act
@@ -108,7 +108,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_readPagedListAsync_consumedAll_noNextPage() async throws {
         // Arrange
-        let allItems = MockDTO.mocks(count: 3)
+        let allItems = MockCD_DTO.mocks(count: 3)
         try await sut.addOrUpdate(allItems)
         
         // Act
@@ -121,7 +121,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_readPagedListAsync_consumedSome_hasNextPage() async throws {
         // Arrange
-        let allItems = MockDTO.mocks(count: 10)
+        let allItems = MockCD_DTO.mocks(count: 10)
         let expectedPageItems = Array(allItems[0..<allItems.count - 1])
         try await sut.addOrUpdate(allItems)
         
@@ -136,7 +136,7 @@ extension PersistentCoreDataStoreTests {
     func test_readPagedListSync_consumedAllPages() async throws {
         // Arrange
         let pageSize: Int = 3
-        let allItems = MockDTO.mocks(count: 10)
+        let allItems = MockCD_DTO.mocks(count: 10)
         let expected1PageItems = Array(allItems[pageSize*0..<pageSize])
         let expected2PageItems = Array(allItems[pageSize*1..<pageSize*2])
         let expected3PageItems = Array(allItems[pageSize*2..<pageSize*3])
@@ -162,7 +162,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_readPagedListAsync_nothingFound_incorrectID() async throws {
         // Arrange
-        let allItems = MockDTO.mocks(count: 3)
+        let allItems = MockCD_DTO.mocks(count: 3)
         try await sut.addOrUpdate(allItems)
         
         // Act

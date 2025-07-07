@@ -1,5 +1,5 @@
 //
-//  PersistentCoreDataStoreTests+WriteReplace.swift
+//  SwiftDataStoreTests+WriteReplace.swift
 //  DevTools
 //
 //  Created by Hardijs Kirsis on 12/06/2025.
@@ -8,7 +8,7 @@
 import Foundation
 import XCTest
 
-extension PersistentCoreDataStoreTests {
+extension SwiftDataStoreTests {
     // MARK: Sync
     func test_replaceSync_emptyList() throws {
         // Arrange
@@ -19,7 +19,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_replaceSync_withEmpty() throws {
         // Arrange
-        let items = MockDTO.mocks(count: 3)
+        let items = MockSD_DTO.mocks(count: 3)
         try sut.addOrUpdate(items)
         // Act
         try sut.replace(with: [])
@@ -30,8 +30,8 @@ extension PersistentCoreDataStoreTests {
     
     func test_replaceSync_withItems() throws {
         // Arrange
-        let items = MockDTO.mocks(count: 9)
-        let replacedWithItems = MockDTO.mocks(count: 3)
+        let items = MockSD_DTO.mocks(count: 9)
+        let replacedWithItems = MockSD_DTO.mocks(count: 3)
         try sut.addOrUpdate(items)
         // Act
         try sut.replace(with: replacedWithItems)
@@ -50,7 +50,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_replaceAsync_withEmpty() async throws {
         // Arrange
-        let items = MockDTO.mocks(count: 3)
+        let items = MockSD_DTO.mocks(count: 3)
         try await sut.addOrUpdate(items)
         // Act
         try await sut.replace(with: [])
@@ -61,8 +61,8 @@ extension PersistentCoreDataStoreTests {
     
     func test_replaceAsync_withItems() async throws {
         // Arrange
-        let items = MockDTO.mocks(count: 9)
-        let replacedWithItems = MockDTO.mocks(count: 3)
+        let items = MockSD_DTO.mocks(count: 9)
+        let replacedWithItems = MockSD_DTO.mocks(count: 3)
         try await sut.addOrUpdate(items)
         // Act
         try await sut.replace(with: replacedWithItems)

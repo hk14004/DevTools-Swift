@@ -1,5 +1,5 @@
 //
-//  PersistentCoreDataStoreTests+WriteAmend.swift
+//  SwiftDataStoreTests+WriteAmend.swift
 //  DevTools
 //
 //  Created by Hardijs Kirsis on 12/06/2025.
@@ -8,7 +8,7 @@
 import Foundation
 import XCTest
 
-extension PersistentCoreDataStoreTests {
+extension SwiftDataStoreTests {
     // MARK: Sync
     // Amend
     func test_writeSync_emptyList() throws {
@@ -20,7 +20,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_writeSync_addMultipleItems() throws {
         // Arrange
-        let items = MockDTO.mocks(count: 3)
+        let items = MockSD_DTO.mocks(count: 3)
         // Act
         try sut.addOrUpdate(items)
         // Assert
@@ -30,8 +30,8 @@ extension PersistentCoreDataStoreTests {
     
     func test_writeSync_updateItem() throws {
         // Arrange
-        let initialItem = MockDTO(id: "0", name: "updateMe")
-        let updatedItem = MockDTO(id: "0", name: "updated")
+        let initialItem = MockSD_DTO(id: "0", name: "updateMe")
+        let updatedItem = MockSD_DTO(id: "0", name: "updated")
         try sut.addOrUpdate([initialItem])
         
         // Act
@@ -53,7 +53,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_writeAsync_addMultipleItems() async throws {
         // Arrange
-        let items = MockDTO.mocks(count: 3)
+        let items = MockSD_DTO.mocks(count: 3)
         // Act
         try await sut.addOrUpdate(items)
         // Assert
@@ -63,8 +63,8 @@ extension PersistentCoreDataStoreTests {
     
     func test_writeAsync_updateItem() async throws {
         // Arrange
-        let initialItem = MockDTO(id: "0", name: "updateMe")
-        let updatedItem = MockDTO(id: "0", name: "updated")
+        let initialItem = MockSD_DTO(id: "0", name: "updateMe")
+        let updatedItem = MockSD_DTO(id: "0", name: "updated")
         try await sut.addOrUpdate([initialItem])
         
         // Act

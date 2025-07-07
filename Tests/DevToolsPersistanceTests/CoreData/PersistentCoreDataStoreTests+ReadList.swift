@@ -21,8 +21,8 @@ extension PersistentCoreDataStoreTests {
     
     func test_readListSync_found() throws {
         // Arrange
-        let allItems = MockDTO.mocks(count: 3)
-        let itemsToFind: [MockDTO] = [allItems[0], allItems[2]]
+        let allItems = MockCD_DTO.mocks(count: 3)
+        let itemsToFind: [MockCD_DTO] = [allItems[0], allItems[2]]
         let compoundPredicate = NSCompoundPredicate(
             type: .or,
             subpredicates: itemsToFind.map { item in
@@ -41,7 +41,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_readListSync_nothingFound_incorrectID() throws {
         // Arrange
-        let allItems = MockDTO.mocks(count: 3)
+        let allItems = MockCD_DTO.mocks(count: 3)
         try sut.addOrUpdate(allItems)
         
         // Act
@@ -63,8 +63,8 @@ extension PersistentCoreDataStoreTests {
     
     func test_readListAsync_found() async throws {
         // Arrange
-        let allItems = MockDTO.mocks(count: 3)
-        let itemsToFind: [MockDTO] = [allItems[0], allItems[2]]
+        let allItems = MockCD_DTO.mocks(count: 3)
+        let itemsToFind: [MockCD_DTO] = [allItems[0], allItems[2]]
         let compoundPredicate = NSCompoundPredicate(
             type: .or,
             subpredicates: itemsToFind.map { item in
@@ -83,7 +83,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_readListAsync_nothingFound_incorrectID() async throws {
         // Arrange
-        let allItems = MockDTO.mocks(count: 3)
+        let allItems = MockCD_DTO.mocks(count: 3)
         try await sut.addOrUpdate(allItems)
         
         // Act

@@ -18,28 +18,28 @@ public protocol DevPersistedLayerInterface {
     @discardableResult func getSingle(id: String) async throws -> DTO?
     @discardableResult func getSingle(id: String) throws -> DTO?
     @discardableResult func getList(
-        predicate: PredicateType,
+        predicate: PredicateType?,
         sortDescriptors: [SortType]
     ) async throws -> [DTO]
     @discardableResult func getList(
-        predicate: PredicateType,
+        predicate: PredicateType?,
         sortDescriptors: [SortType]
     ) throws -> [DTO]
     
     @discardableResult func getListPage(
         pageOptions: DevPagedRequestOptions,
-        predicate: PredicateType,
+        predicate: PredicateType?,
         sortDescriptors: [SortType]
     ) async throws -> DevPagedResult<DTO>
     @discardableResult func getListPage(
         pageOptions: DevPagedRequestOptions,
-        predicate: PredicateType,
+        predicate: PredicateType?,
         sortDescriptors: [SortType]
     ) throws -> DevPagedResult<DTO>
     
-    @discardableResult func observeSingle(id: String,) -> AnyPublisher<DTO?, Error>
+    @discardableResult func observeSingle(id: String) -> AnyPublisher<DTO?, Error>
     @discardableResult func observeList(
-        predicate: PredicateType,
+        predicate: PredicateType?,
         sortDescriptors: [SortType]
     ) -> AnyPublisher<[DTO], Error>
     

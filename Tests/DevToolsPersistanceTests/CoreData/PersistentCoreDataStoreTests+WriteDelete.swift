@@ -20,7 +20,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_deleteSync_allItems() throws {
         // Arrange
-        let items = MockDTO.mocks(count: 3)
+        let items = MockCD_DTO.mocks(count: 3)
         try sut.addOrUpdate(items)
         // Act
         try sut.delete(items.map { $0.id } )
@@ -31,7 +31,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_deleteSync_partial() throws {
         // Arrange
-        let items = MockDTO.mocks(count: 3)
+        let items = MockCD_DTO.mocks(count: 3)
         var expectedItems = items
         expectedItems.remove(at: 1)
         try sut.addOrUpdate(items)
@@ -52,7 +52,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_deleteSync_allItems() async throws {
         // Arrange
-        let items = MockDTO.mocks(count: 3)
+        let items = MockCD_DTO.mocks(count: 3)
         try await sut.addOrUpdate(items)
         // Act
         try await sut.delete(items.map { $0.id } )
@@ -63,7 +63,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_deleteSync_partial() async throws {
         // Arrange
-        let items = MockDTO.mocks(count: 3)
+        let items = MockCD_DTO.mocks(count: 3)
         var expectedItems = items
         expectedItems.remove(at: 1)
         try await sut.addOrUpdate(items)

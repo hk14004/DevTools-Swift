@@ -22,7 +22,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_bulkWriteSync_writesData() throws {
         // Arrange
-        let generated = MockDTO.mocks(count: 99)
+        let generated = MockCD_DTO.mocks(count: 99)
         
         // Act
         try sut.bulkWrite {
@@ -48,7 +48,7 @@ extension PersistentCoreDataStoreTests {
     
     func test_bulkWriteAsync_writesData() async throws {
         // Arrange
-        let generated = MockDTO.mocks(count: 99)
+        let generated = MockCD_DTO.mocks(count: 99)
         
         // Act
         try await sut.bulkWrite {

@@ -18,7 +18,7 @@ extension DevCoreDataStore {
     }
     
     func performFetchList(
-        predicate: NSPredicate,
+        predicate: NSPredicate?,
         sortDescriptors: [NSSortDescriptor]
     ) throws -> [T] {
         let fetchRequest = makeFetchRequest(
@@ -33,7 +33,7 @@ extension DevCoreDataStore {
     
     func performFetchPage(
         pageOptions: DevPagedRequestOptions,
-        predicate: NSPredicate = .init(value: true),
+        predicate: NSPredicate? = .init(value: true),
         sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
     ) throws -> DevPagedResult<T> {
         let request = makeFetchRequest(

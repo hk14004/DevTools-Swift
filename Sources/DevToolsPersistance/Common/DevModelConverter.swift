@@ -12,5 +12,6 @@ public protocol DevModelConverter {
     associatedtype PersistedType: DevDBStoredObject
     
     func domainObject(from persistedModel: PersistedType) throws -> DomainType
+    func persistableObject(from domainModel: DomainType) throws -> PersistedType
     func updatePersistedObject(with domainModel: DomainType, object: PersistedType) throws
 }

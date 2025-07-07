@@ -46,7 +46,7 @@ where
     
     // MARK: Read/List
     public func getList(
-        predicate: NSPredicate = .init(value: true),
+        predicate: NSPredicate? = .init(value: true),
         sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
     ) throws -> [T] {
         try context.performAndWait {
@@ -55,7 +55,7 @@ where
     }
     
     public func getList(
-        predicate: NSPredicate = .init(value: true),
+        predicate: NSPredicate? = .init(value: true),
         sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
     ) async throws -> [T] {
         try await context.perform {
@@ -66,7 +66,7 @@ where
     // MARK: Read/Page
     public func getListPage(
         pageOptions: DevPagedRequestOptions,
-        predicate: NSPredicate = .init(value: true),
+        predicate: NSPredicate? = .init(value: true),
         sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
     ) throws -> DevPagedResult<T> {
         try context.performAndWait {
@@ -80,7 +80,7 @@ where
     
     public func getListPage(
         pageOptions: DevPagedRequestOptions,
-        predicate: NSPredicate = .init(value: true),
+        predicate: NSPredicate? = .init(value: true),
         sortDescriptors: [NSSortDescriptor] = [.makeStringIDSortDescriptor()]
     ) async throws -> DevPagedResult<T> {
         try await context.perform {
@@ -108,7 +108,7 @@ where
     }
     
     public func observeList(
-        predicate: NSPredicate = NSPredicate(value: true),
+        predicate: NSPredicate? = NSPredicate(value: true),
         sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor.makeStringIDSortDescriptor()]
     ) -> AnyPublisher<[T], Error> {
         let fetchRequest = makeFetchRequest(
