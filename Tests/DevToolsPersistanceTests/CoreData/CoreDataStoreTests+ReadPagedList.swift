@@ -9,7 +9,7 @@ import Foundation
 import XCTest
 import DevToolsCore
 
-extension PersistentCoreDataStoreTests {
+extension CoreDataStoreTests {
     // MARK: Sync
     func test_readPagedListSync_nothingFound_emptyDB() throws {
         // Arrange

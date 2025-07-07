@@ -11,7 +11,7 @@ import DevToolsPersistance
 import CoreData
 import DevToolsCore
 
-final class PersistentCoreDataStoreTests: XCTestCase {
+final class CoreDataStoreTests: XCTestCase {
     enum Constant {
         static let mockDBModelName = "Model"
         static let mockID = "mockID"
@@ -30,7 +30,7 @@ final class PersistentCoreDataStoreTests: XCTestCase {
     }
 }
 
-extension PersistentCoreDataStoreTests {
+extension CoreDataStoreTests {
     func makeSUT() -> DevCoreDataStore<MockCD_DTO, MockCD_Converter> {
         DevCoreDataStore(context: context, converter: MockCD_Converter())
     }

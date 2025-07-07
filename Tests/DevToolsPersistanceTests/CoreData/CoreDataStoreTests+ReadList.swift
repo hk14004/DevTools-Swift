@@ -8,7 +8,7 @@
 import Foundation
 import XCTest
 
-extension PersistentCoreDataStoreTests {
+extension CoreDataStoreTests {
     // MARK: Sync
     func test_readListSync_nothingFound_emptyDB() throws {
         // Arrange

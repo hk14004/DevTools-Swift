@@ -8,7 +8,7 @@
 import Foundation
 import XCTest
 
-extension PersistentCoreDataStoreTests {
+extension CoreDataStoreTests {
     // MARK: Sync
     // Amend
     func test_writeSync_emptyList() throws {

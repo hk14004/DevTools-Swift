@@ -8,7 +8,7 @@
 import Foundation
 import XCTest
 
-extension PersistentCoreDataStoreTests {
+extension CoreDataStoreTests {
     // MARK: Single
     
     func test_observeItem_emptyDB() throws {

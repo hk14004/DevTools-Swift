@@ -1,5 +1,5 @@
 //
-//  PersistentCoreDataStoreTests+WriteReplace.swift
+//  PersistentCoreDataStoreTests+WriteAmend.swift
 //  DevTools
 //
 //  Created by Hardijs Kirsis on 12/06/2025.
@@ -8,66 +8,69 @@
 import Foundation
 import XCTest
 
-extension PersistentCoreDataStoreTests {
+extension CoreDataStoreTests {
     // MARK: Sync
-    func test_replaceSync_emptyList() throws {
+    // Amend
+    func test_deleteSync_emptyList() throws {
         // Arrange
         // Act
-        try sut.replace(with: [])
+        try sut.delete([])
         // Assert
     }
     
-    func test_replaceSync_withEmpty() throws {
+    func test_deleteSync_allItems() throws {
         // Arrange
         let items = MockCD_DTO.mocks(count: 3)
         try sut.addOrUpdate(items)
         // Act
-        try sut.replace(with: [])
+        try sut.delete(items.map { $0.id } )
         // Assert
         let found = try sut.getList()
         XCTAssertTrue(found.isEmpty)
     }
     
-    func test_replaceSync_withItems() throws {
+    func test_deleteSync_partial() throws {
         // Arrange
-        let items = MockCD_DTO.mocks(count: 9)
-        let replacedWithItems = MockCD_DTO.mocks(count: 3)
+        let items = MockCD_DTO.mocks(count: 3)
+        var expectedItems = items
+        expectedItems.remove(at: 1)
         try sut.addOrUpdate(items)
         // Act
-        try sut.replace(with: replacedWithItems)
+        try sut.delete([items[1].id])
         // Assert
         let found = try sut.getList()
-        XCTAssertEqual(replacedWithItems, found)
+        XCTAssertEqual(found, expectedItems)
     }
     
     // MARK: Async
-    func test_replaceAsync_emptyList() async throws {
+    func test_deleteAsync_emptyList() async throws {
         // Arrange
         // Act
-        try await sut.replace(with: [])
+        try await sut.delete([])
         // Assert
     }
     
-    func test_replaceAsync_withEmpty() async throws {
+    func test_deleteSync_allItems() async throws {
         // Arrange
         let items = MockCD_DTO.mocks(count: 3)
         try await sut.addOrUpdate(items)
         // Act
-        try await sut.replace(with: [])
+        try await sut.delete(items.map { $0.id } )
         // Assert
         let found = try await sut.getList()
         XCTAssertTrue(found.isEmpty)
     }
     
-    func test_replaceAsync_withItems() async throws {
+    func test_deleteSync_partial() async throws {
         // Arrange
-        let items = MockCD_DTO.mocks(count: 9)
-        let replacedWithItems = MockCD_DTO.mocks(count: 3)
+        let items = MockCD_DTO.mocks(count: 3)
+        var expectedItems = items
+        expectedItems.remove(at: 1)
         try await sut.addOrUpdate(items)
         // Act
-        try await sut.replace(with: replacedWithItems)
+        try await sut.delete([items[1].id])
         // Assert
         let found = try await sut.getList()
-        XCTAssertEqual(replacedWithItems, found)
+        XCTAssertEqual(found, expectedItems)
     }
 }
