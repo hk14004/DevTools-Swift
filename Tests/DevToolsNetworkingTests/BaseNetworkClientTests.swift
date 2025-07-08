@@ -19,18 +19,21 @@ final class BaseNetworkClientTests: XCTestCase {
     private var sut: BaseNetworkClient!
     private var mockNetworkDataProvider: MockNetworkDataProvider!
     private var mockDevNetworkRequestFactory: MockDevNetworkRequestFactory!
+    private var mockNetworkReachability: MockNetworkReachability!
     private var cancelBag = Set<AnyCancellable>()
     
     override func setUpWithError() throws {
         mockNetworkDataProvider = MockNetworkDataProvider()
         mockDevNetworkRequestFactory = MockDevNetworkRequestFactory()
+        mockNetworkReachability = MockNetworkReachability(isReachable: true)
         sut = makeSUT()
     }
 
     private func makeSUT() -> BaseNetworkClient {
         BaseNetworkClient(
             dataProvider: mockNetworkDataProvider,
-            requestFactory: mockDevNetworkRequestFactory
+            requestFactory: mockDevNetworkRequestFactory,
+            reachabilityNotifier: mockNetworkReachability
         )
     }
     
