@@ -29,7 +29,9 @@ let package = Package(
             name: "DevToolsLocalization",
             targets: ["DevToolsLocalization"]),
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/ashleymills/Reachability.swift", .upToNextMajor(from: "5.2.4"))
+    ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
@@ -41,7 +43,10 @@ let package = Package(
             dependencies: []),
         .target(
             name: "DevToolsNetworking",
-            dependencies: ["DevToolsCore"]),
+            dependencies: [
+                "DevToolsCore",
+                .product(name: "Reachability", package: "Reachability.swift")
+            ]),
         .target(
             name: "DevToolsUI",
             dependencies: ["DevToolsCore"]),
