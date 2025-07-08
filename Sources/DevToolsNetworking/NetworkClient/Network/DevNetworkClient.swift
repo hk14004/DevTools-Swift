@@ -10,13 +10,13 @@ open class BaseNetworkClient: DevNetworkClient {
     // MARK: - Variables
     public let dataProvider: DevNetworkDataProvider
     public let requestFactory: DevNetworkRequestFactory
-    public let reachabilityNotifier: ReachabilityNotifier
+    public let reachabilityNotifier: NetworkReachability
     
     // MARK: - Methods
     public init(
         dataProvider: DevNetworkDataProvider,
         requestFactory: DevNetworkRequestFactory,
-        reachabilityNotifier: ReachabilityNotifier
+        reachabilityNotifier: NetworkReachability
     ) {
         self.requestFactory = requestFactory
         self.dataProvider = dataProvider
@@ -24,7 +24,7 @@ open class BaseNetworkClient: DevNetworkClient {
     }
     
     open func execute<T: Codable>(_ requestConfig: DevRequestConfig) -> AnyPublisher<T, Error> {
-        guard reachabilityNotifier.isReachable.value else {
+        guard reachabilityNotifier.isReachable else {
             return .fail(NetworkError.reachability)
         }
         return prepareRequest(requestConfig: requestConfig)
