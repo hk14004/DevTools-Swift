@@ -10,8 +10,7 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
     ) -> AnyPublisher<T, Error> where T: Codable {
         tryMap { data -> T in
             do {
-                logRequest(request)
-                logResponse(data)
+                Logger.logResponse(data)
                 guard
                     let response = data.response as? HTTPURLResponse,
                     200..<300 ~= response.statusCode
@@ -34,6 +33,7 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
             return error
         }
         if error.isReachabilityError {
+            Logger.logNoResponse(error: error)
             return NetworkError.reachability
         }
         return NetworkError.unexpected(error.localizedDescription)
@@ -59,55 +59,5 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
                 return .unexpectedResponse
             }
         }
-    }
-    
-    // MARK: - Log
-    
-    private func logRequest(_ request: URLRequest) {
-        Logger.network.info(
-            """
-            ----------DevNetworkRequestSent--------------
-            Request
-            URL: \(request.url?.absoluteString ?? "<nil>")
-            Method: \(request.httpMethod ?? "<nil>")
-            Headers: 
-            ---
-            \(formattedHeaders(request.allHTTPHeaderFields))
-            ---
-            Body: 
-            \(prettyPrintedJSON(request.httpBody))
-            """
-        )
-    }
-    
-    private func logResponse(_ response: URLSession.DataTaskPublisher.Output) {
-        Logger.network.info(
-            """
-            ----------DevNetworkResponseReceived----------
-            Response
-            Status Code: \((response.response as? HTTPURLResponse)?.statusCode ?? 0)
-            Headers: 
-            ---
-            \(formattedHeaders((response.response as? HTTPURLResponse)?.allHeaderFields as? [String: Any]))
-            ---
-            Body: 
-            \(prettyPrintedJSON(response.data))
-            """
-        )
-    }
-    
-    private func formattedHeaders(_ headers: [String: Any]?) -> String {
-        guard let headers = headers, !headers.isEmpty else { return "<nil>" }
-        return headers.map { "\($0): \($1)" }.joined(separator: "\n")
-    }
-    
-    private func prettyPrintedJSON(_ data: Data?) -> String {
-        guard let data = data else { return "<nil>" }
-        if let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
-           let prettyData = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted]),
-           let prettyString = String(data: prettyData, encoding: .utf8) {
-            return prettyString
-        }
-        return String(data: data, encoding: .utf8) ?? "<non-utf8 body> - \(data.count) bytes"
     }
 }
