@@ -1,6 +1,7 @@
 import Combine
 import UIKit
 import DevToolsCore
+import OSLog
 
 public protocol DevNetworkRequestFactory {
     func urlRequest(
@@ -33,6 +34,7 @@ open class BaseNetworkRequestFactory: DevNetworkRequestFactory {
         }
         request.allHTTPHeaderFields = headers
         request.httpBody = requestConfig.bodyParameters
+        Logger.logRequest(request)
         return request
     }
     
