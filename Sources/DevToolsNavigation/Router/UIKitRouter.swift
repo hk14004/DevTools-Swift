@@ -8,7 +8,7 @@
 import UIKit
 
 public protocol UIKitRouter {
-    var viewController: UIViewController { get set }
+    var viewController: UIViewController? { get set }
 }
 
 public extension UIKitRouter {
@@ -16,7 +16,7 @@ public extension UIKitRouter {
         if let navVC = viewController as? UINavigationController {
             return navVC
         } else {
-            return viewController.navigationController
+            return viewController?.navigationController
         }
     }
 }
