@@ -8,6 +8,6 @@
 import SwiftUI
 
 public protocol SwiftUIScreenFactory {
-    associatedtype Dependencies
-    func make(di: Dependencies) -> any View
+    associatedtype Params
+    func make(params: Params) -> any View
 }

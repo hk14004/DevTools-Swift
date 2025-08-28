@@ -9,6 +9,6 @@ import UIKit
 
 public protocol UIKitScreenFactory {
     associatedtype ViewController: UIViewController
-    associatedtype Dependencies
-    func make(di: Dependencies) -> ViewController
+    associatedtype Params
+    func make(params: Params) -> ViewController
 }
