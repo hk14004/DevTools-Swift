@@ -4,7 +4,7 @@
 //
 //  Created by Hardijs Ķirsis on 24/10/2023.
 //
-
+#if canImport(XCTest)
 import XCTest
 import Combine
 
@@ -86,3 +86,4 @@ public extension Published.Publisher {
             .eraseToAnyPublisher()
     }
 }
+#endif

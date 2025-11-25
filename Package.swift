@@ -61,7 +61,11 @@ let package = Package(
             dependencies: ["DevToolsCore"]),
         .target(
             name: "DevToolsXCTest",
-            dependencies: ["DevToolsCore"]),
+            dependencies: ["DevToolsCore"],
+            linkerSettings: [
+                .linkedFramework("XCTest", .when(platforms: [.iOS]))
+            ]
+        ),
         .testTarget(
             name: "DevToolsNetworkingTests",
             dependencies: ["DevToolsNetworking"]),
