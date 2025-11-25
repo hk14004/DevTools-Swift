@@ -28,6 +28,9 @@ let package = Package(
         .library(
             name: "DevToolsLocalization",
             targets: ["DevToolsLocalization"]),
+        .library(
+            name: "DevToolsXCTest",
+            targets: ["DevToolsXCTest"]),
     ],
     dependencies: [
         .package(url: "https://github.com/ashleymills/Reachability.swift", .upToNextMajor(from: "5.2.4"))
@@ -56,6 +59,13 @@ let package = Package(
         .target(
             name: "DevToolsLocalization",
             dependencies: ["DevToolsCore"]),
+        .target(
+            name: "DevToolsXCTest",
+            dependencies: ["DevToolsCore"],
+            linkerSettings: [
+                .linkedFramework("XCTest", .when(platforms: [.iOS]))
+            ]
+        ),
         .testTarget(
             name: "DevToolsNetworkingTests",
             dependencies: ["DevToolsNetworking"]),
