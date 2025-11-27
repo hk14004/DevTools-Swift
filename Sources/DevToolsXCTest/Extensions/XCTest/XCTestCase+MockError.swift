@@ -8,7 +8,11 @@
 import XCTest
 
 public extension XCTestCase {
-    var mockedError: Error {
-        NSError(domain: "MockError", code: 11, userInfo: nil)
+    enum MockError: Error, Equatable {
+        case fakeIssue
+    }
+    
+    var mockedError: MockError {
+        .fakeIssue
     }
 }
