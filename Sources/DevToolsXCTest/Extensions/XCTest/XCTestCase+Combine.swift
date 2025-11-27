@@ -36,6 +36,15 @@ public extension Result {
             return nil
         }
     }
+    
+    var error: Result.Publisher.Failure? {
+        switch self {
+        case .success:
+            return nil
+        case .failure(let error):
+            return error
+        }
+    }
 }
 
 public extension XCTestCase {
@@ -44,7 +53,7 @@ public extension XCTestCase {
         timeout: TimeInterval = 10,
         file: StaticString = #file,
         line: UInt = #line
-    ) throws -> Result<T.Output, Error>? {
+    ) -> Result<T.Output, Error>? {
         var result: Result<T.Output, Error>?
         let expectation = expectation(description: "Awaiting publisher file: \(file), line:\(line)")
 
@@ -64,7 +73,7 @@ public extension XCTestCase {
             }
         )
 
-        waitForExpectations(timeout: timeout)
+        wait(for: [expectation], timeout: timeout)
         cancellable.cancel()
 
         return result
