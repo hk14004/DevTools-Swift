@@ -58,7 +58,7 @@ open class BaseNetworkClient: DevNetworkClient {
     open func prepareRequest(requestConfig: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
         let base: URLRequest
         do {
-            base = try requestFactory.urlRequest(requestConfig: requestConfig, authorizationHeaders: nil)
+            base = try requestFactory.urlRequest(requestConfig: requestConfig)
         } catch {
             return .fail(error)
         }

@@ -7,20 +7,14 @@ public enum NetworkRequestFactoryError: Error {
 }
 
 public protocol DevNetworkRequestFactory {
-    func urlRequest(
-        requestConfig: DevRequestConfig,
-        authorizationHeaders: [String: String]?
-    ) throws -> URLRequest
+    func urlRequest(requestConfig: DevRequestConfig) throws -> URLRequest
 }
 
 open class BaseNetworkRequestFactory: DevNetworkRequestFactory {
     
     public init() {}
     
-    public func urlRequest(
-        requestConfig: DevRequestConfig,
-        authorizationHeaders: [String: String]?
-    ) throws -> URLRequest {
+    public func urlRequest(requestConfig: DevRequestConfig) throws -> URLRequest {
         guard let url = URL(
             base: requestConfig.baseURL,
             path: requestConfig.path.urlEncoded ?? "",
@@ -33,19 +27,16 @@ open class BaseNetworkRequestFactory: DevNetworkRequestFactory {
         }
         var request = URLRequest(url: url, timeoutInterval: requestConfig.timeoutInterval)
         request.httpMethod = requestConfig.method.rawValue
-        var headers = makeMandatoryHeaders()
+        var headers = mandatoryHeaders()
         if let additionalHeaders = requestConfig.headers {
             headers.merge(additionalHeaders, uniquingKeysWith: { _, new in new })
-        }
-        if let authorizationHeaders = authorizationHeaders, requestConfig.requiresAuthorization {
-            headers.merge(authorizationHeaders, uniquingKeysWith: { _, new in new })
         }
         request.allHTTPHeaderFields = headers
         request.httpBody = requestConfig.bodyParameters
         return request
     }
     
-    public func makeMandatoryHeaders() -> [String: String] {
+    open func mandatoryHeaders() -> [String: String] {
         let osVersion = UIDevice.current.systemVersion
         let appVersion = Bundle.main.releaseVersionNumber ?? ""
         let appBuildNumber = Bundle.main.buildVersionNumber ?? ""
