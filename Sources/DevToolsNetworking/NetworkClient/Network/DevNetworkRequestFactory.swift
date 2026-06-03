@@ -1,5 +1,4 @@
 import Combine
-import UIKit
 import DevToolsCore
 
 public enum NetworkRequestFactoryError: Error {
@@ -36,20 +35,26 @@ open class BaseNetworkRequestFactory: DevNetworkRequestFactory {
         return request
     }
     
-    open func mandatoryHeaders() -> [String: String] {
-        let osVersion = UIDevice.current.systemVersion
-        let appVersion = Bundle.main.releaseVersionNumber ?? ""
-        let appBuildNumber = Bundle.main.buildVersionNumber ?? ""
-        let deviceName = UIDevice.deviceName
-        let deviceOS = "iOS"
-        
-        return [
-            "App-Version": appVersion,
-            "App-Build": appBuildNumber,
-            "Device-OS": deviceOS,
-            "Device-OS-Version": osVersion,
-            "Device-Name": deviceName,
-            "User-Agent": "App-(\(appVersion)/\(appBuildNumber))-(\(deviceOS)/\(osVersion))"
-        ]
-    }
+    /// Override in a subclass to inject app-wide headers into every request
+    /// (e.g. device info, app version, custom User-Agent).
+    ///
+    /// Example:
+    /// ```swift
+    /// override func mandatoryHeaders() -> [String: String] {
+    ///     let osVersion = UIDevice.current.systemVersion
+    ///     let appVersion = Bundle.main.releaseVersionNumber ?? ""
+    ///     let appBuildNumber = Bundle.main.buildVersionNumber ?? ""
+    ///     let deviceName = UIDevice.deviceName
+    ///     let deviceOS = "iOS"
+    ///     return [
+    ///         "App-Version": appVersion,
+    ///         "App-Build": appBuildNumber,
+    ///         "Device-OS": deviceOS,
+    ///         "Device-OS-Version": osVersion,
+    ///         "Device-Name": deviceName,
+    ///         "User-Agent": "App-(\(appVersion)/\(appBuildNumber))-(\(deviceOS)/\(osVersion))"
+    ///     ]
+    /// }
+    /// ```
+    open func mandatoryHeaders() -> [String: String] { [:] }
 }
