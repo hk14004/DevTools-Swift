@@ -2,11 +2,15 @@ import Combine
 import UIKit
 import DevToolsCore
 
+public enum NetworkRequestFactoryError: Error {
+    case invalidURL(baseURL: String, path: String)
+}
+
 public protocol DevNetworkRequestFactory {
     func urlRequest(
         requestConfig: DevRequestConfig,
         authorizationHeaders: [String: String]?
-    ) -> URLRequest
+    ) throws -> URLRequest
 }
 
 open class BaseNetworkRequestFactory: DevNetworkRequestFactory {
@@ -16,12 +20,17 @@ open class BaseNetworkRequestFactory: DevNetworkRequestFactory {
     public func urlRequest(
         requestConfig: DevRequestConfig,
         authorizationHeaders: [String: String]?
-    ) -> URLRequest {
-        let url = URL(
+    ) throws -> URLRequest {
+        guard let url = URL(
             base: requestConfig.baseURL,
             path: requestConfig.path.urlEncoded ?? "",
             queryItems: requestConfig.queryItems
-        )
+        ) else {
+            throw NetworkRequestFactoryError.invalidURL(
+                baseURL: requestConfig.baseURL,
+                path: requestConfig.path
+            )
+        }
         var request = URLRequest(url: url, timeoutInterval: requestConfig.timeoutInterval)
         request.httpMethod = requestConfig.method.rawValue
         var headers = makeMandatoryHeaders()

@@ -15,8 +15,8 @@ class MockDevNetworkRequestFactory: DevNetworkRequestFactory {
     
     public func urlRequest(
         requestConfig: DevRequestConfig,
-        authorizationHeaders: [String : String]?
-    ) -> URLRequest {
+        authorizationHeaders: [String: String]?
+    ) throws -> URLRequest {
         requestCalled?(requestConfig)
         return mockRequest
     }

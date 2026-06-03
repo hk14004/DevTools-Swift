@@ -56,7 +56,12 @@ open class BaseNetworkClient: DevNetworkClient {
 
     // MARK: - Request preparation
     open func prepareRequest(requestConfig: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
-        let base = requestFactory.urlRequest(requestConfig: requestConfig, authorizationHeaders: nil)
+        let base: URLRequest
+        do {
+            base = try requestFactory.urlRequest(requestConfig: requestConfig, authorizationHeaders: nil)
+        } catch {
+            return .fail(error)
+        }
         return plugins.reduce(.just(base)) { chain, plugin in
             chain.flatMap { plugin.prepare($0, config: requestConfig) }.eraseToAnyPublisher()
         }
