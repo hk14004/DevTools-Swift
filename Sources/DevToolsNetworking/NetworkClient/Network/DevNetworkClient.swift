@@ -149,6 +149,76 @@ open class BaseNetworkClient: DevNetworkClient {
             .eraseToAnyPublisher()
     }
 
+    // MARK: - WebSocket
+
+    /// Opens a WebSocket connection for a given request config.
+    ///
+    /// The request is prepared through the same plugin pipeline as `execute` — auth headers,
+    /// logging, and other plugins are applied before the socket is opened. The `http(s)` scheme
+    /// is automatically converted to `ws(s)`, so you can reuse an existing `DevRequestConfig`
+    /// base URL without changing it.
+    ///
+    /// Requires the `dataProvider` to conform to `DevWebSocketProvider`.
+    /// `DefaultNetworkDataProvider` supports this out of the box.
+    ///
+    /// The publisher emits exactly one `WebSocketConnection` value once the socket is ready,
+    /// then completes. Hold onto the connection to send messages and observe `connection.events`.
+    ///
+    /// Example:
+    /// ```swift
+    /// client.connect(wsConfig)
+    ///     .sink(
+    ///         receiveCompletion: { _ in },
+    ///         receiveValue: { [weak self] connection in
+    ///             self?.socketConnection = connection
+    ///             connection.events
+    ///                 .receive(on: DispatchQueue.main)
+    ///                 .sink { event in
+    ///                     switch event {
+    ///                     case .connected:       print("ready")
+    ///                     case .message(let m): print(m)
+    ///                     case .disconnected:   print("closed")
+    ///                     }
+    ///                 }
+    ///                 .store(in: &self!.cancellables)
+    ///         }
+    ///     )
+    ///     .store(in: &cancellables)
+    ///
+    /// Task { try? await socketConnection?.send(.text("ping")) }
+    /// ```
+    open func connect(_ requestConfig: DevRequestConfig) -> AnyPublisher<WebSocketConnection, Error> {
+        guard reachabilityNotifier.isReachable else {
+            return .fail(NetworkError.reachability)
+        }
+        guard let wsProvider = dataProvider as? DevWebSocketProvider else {
+            return .fail(NetworkError.unexpected(
+                "dataProvider does not support WebSocket. Conform it to DevWebSocketProvider."
+            ))
+        }
+        return prepareRequest(requestConfig: requestConfig)
+            .tryMap { request -> URLRequest in
+                // Convert http/https scheme to ws/wss so URLSessionWebSocketTask accepts the URL.
+                // This lets callers reuse an existing https:// base URL without modification.
+                guard var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false) else {
+                    throw NetworkError.unexpected("Invalid WebSocket URL: \(String(describing: request.url))")
+                }
+                switch components.scheme {
+                case "https": components.scheme = "wss"
+                case "http":  components.scheme = "ws"
+                default: break
+                }
+                var wsRequest = request
+                wsRequest.url = components.url
+                return wsRequest
+            }
+            .map { [weak self] request -> WebSocketConnection in
+                self?.plugins.forEach { $0.willSend(request, config: requestConfig) }
+                return wsProvider.connect(request: request)
+            }
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Request preparation
     private static func decodeUploadResponse<T: Codable>(
         data: Data,

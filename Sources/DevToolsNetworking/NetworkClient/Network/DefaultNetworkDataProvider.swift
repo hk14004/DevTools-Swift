@@ -19,11 +19,12 @@ import Foundation
 ///
 /// let provider = DefaultNetworkDataProvider(delegate: PinningDelegate())
 /// ```
-public final class DefaultNetworkDataProvider: DevNetworkDataProvider, DevFileDownloadProvider, DevFileUploadProvider {
+public final class DefaultNetworkDataProvider: DevNetworkDataProvider, DevFileDownloadProvider, DevFileUploadProvider, DevWebSocketProvider {
 
     private let session: URLSession
     private let downloadCoordinator: DownloadCoordinator
     private let uploadCoordinator: UploadCoordinator
+    private let webSocketCoordinator: WebSocketCoordinator
 
     /// - Parameters:
     ///   - configuration: The session configuration. Defaults to `.default`.
@@ -40,6 +41,7 @@ public final class DefaultNetworkDataProvider: DevNetworkDataProvider, DevFileDo
         )
         self.downloadCoordinator = DownloadCoordinator(configuration: configuration, authDelegate: delegate)
         self.uploadCoordinator = UploadCoordinator(configuration: configuration, authDelegate: delegate)
+        self.webSocketCoordinator = WebSocketCoordinator(configuration: configuration, authDelegate: delegate)
     }
 
     // MARK: - DevNetworkDataProvider
@@ -58,5 +60,11 @@ public final class DefaultNetworkDataProvider: DevNetworkDataProvider, DevFileDo
 
     public func upload(request: URLRequest, source: UploadSource) -> AnyPublisher<UploadProgressEvent, Error> {
         uploadCoordinator.upload(request: request, source: source)
+    }
+
+    // MARK: - DevWebSocketProvider
+
+    public func connect(request: URLRequest) -> WebSocketConnection {
+        webSocketCoordinator.connect(request: request)
     }
 }
