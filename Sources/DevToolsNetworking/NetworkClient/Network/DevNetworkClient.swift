@@ -35,12 +35,14 @@ open class BaseNetworkClient: DevNetworkClient {
             .eraseToAnyPublisher()
     }
     
+    open var authorizationHeaderProvider: DevAuthorizationHeaderProvider? { nil }
+
     open func prepareRequest(requestConfig: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
-        .just(
-            requestFactory.urlRequest(
-                requestConfig: requestConfig,
-                authorizationHeaders: nil
-            )
-        )
+        guard requestConfig.requiresAuthorization, let provider = authorizationHeaderProvider else {
+            return .just(requestFactory.urlRequest(requestConfig: requestConfig, authorizationHeaders: nil))
+        }
+        return provider.getAuthorizationHeaders()
+            .map { self.requestFactory.urlRequest(requestConfig: requestConfig, authorizationHeaders: $0) }
+            .eraseToAnyPublisher()
     }
 }
