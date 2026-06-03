@@ -127,7 +127,7 @@ extension DevCoreDataStore {
         } catch {
             context.rollback()
             bulkWriteInProgress = false
-            throw DevPersistedLayerInterfaceError.underlying(error)
+            throw error
         }
         try self.attemptSave()
         bulkWriteInProgress = false
@@ -139,7 +139,7 @@ extension DevCoreDataStore {
             try context.save()
         } catch {
             context.rollback()
-            throw DevPersistedLayerInterfaceError.underlying(error)
+            throw error
         }
     }
     

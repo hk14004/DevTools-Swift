@@ -80,6 +80,3 @@ public protocol DevSyncPersistedLayerInterface: DevPersistedLayerInterface {
     func bulkWrite(block: () throws -> Void) throws
 }
 
-public enum DevPersistedLayerInterfaceError: LocalizedError {
-    case underlying(Error)
-}

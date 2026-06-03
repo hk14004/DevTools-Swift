@@ -139,7 +139,7 @@ extension DevSwiftDataStore {
             contextUpdatedPublisher.send(())
         } catch {
             context.rollback()
-            throw DevPersistedLayerInterfaceError.underlying(error)
+            throw error
         }
     }
     
