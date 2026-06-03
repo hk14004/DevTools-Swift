@@ -133,7 +133,7 @@ extension CoreDataStoreTests {
         XCTAssertTrue(result.hasNextPage)
     }
 
-    func test_readPagedListSync_consumedAllPages() async throws {
+    func test_readPagedListAsync_consumedAllPages() async throws {
         // Arrange
         let pageSize: Int = 3
         let allItems = MockCD_DTO.mocks(count: 10)
@@ -144,7 +144,7 @@ extension CoreDataStoreTests {
         try await sut.addOrUpdate(allItems)
         
         // Act
-        let page1 = try await  sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 1, pageSize: pageSize))
+        let page1 = try await sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 1, pageSize: pageSize))
         let page2 = try await sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 2, pageSize: pageSize))
         let page3 = try await sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 3, pageSize: pageSize))
         let page4 = try await sut.getListPage(pageOptions: DevPagedRequestOptions(fetchPage: 4, pageSize: pageSize))

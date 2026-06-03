@@ -41,7 +41,7 @@ extension DevSwiftDataStore {
         )
         let existing = try context.fetch(descriptor)
         let existingById = Dictionary(uniqueKeysWithValues: existing.map { ($0.id, $0) })
-        
+
         for item in items {
             if let stored = existingById[item.id] {
                 // update existing
@@ -52,10 +52,12 @@ extension DevSwiftDataStore {
                 context.insert(newObj)
             }
         }
-        
-        try attemptSave()
+
+        if !bulkWriteInProgress {
+            try attemptSave()
+        }
     }
-    
+
     func performReplace(_ items: [DTO]) throws {
         let descriptor = FetchDescriptor<DTO.StoreType>(
             predicate: nil,
@@ -63,26 +65,30 @@ extension DevSwiftDataStore {
         )
         let existing = try context.fetch(descriptor)
         existing.forEach { context.delete($0) }
-        
+
         for item in items {
             let newObj = try converter.persistableObject(from: item)
             context.insert(newObj)
         }
-        
-        try attemptSave()
+
+        if !bulkWriteInProgress {
+            try attemptSave()
+        }
     }
-    
+
     func performDelete(_ itemIds: [String]) throws {
         let predicate = #Predicate<DTO.StoreType> { itemIds.contains($0.id) }
         let descriptor = FetchDescriptor<DTO.StoreType>(
             predicate: predicate,
             sortBy: []
         )
-        
+
         let toDelete = try context.fetch(descriptor)
         toDelete.forEach { context.delete($0) }
-        
-        try attemptSave()
+
+        if !bulkWriteInProgress {
+            try attemptSave()
+        }
     }
     
     func performFetchPage(
@@ -111,7 +117,7 @@ extension DevSwiftDataStore {
         )
     }
     
-    func performBulkWriteOperation(_ block: () throws -> Void) throws {
+    func performBulkWriteOperation(_ block: () throws -> Void) throws {  // non-escaping: block runs synchronously
         bulkWriteInProgress = true
         do {
             try block()

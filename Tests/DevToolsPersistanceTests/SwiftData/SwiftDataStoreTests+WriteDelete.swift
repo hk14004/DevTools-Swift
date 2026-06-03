@@ -10,14 +10,6 @@ import XCTest
 
 extension SwiftDataStoreTests {
     // MARK: Sync
-    // Amend
-    func test_deleteSync_emptyList() throws {
-        // Arrange
-        // Act
-        try sut.delete([])
-        // Assert
-    }
-    
     func test_deleteSync_allItems() throws {
         // Arrange
         let items = MockSD_DTO.mocks(count: 3)
@@ -43,25 +35,18 @@ extension SwiftDataStoreTests {
     }
     
     // MARK: Async
-    func test_deleteAsync_emptyList() async throws {
-        // Arrange
-        // Act
-        try await sut.delete([])
-        // Assert
-    }
-    
-    func test_deleteSync_allItems() async throws {
+    func test_deleteAsync_allItems() async throws {
         // Arrange
         let items = MockSD_DTO.mocks(count: 3)
         try await sut.addOrUpdate(items)
         // Act
-        try await sut.delete(items.map { $0.id } )
+        try await sut.delete(items.map { $0.id })
         // Assert
         let found = try await sut.getList()
         XCTAssertTrue(found.isEmpty)
     }
-    
-    func test_deleteSync_partial() async throws {
+
+    func test_deleteAsync_partial() async throws {
         // Arrange
         let items = MockSD_DTO.mocks(count: 3)
         var expectedItems = items

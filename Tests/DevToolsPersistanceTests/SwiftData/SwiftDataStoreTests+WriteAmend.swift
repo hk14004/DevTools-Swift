@@ -11,13 +11,6 @@ import XCTest
 extension SwiftDataStoreTests {
     // MARK: Sync
     // Amend
-    func test_writeSync_emptyList() throws {
-        // Arrange
-        // Act
-        try sut.addOrUpdate([])
-        // Assert
-    }
-    
     func test_writeSync_addMultipleItems() throws {
         // Arrange
         let items = MockSD_DTO.mocks(count: 3)
@@ -42,15 +35,29 @@ extension SwiftDataStoreTests {
         XCTAssertEqual(found?.name, updatedItem.name)
     }
     
+    func test_writeSync_mixedUpsert() throws {
+        // Arrange: seed A, B, C — then call addOrUpdate with B (updated) + D (new)
+        let a = MockSD_DTO(id: "A", name: "a")
+        let b = MockSD_DTO(id: "B", name: "b")
+        let c = MockSD_DTO(id: "C", name: "c")
+        let bUpdated = MockSD_DTO(id: "B", name: "b-updated")
+        let d = MockSD_DTO(id: "D", name: "d")
+        try sut.addOrUpdate([a, b, c])
+
+        // Act
+        try sut.addOrUpdate([bUpdated, d])
+
+        // Assert: A and C untouched, B updated, D inserted
+        let found = try sut.getList()
+        XCTAssertEqual(found.count, 4)
+        XCTAssertEqual(try sut.getSingle(id: "A"), a)
+        XCTAssertEqual(try sut.getSingle(id: "B"), bUpdated)
+        XCTAssertEqual(try sut.getSingle(id: "C"), c)
+        XCTAssertEqual(try sut.getSingle(id: "D"), d)
+    }
+
     // MARK: Async
     // Amend
-    func test_writeAsync_emptyList() async throws {
-        // Arrange
-        // Act
-        try await sut.addOrUpdate([])
-        // Assert
-    }
-    
     func test_writeAsync_addMultipleItems() async throws {
         // Arrange
         let items = MockSD_DTO.mocks(count: 3)

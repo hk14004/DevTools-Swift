@@ -120,7 +120,7 @@ extension DevCoreDataStore {
         }
     }
     
-    func performBulkWriteOperaton(block: @escaping () throws -> Void) throws {
+    func performBulkWriteOperation(block: () throws -> Void) throws {
         bulkWriteInProgress = true
         do {
             try block()
@@ -130,7 +130,7 @@ extension DevCoreDataStore {
             throw DevPersistedLayerInterfaceError.underlying(error)
         }
         try self.attemptSave()
-        bulkWriteInProgress = true
+        bulkWriteInProgress = false
     }
     
     func attemptSave() throws {

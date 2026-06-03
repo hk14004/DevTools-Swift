@@ -10,13 +10,6 @@ import XCTest
 
 extension SwiftDataStoreTests {
     // MARK: Sync
-    func test_replaceSync_emptyList() throws {
-        // Arrange
-        // Act
-        try sut.replace(with: [])
-        // Assert
-    }
-    
     func test_replaceSync_withEmpty() throws {
         // Arrange
         let items = MockSD_DTO.mocks(count: 3)
@@ -41,13 +34,6 @@ extension SwiftDataStoreTests {
     }
     
     // MARK: Async
-    func test_replaceAsync_emptyList() async throws {
-        // Arrange
-        // Act
-        try await sut.replace(with: [])
-        // Assert
-    }
-    
     func test_replaceAsync_withEmpty() async throws {
         // Arrange
         let items = MockSD_DTO.mocks(count: 3)

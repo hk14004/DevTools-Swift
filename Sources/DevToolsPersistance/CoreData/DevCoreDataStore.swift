@@ -166,13 +166,13 @@ where
     // MARK: Write/Bulk
     public func bulkWrite(block: @escaping () throws -> Void) async throws {
         try await context.perform {
-            try self.performBulkWriteOperaton(block: block)
+            try self.performBulkWriteOperation(block: block)
         }
     }
-    
-    public func bulkWrite(block: @escaping () throws -> Void) throws {
+
+    public func bulkWrite(block: () throws -> Void) throws {
         try context.performAndWait {
-            try performBulkWriteOperaton(block: block)
+            try performBulkWriteOperation(block: block)
         }
     }
 }

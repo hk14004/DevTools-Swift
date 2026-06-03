@@ -211,7 +211,7 @@ where
     }
     
     // MARK: Write/Bulk
-    public func bulkWrite(block: @escaping () throws -> Void) throws {
+    public func bulkWrite(block: () throws -> Void) throws {
         try syncOperation {
             try performBulkWriteOperation(block)
         }

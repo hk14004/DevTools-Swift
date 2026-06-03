@@ -1,5 +1,6 @@
 import Combine
 import DevToolsCore
+import Foundation
 
 public enum NetworkRequestFactoryError: Error {
     case invalidURL(baseURL: String, path: String)

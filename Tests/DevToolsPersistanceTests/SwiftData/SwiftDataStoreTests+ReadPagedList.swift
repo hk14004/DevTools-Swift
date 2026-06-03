@@ -133,7 +133,7 @@ extension SwiftDataStoreTests {
         XCTAssertTrue(result.hasNextPage)
     }
 
-    func test_readPagedListSync_consumedAllPages() async throws {
+    func test_readPagedListAsync_consumedAllPages() async throws {
         // Arrange
         let pageSize: Int = 3
         let allItems = MockSD_DTO.mocks(count: 10)
