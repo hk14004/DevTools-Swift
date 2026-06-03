@@ -85,13 +85,16 @@ final class BaseNetworkClientTests: XCTestCase {
         }
     }
 
-    func testAPIErrorBodyDecodedForAllMethods() {
+    func testUnknownStatusReturnsUnexpectedResponse() {
+        let errorData = makeAPIErrorJSON().data(using: .unicode)!
+
         DevHTTPMethod.allCases.forEach { method in
-            runStatusCodeFailure(
-                method: method,
-                statusCode: Constant.successCode,
-                data: makeAPIErrorJSON().data(using: .unicode)!
-            )
+            mockNetworkDataProvider.mockOutput = .just((
+                data: errorData,
+                response: HTTPURLResponse.mock(url: "http://mock.com", statusCode: 400) as URLResponse
+            ))
+            let result: Result<MockObjectDecoded, Error>? = execute(MockDevRequestConfig.mock(method: method))
+            assertNetworkError(result, equals: .unexpectedResponse)
         }
     }
 
@@ -260,9 +263,7 @@ private extension BaseNetworkClientTests {
         case Constant.notFoundCode:
             XCTAssertEqual(networkError, .resourceNotFound)
         default:
-            let expected = (try? JSONDecoder().decode(ApiErrorResponse.self, from: data))
-                .map { NetworkError.apiErrorResponse($0) } ?? .unexpectedResponse
-            XCTAssertEqual(networkError, expected)
+            XCTAssertEqual(networkError, .unexpectedResponse)
         }
     }
 

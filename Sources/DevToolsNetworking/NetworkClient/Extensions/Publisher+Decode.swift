@@ -45,12 +45,7 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
         case 404:
             return .resourceNotFound
         default:
-            do {
-                let apiError = try JSONDecoder().decode(ApiErrorResponse.self, from: data)
-                return .apiErrorResponse(apiError)
-            } catch {
-                return .unexpectedResponse
-            }
+            return .unexpectedResponse
         }
     }
 }

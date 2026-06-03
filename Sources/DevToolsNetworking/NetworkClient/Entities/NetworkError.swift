@@ -1,7 +1,6 @@
 import Foundation
 
 public enum NetworkError: Error, Equatable {
-    case apiErrorResponse(ApiErrorResponse)
     case reachability
     case unauthorized
     case unexpected(String)
@@ -14,8 +13,6 @@ public enum NetworkError: Error, Equatable {
 extension NetworkError: LocalizedError {
     public var errorDescription: String? {
         switch self {
-        case .apiErrorResponse(let apiError):
-            return apiError.message
         case .reachability:
             return "No internet connection."
         case .unauthorized:
