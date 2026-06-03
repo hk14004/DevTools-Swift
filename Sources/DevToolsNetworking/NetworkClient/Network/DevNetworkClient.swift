@@ -96,7 +96,84 @@ open class BaseNetworkClient: DevNetworkClient {
             .eraseToAnyPublisher()
     }
 
+    // MARK: - Upload
+
+    /// Uploads data or a file, emitting progress events followed by a decoded `.response(T)`.
+    ///
+    /// Runs through the same `prepareRequest` pipeline as `execute` — auth headers and
+    /// plugins are applied. Only `prepare` and `willSend` fire; `didReceive` and `process`
+    /// are not called since the response arrives after the upload stream, not as a standalone response.
+    ///
+    /// Requires the `dataProvider` to conform to `DevFileUploadProvider`.
+    /// `DefaultNetworkDataProvider` supports this out of the box.
+    ///
+    /// Example:
+    /// ```swift
+    /// client.upload(config, source: .file(photoURL))
+    ///     .sink { event in
+    ///         switch event {
+    ///         case .progress(let sent, let total):
+    ///             progressBar.progress = event.progressFraction ?? 0
+    ///         case .response(let uploadedPhoto):
+    ///             print("Uploaded: \(uploadedPhoto.id)")
+    ///         }
+    ///     }
+    /// ```
+    open func upload<T: Codable>(
+        _ requestConfig: DevRequestConfig,
+        source: UploadSource
+    ) -> AnyPublisher<UploadEvent<T>, Error> {
+        guard reachabilityNotifier.isReachable else {
+            return .fail(NetworkError.reachability)
+        }
+        guard let uploadProvider = dataProvider as? DevFileUploadProvider else {
+            return .fail(NetworkError.unexpected(
+                "dataProvider does not support uploads. Conform it to DevFileUploadProvider."
+            ))
+        }
+        return prepareRequest(requestConfig: requestConfig)
+            .flatMap { [weak self] request -> AnyPublisher<UploadEvent<T>, Error> in
+                guard let self else { return .empty() }
+                self.plugins.forEach { $0.willSend(request, config: requestConfig) }
+                return uploadProvider.upload(request: request, source: source)
+                    .flatMap { event -> AnyPublisher<UploadEvent<T>, Error> in
+                        switch event {
+                        case .progress(let sent, let total):
+                            return .just(.progress(bytesSent: sent, totalBytes: total))
+                        case .completed(let data, let response):
+                            return Self.decodeUploadResponse(data: data, response: response)
+                        }
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Request preparation
+    private static func decodeUploadResponse<T: Codable>(
+        data: Data,
+        response: URLResponse
+    ) -> AnyPublisher<UploadEvent<T>, Error> {
+        guard let http = response as? HTTPURLResponse else {
+            return .fail(NetworkError.unexpectedResponse)
+        }
+        guard 200..<300 ~= http.statusCode else {
+            let error: NetworkError
+            switch http.statusCode {
+            case 401: error = .unauthorized
+            case 403: error = .forbidden
+            case 404: error = .resourceNotFound
+            default:  error = .unexpectedResponse
+            }
+            return .fail(error)
+        }
+        do {
+            return .just(.response(try JSONDecoder().decode(T.self, from: data)))
+        } catch {
+            return .fail(NetworkError.unexpectedResponse)
+        }
+    }
+
     open func prepareRequest(requestConfig: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
         let base: URLRequest
         do {
