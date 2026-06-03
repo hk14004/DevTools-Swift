@@ -10,13 +10,16 @@ import DevToolsCore
 import CoreData
 
 extension DevCoreDataStore {
+
+    // MARK: - Read (viewContext)
+
     func performFetch(id: String) throws -> T? {
-        try context
+        try viewContext
             .fetch(makeIDFetchRequest(id))
             .first
             .map { try converter.domainObject(from: $0) }
     }
-    
+
     func performFetchList(
         predicate: NSPredicate?,
         sortDescriptors: [NSSortDescriptor]
@@ -25,12 +28,11 @@ extension DevCoreDataStore {
             predicate: predicate,
             sortDescriptors: sortDescriptors
         )
-        
-        return try context
+        return try viewContext
             .fetch(fetchRequest)
             .map { try converter.domainObject(from: $0) }
     }
-    
+
     func performFetchPage(
         pageOptions: DevPagedRequestOptions,
         predicate: NSPredicate? = .init(value: true),
@@ -40,121 +42,92 @@ extension DevCoreDataStore {
             predicate: predicate,
             sortDescriptors: sortDescriptors
         )
-        
         let zeroBasedPage = max(0, pageOptions.fetchPage - 1)
         request.fetchOffset = zeroBasedPage * pageOptions.pageSize
-        request.fetchLimit  = pageOptions.pageSize + 1    // one extra to detect next page
-        
-        let allFetched = try context.fetch(request)
+        request.fetchLimit  = pageOptions.pageSize + 1
+
+        let allFetched = try viewContext.fetch(request)
             .map { try converter.domainObject(from: $0) }
-        
-        let pageItems  = Array(allFetched.prefix(pageOptions.pageSize))
-        let hasNext    = allFetched.count > pageOptions.pageSize
-        
+
+        let pageItems = Array(allFetched.prefix(pageOptions.pageSize))
+        let hasNext   = allFetched.count > pageOptions.pageSize
+
         return DevPagedResult(
             pageNumber: pageOptions.fetchPage,
             pageItems: pageItems,
             hasNextPage: hasNext
         )
     }
-    
+
+    // MARK: - Write (writeContext)
+    // These are called from within writeContext.perform { } blocks — no save here.
+    // Saving is handled by the public write methods in DevCoreDataStore.swift.
+
     func performAddOrUpdate(_ items: [T]) throws {
-        // 1. Fetch existing objects by ID
         let ids = items.map { "\($0.id)" }
-        let fetchRequest = makeFetchRequest(
-            predicate: makeIdInPredicate(ids)
-        )
-        let existing = try context.fetch(fetchRequest)
+        let fetchRequest = makeFetchRequest(predicate: makeIdInPredicate(ids))
+        let existing = try writeContext.fetch(fetchRequest)
         let existingDict = Dictionary<String, T.StoreType>(
             uniqueKeysWithValues: existing.compactMap { obj in
                 guard let id = obj.id as? String else { return nil }
                 return (id, obj)
             }
         )
-        
-        // 2. Update or insert
         for item in items {
             if let stored = existingDict["\(item.id)"] {
                 try converter.updatePersistedObject(with: item, object: stored)
             } else {
-                try converter.updatePersistedObject(with: item, object: T.StoreType(context: context))
+                try converter.updatePersistedObject(with: item, object: T.StoreType(context: writeContext))
             }
         }
-        
-        // 3. Save if not in a bulk batch
-        if !bulkWriteInProgress {
-            try attemptSave()
-        }
     }
-    
+
     func performDelete(_ itemIds: [String]) throws {
-        let fetchRequest = makeFetchRequest(
-            predicate: makeIdInPredicate(itemIds)
-        )
-        let itemsToDelete = try context.fetch(fetchRequest)
+        let fetchRequest = makeFetchRequest(predicate: makeIdInPredicate(itemIds))
+        let itemsToDelete = try writeContext.fetch(fetchRequest)
         for object in itemsToDelete {
-            context.delete(object)
-        }
-        if !bulkWriteInProgress {
-            try attemptSave()
+            writeContext.delete(object)
         }
     }
-    
+
     func performReplace(_ items: [T]) throws {
-        // 1. Delete everything
         let fetchRequest = makeFetchRequest(predicate: .init(value: true))
-        let allObjects = try context.fetch(fetchRequest)
+        let allObjects = try writeContext.fetch(fetchRequest)
         for obj in allObjects {
-            context.delete(obj)
+            writeContext.delete(obj)
         }
-        
-        // 2. Insert new items
         for item in items {
-            let entity = T.StoreType(context: context)
+            let entity = T.StoreType(context: writeContext)
             try converter.updatePersistedObject(with: item, object: entity)
         }
-        
-        // 3. Save if not in bulk
-        if !bulkWriteInProgress {
-            try attemptSave()
-        }
     }
-    
-    func performBulkWriteOperation(block: () throws -> Void) throws {
-        bulkWriteInProgress = true
-        do {
-            try block()
-        } catch {
-            context.rollback()
-            bulkWriteInProgress = false
-            throw error
-        }
-        try self.attemptSave()
-        bulkWriteInProgress = false
-    }
-    
+
+    // MARK: - Save
+
     func attemptSave() throws {
-        guard context.hasChanges else { return }
+        guard writeContext.hasChanges else { return }
         do {
-            try context.save()
+            try writeContext.save()
         } catch {
-            context.rollback()
+            writeContext.rollback()
             throw error
         }
     }
-    
+
+    // MARK: - Helpers
+
     func makeIDPredicate(_ id: String) -> NSPredicate {
         NSPredicate(format: "id == %@", id)
     }
-    
+
     func makeIdInPredicate(_ ids: [String]) -> NSPredicate {
         NSPredicate(format: "id IN %@", ids)
     }
-    
+
     func makeIDFetchRequest(_ id: String) -> NSFetchRequest<T.StoreType> {
         makeFetchRequest(predicate: makeIDPredicate(id))
     }
-    
+
     func makeFetchRequest(
         predicate: NSPredicate? = nil,
         sortDescriptors: [NSSortDescriptor]? = nil
@@ -165,6 +138,8 @@ extension DevCoreDataStore {
         return request
     }
 }
+
+// MARK: - NSManagedObjectContext async helper
 
 extension NSManagedObjectContext {
     func perform<T>(_ block: @escaping () throws -> T) async throws -> T {
