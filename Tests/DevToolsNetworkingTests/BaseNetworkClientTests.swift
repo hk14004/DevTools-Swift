@@ -1,368 +1,289 @@
-//
-//  BaseNetworkClientTests.swift
-//
-//
-//  Created by Hardijs Ķirsis on 14/08/2024.
-//
-
 import XCTest
 import Combine
 import DevToolsNetworking
 
 final class BaseNetworkClientTests: XCTestCase {
+
+    // MARK: - Constants
     enum Constant {
-        static let unAuthorizedCode = 401
+        static let unauthorizedCode = 401
         static let forbiddenCode = 403
         static let notFoundCode = 404
         static let successCode = 200
     }
+
+    // MARK: - Properties
     private var sut: BaseNetworkClient!
     private var mockNetworkDataProvider: MockNetworkDataProvider!
     private var mockDevNetworkRequestFactory: MockDevNetworkRequestFactory!
     private var mockNetworkReachability: MockNetworkReachability!
     private var cancelBag = Set<AnyCancellable>()
-    
+
+    // MARK: - Setup
     override func setUpWithError() throws {
         mockNetworkDataProvider = MockNetworkDataProvider()
         mockDevNetworkRequestFactory = MockDevNetworkRequestFactory()
+        mockDevNetworkRequestFactory.mockRequest = URLRequest(url: URL(string: "http://mock.com")!)
         mockNetworkReachability = MockNetworkReachability(isReachable: true)
         sut = makeSUT()
     }
 
-    private func makeSUT() -> BaseNetworkClient {
+    private func makeSUT(plugins: [any NetworkClientPlugin] = []) -> BaseNetworkClient {
         BaseNetworkClient(
             dataProvider: mockNetworkDataProvider,
             requestFactory: mockDevNetworkRequestFactory,
-            reachabilityNotifier: mockNetworkReachability
+            reachabilityNotifier: mockNetworkReachability,
+            plugins: plugins
         )
     }
-    
-    func testExecuteGetRequestDecodeSuccess() throws {
-        // Given
-        let expectedResponseData = makeValidJSON().data(using: .unicode)!
-        let requestConfig = MockDevRequestConfig.mock(method: .get)
-        
-        mockDevNetworkRequestFactory.mockRequest = URLRequest(url: URL(string: requestConfig.baseURL)!)
-        mockDevNetworkRequestFactory.requestCalled = { calledConfig in
-            XCTAssertEqual(calledConfig as! MockDevRequestConfig, requestConfig)
-        }
-        
-        mockNetworkDataProvider.mockOutput = .just(
-            (
-                data: expectedResponseData,
-                response: HTTPURLResponse.mock(url: requestConfig.baseURL, statusCode: Constant.successCode) as URLResponse
-            )
-        )
-        // Use an expectation to wait for the async operation to complete
-        let expectation = expectation(description: "Awaiting publisher result")
-        var receivedResult: Result<MockObjectDecoded, Error>? = nil
-        
-        // When
-        let publisher: AnyPublisher<MockObjectDecoded, Error> = sut.execute(requestConfig)
-        publisher.sink { completion in
-            switch completion {
-            case .finished:
-                break
-            case .failure(let error):
-                receivedResult = .failure(error)
-            }
-            expectation.fulfill()
-        } receiveValue: { decodedResult in
-            receivedResult = .success(decodedResult)
-        }
-        .store(in: &cancelBag)
-        
-        // Then
-        waitForExpectations(timeout: defaultTimeout)
-        
-        switch receivedResult {
-        case .success(let decodedResult):
-            XCTAssertEqual(decodedResult, try? JSONDecoder().decode(MockObjectDecoded.self, from: expectedResponseData))
-        case .failure(let error):
-            XCTFail("Unexpected error: \(error.localizedDescription)")
-        case .none:
-            XCTFail("No result received")
+
+    // MARK: - Decode success
+
+    func testExecuteDecodeSuccess() {
+        let expectedData = makeValidJSON().data(using: .unicode)!
+        let config = MockDevRequestConfig.mock(method: .get)
+        mockNetworkDataProvider.mockOutput = .just((
+            data: expectedData,
+            response: HTTPURLResponse.mock(url: config.baseURL, statusCode: Constant.successCode) as URLResponse
+        ))
+
+        let result: Result<MockObjectDecoded, Error>? = execute(config)
+
+        switch result {
+        case .success(let decoded):
+            XCTAssertEqual(decoded, try? JSONDecoder().decode(MockObjectDecoded.self, from: expectedData))
+        default:
+            XCTFail("Expected success, got \(String(describing: result))")
         }
     }
 
-    
-    func testExecuteGetRequestFailsDecodingError() throws {
-        // Given
-        let requestConfig = MockDevRequestConfig.mock(method: .get)
-        mockDevNetworkRequestFactory.mockRequest = URLRequest(url: URL(string: requestConfig.baseURL)!)
-        mockDevNetworkRequestFactory.requestCalled = { calledConfig in
-            XCTAssertEqual(calledConfig as! MockDevRequestConfig, requestConfig)
-        }
-        mockNetworkDataProvider.mockOutput = .just(
-            (
-                data: makeInValidJSON().data(using: .unicode)!,
-                response: HTTPURLResponse.mock(url: requestConfig.baseURL) as URLResponse
-            )
-        )
-        
-        // When
-        let publisher: AnyPublisher<MockObjectDecoded, Error> = sut.execute(requestConfig)
-        _ = publisher.sink { completion in
-            switch completion {
-            case .finished:
-                XCTFail()
-            case .failure(let error):
-                XCTAssertEqual(error as? DevToolsNetworking.NetworkError, .unexpectedResponse)
-            }
-        } receiveValue: { _ in
-            XCTFail()
-        }
-    }
-    
-    func testExecuteGetRequestFailsDecodingErrorl() throws {
-        // Given
-        let requestConfig = MockDevRequestConfig.mock(method: .get)
-        
-        mockDevNetworkRequestFactory.mockRequest = URLRequest(url: URL(string: requestConfig.baseURL)!)
-        mockDevNetworkRequestFactory.requestCalled = { calledConfig in
-            XCTAssertEqual(calledConfig as! MockDevRequestConfig, requestConfig)
-        }
-        
-        mockNetworkDataProvider.mockOutput = .just(
-            (
-                data: makeInValidJSON().data(using: .unicode)!,
-                response: HTTPURLResponse.mock(url: requestConfig.baseURL) as URLResponse
-            )
-        )
-        // Use an expectation to wait for the asynchronous operation to complete
-        let expectation = expectation(description: "Awaiting publisher completion")
-        var receivedResult: Result<MockObjectDecoded, Error>? = nil
-        
-        // When
-        let publisher: AnyPublisher<MockObjectDecoded, Error> = sut.execute(requestConfig)
-        publisher.sink { completion in
-            switch completion {
-            case .finished:
-                break;
-            case .failure(let error):
-                receivedResult = .failure(error)
-            }
-            expectation.fulfill()
-        } receiveValue: { value in
-            receivedResult = .success(value)
-        }
-        .store(in: &cancelBag)
-        
-        // Then
-        waitForExpectations(timeout: defaultTimeout)
-        
-        switch receivedResult {
-        case .success:
-            XCTFail("Expected failure, but received success.")
-        case .failure(let error):
-            XCTAssertEqual(error as? DevToolsNetworking.NetworkError, .unexpectedResponse)
-        case .none:
-            XCTFail("No result received from the publisher.")
-        }
+    // MARK: - Decode failure
+
+    func testExecuteFailsOnInvalidJSON() {
+        let config = MockDevRequestConfig.mock(method: .get)
+        mockNetworkDataProvider.mockOutput = .just((
+            data: makeInvalidJSON().data(using: .unicode)!,
+            response: HTTPURLResponse.mock(url: config.baseURL, statusCode: Constant.successCode) as URLResponse
+        ))
+
+        let result: Result<MockObjectDecoded, Error>? = execute(config)
+
+        assertNetworkError(result, equals: .unexpectedResponse)
     }
 
-    
+    // MARK: - Status codes
+
     func testNetworkErrorReceivedForAllMethods() {
-        DevHTTPMethod.allCases.forEach {
-            runTestRequestFailsWithNetworkError(httpMethod: $0)
-        }
+        DevHTTPMethod.allCases.forEach { runReachabilityErrors(method: $0) }
     }
-    
-    func testUnexpectedStatusCodeReceivedForAllMethods() {
-        DevHTTPMethod.allCases.forEach { httpMethod in
-            [Constant.forbiddenCode, Constant.notFoundCode, Constant.unAuthorizedCode].forEach { code in
-                runTestRequestFailsWithStatusCode(
-                    requestConfig: MockDevRequestConfig.mock(method: httpMethod),
-                    failStatusCode: code,
-                    fetchedData: Data()
-                )
+
+    func testUnexpectedStatusCodesForAllMethods() {
+        DevHTTPMethod.allCases.forEach { method in
+            [Constant.forbiddenCode, Constant.notFoundCode, Constant.unauthorizedCode].forEach { code in
+                runStatusCodeFailure(method: method, statusCode: code, data: Data())
             }
-            
         }
     }
-    
-    func testReceivedCustomAPIMessageForAllMethods() {
-        DevHTTPMethod.allCases.forEach { httpMethod in
-            runTestRequestFailsWithStatusCode(
-                requestConfig: MockDevRequestConfig.mock(method: httpMethod),
-                failStatusCode: Constant.successCode,
-                fetchedData: makeAPIErrorJSON().data(using: .unicode)!
+
+    func testAPIErrorBodyDecodedForAllMethods() {
+        DevHTTPMethod.allCases.forEach { method in
+            runStatusCodeFailure(
+                method: method,
+                statusCode: Constant.successCode,
+                data: makeAPIErrorJSON().data(using: .unicode)!
             )
         }
     }
-    
-    private func runTestRequestFailsWithNetworkError(httpMethod: DevHTTPMethod) {
-        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.notConnectedToInternet))
-        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.networkConnectionLost))
-        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.dataNotAllowed))
-        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.internationalRoamingOff))
-        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.cannotConnectToHost))
-        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.timedOut))
-        runTestReachabilityError(requestConfig: MockDevRequestConfig.mock(method: httpMethod), urlError: URLError(.secureConnectionFailed))
+
+    // MARK: - Plugin: willSend
+
+    func testPluginWillSendIsCalledOnRequest() {
+        let plugin = MockNetworkPlugin()
+        sut = makeSUT(plugins: [plugin])
+        mockNetworkDataProvider.mockOutput = successOutput()
+
+        let _: Result<MockObjectDecoded, Error>? = execute(MockDevRequestConfig.mock(method: .get))
+
+        XCTAssertEqual(plugin.willSendCallCount, 1)
     }
-    
-    private func runTestReachabilityError(requestConfig: MockDevRequestConfig, urlError: URLError) {
-        // Given
-        mockDevNetworkRequestFactory.mockRequest = URLRequest(url: URL(string: requestConfig.baseURL)!)
-        mockDevNetworkRequestFactory.requestCalled = { calledConfig in
-            XCTAssertEqual(calledConfig as! MockDevRequestConfig, requestConfig)
+
+    // MARK: - Plugin: didReceive
+
+    func testPluginDidReceiveIsCalledWithSuccessOnSuccessfulRequest() {
+        let plugin = MockNetworkPlugin()
+        sut = makeSUT(plugins: [plugin])
+        mockNetworkDataProvider.mockOutput = successOutput()
+
+        let _: Result<MockObjectDecoded, Error>? = execute(MockDevRequestConfig.mock(method: .get))
+
+        XCTAssertEqual(plugin.didReceiveCallCount, 1)
+        guard case .success = plugin.lastDidReceiveResult else {
+            XCTFail("Expected didReceive to be called with success result")
+            return
         }
-        
-        mockNetworkDataProvider.mockOutput = .fail(urlError)
-        // Use an expectation to wait for the asynchronous operation to complete
-        let expectation = expectation(description: "Awaiting reachability error result")
-        var receivedResult: Result<MockObjectDecoded, Error>? = nil
-        
-        // When
-        let publisher: AnyPublisher<MockObjectDecoded, Error> = sut.execute(requestConfig)
-        publisher.sink { completion in
-            switch completion {
-            case .finished:
-                break
-            case .failure(let error):
-                receivedResult = .failure(error)
+    }
+
+    func testPluginDidReceiveIsCalledWithFailureOnNetworkError() {
+        let plugin = MockNetworkPlugin()
+        sut = makeSUT(plugins: [plugin])
+        mockNetworkDataProvider.mockOutput = .fail(URLError(.notConnectedToInternet))
+
+        let _: Result<MockObjectDecoded, Error>? = execute(MockDevRequestConfig.mock(method: .get))
+
+        XCTAssertEqual(plugin.didReceiveCallCount, 1)
+        guard case .failure = plugin.lastDidReceiveResult else {
+            XCTFail("Expected didReceive to be called with failure result")
+            return
+        }
+    }
+
+    // MARK: - Plugin: process
+
+    func testPluginProcessCanTransformSuccessToFailure() {
+        let plugin = MockNetworkPlugin()
+        plugin.processModifier = { _ in .failure(NetworkError.maintenance) }
+        sut = makeSUT(plugins: [plugin])
+        mockNetworkDataProvider.mockOutput = successOutput()
+
+        let result: Result<MockObjectDecoded, Error>? = execute(MockDevRequestConfig.mock(method: .get))
+
+        assertNetworkError(result, equals: .maintenance)
+        XCTAssertEqual(plugin.processCallCount, 1)
+    }
+
+    // MARK: - Plugin: prepare
+
+    func testPluginPrepareCanModifyRequest() {
+        let plugin = MockNetworkPlugin()
+        plugin.prepareModifier = { request in
+            var modified = request
+            modified.setValue("test-token", forHTTPHeaderField: "Authorization")
+            return modified
+        }
+        sut = makeSUT(plugins: [plugin])
+        mockNetworkDataProvider.mockOutput = successOutput()
+
+        let _: Result<MockObjectDecoded, Error>? = execute(MockDevRequestConfig.mock(method: .get))
+
+        XCTAssertEqual(plugin.prepareCallCount, 1)
+        XCTAssertEqual(mockNetworkDataProvider.receivedRequest?.value(forHTTPHeaderField: "Authorization"), "test-token")
+    }
+
+    // MARK: - Plugin: chaining
+
+    func testMultiplePluginsAreAllCalled() {
+        let plugin1 = MockNetworkPlugin()
+        let plugin2 = MockNetworkPlugin()
+        sut = makeSUT(plugins: [plugin1, plugin2])
+        mockNetworkDataProvider.mockOutput = successOutput()
+
+        let _: Result<MockObjectDecoded, Error>? = execute(MockDevRequestConfig.mock(method: .get))
+
+        XCTAssertEqual(plugin1.willSendCallCount, 1)
+        XCTAssertEqual(plugin2.willSendCallCount, 1)
+        XCTAssertEqual(plugin1.didReceiveCallCount, 1)
+        XCTAssertEqual(plugin2.didReceiveCallCount, 1)
+    }
+}
+
+// MARK: - Private helpers
+
+private extension BaseNetworkClientTests {
+
+    /// Executes a request and waits for the result, returning it synchronously via expectation.
+    @discardableResult
+    func execute<T: Codable>(_ config: DevRequestConfig) -> Result<T, Error>? {
+        let expectation = expectation(description: "Request completes")
+        var result: Result<T, Error>?
+
+        let publisher: AnyPublisher<T, Error> = sut.execute(config)
+        publisher
+            .sink { completion in
+                if case .failure(let error) = completion { result = .failure(error) }
+                expectation.fulfill()
+            } receiveValue: { value in
+                result = .success(value)
             }
-            expectation.fulfill()
-        } receiveValue: { value in
-            receivedResult = .success(value)
-        }
-        .store(in: &cancelBag)
-        
-        // Then
+            .store(in: &cancelBag)
+
         waitForExpectations(timeout: defaultTimeout)
-        
-        switch receivedResult {
-        case .success:
-            XCTFail("Expected failure, but received success.")
-        case .failure(let error):
-            XCTAssertEqual(error as? DevToolsNetworking.NetworkError, DevToolsNetworking.NetworkError.reachability)
-        case .none:
-            XCTFail("No result received from the publisher.")
+        return result
+    }
+
+    func assertNetworkError(_ result: Result<MockObjectDecoded, Error>?, equals expected: NetworkError) {
+        guard case .failure(let error) = result else {
+            XCTFail("Expected failure, got \(String(describing: result))")
+            return
+        }
+        XCTAssertEqual(error as? NetworkError, expected)
+    }
+
+    func successOutput(value: String = "Hello world!") -> AnyPublisher<DevNetworkDataProvider.Output, URLError> {
+        .just((
+            data: makeValidJSON(value: value).data(using: .unicode)!,
+            response: HTTPURLResponse.mock(url: "http://mock.com", statusCode: Constant.successCode) as URLResponse
+        ))
+    }
+
+    func runReachabilityErrors(method: DevHTTPMethod) {
+        let errors: [URLError] = [
+            URLError(.notConnectedToInternet), URLError(.networkConnectionLost),
+            URLError(.dataNotAllowed), URLError(.internationalRoamingOff),
+            URLError(.cannotConnectToHost), URLError(.timedOut),
+            URLError(.secureConnectionFailed)
+        ]
+        errors.forEach { urlError in
+            mockNetworkDataProvider.mockOutput = .fail(urlError)
+            let result: Result<MockObjectDecoded, Error>? = execute(MockDevRequestConfig.mock(method: method))
+            assertNetworkError(result, equals: .reachability)
         }
     }
 
-    
-    private func runTestRequestFailsWithStatusCode(requestConfig: MockDevRequestConfig, failStatusCode: Int, fetchedData: Data) {
-        // Given
-        mockDevNetworkRequestFactory.mockRequest = URLRequest(url: URL(string: requestConfig.baseURL)!)
-        mockDevNetworkRequestFactory.requestCalled = { calledConfig in
-            XCTAssertEqual(calledConfig as! MockDevRequestConfig, requestConfig)
-        }
-        mockNetworkDataProvider.mockOutput = .just(
-            (
-                data: fetchedData,
-                response: HTTPURLResponse.mock(url: requestConfig.baseURL, statusCode: failStatusCode) as URLResponse
-            )
-        )
-        
-        // When
-        let publisher: AnyPublisher<MockObjectDecoded, Error> = sut.execute(requestConfig)
-        _ = publisher.sink { completion in
-            switch completion {
-            case .finished:
-                XCTFail()
-            case .failure(let receivedError):
-                guard let networkError = receivedError as? DevToolsNetworking.NetworkError else {
-                    XCTFail()
-                    return
-                }
-                if failStatusCode == Constant.unAuthorizedCode {
-                    XCTAssertEqual(networkError, DevToolsNetworking.NetworkError.unauthorized)
-                } else if failStatusCode == Constant.forbiddenCode {
-                    XCTAssertEqual(networkError, DevToolsNetworking.NetworkError.forbidden)
-                } else if failStatusCode == Constant.notFoundCode {
-                    XCTAssertEqual(networkError, DevToolsNetworking.NetworkError.resourceNotFound)
-                } else {
-                    let apiError = (try? JSONDecoder().decode(ApiErrorResponse.self, from: fetchedData)) ?? ApiErrorResponse(code: "", message: "")
-                    XCTAssertEqual(networkError, NetworkError.apiErrorResponse(apiError))
-                }
-            }
-        } receiveValue: { _ in
-            XCTFail()
-        }
-    }
-    
-    private func runTestRequestFailsWithStatusCode2(requestConfig: MockDevRequestConfig, failStatusCode: Int, fetchedData: Data) {
-        // Given
-        mockDevNetworkRequestFactory.mockRequest = URLRequest(url: URL(string: requestConfig.baseURL)!)
-        mockDevNetworkRequestFactory.requestCalled = { calledConfig in
-            XCTAssertEqual(calledConfig as! MockDevRequestConfig, requestConfig)
-        }
-        
-        mockNetworkDataProvider.mockOutput = .just(
-            (
-                data: fetchedData,
-                response: HTTPURLResponse.mock(url: requestConfig.baseURL, statusCode: failStatusCode) as URLResponse
-            )
-        )
-        // Use an expectation to wait for the asynchronous operation to complete
-        let expectation = self.expectation(description: "Awaiting request failure with status code")
-        var receivedResult: Result<MockObjectDecoded, Error>? = nil
+    func runStatusCodeFailure(method: DevHTTPMethod, statusCode: Int, data: Data) {
+        mockNetworkDataProvider.mockOutput = .just((
+            data: data,
+            response: HTTPURLResponse.mock(url: "http://mock.com", statusCode: statusCode) as URLResponse
+        ))
 
-        // When
-        let publisher: AnyPublisher<MockObjectDecoded, Error> = sut.execute(requestConfig)
-        publisher.sink { completion in
-            switch completion {
-            case .finished:
-                break
-            case .failure(let receivedError):
-                receivedResult = .failure(receivedError)
-            }
-            expectation.fulfill()
-        } receiveValue: { value in
-            receivedResult = .success(value)
+        let result: Result<MockObjectDecoded, Error>? = execute(MockDevRequestConfig.mock(method: method))
+
+        guard case .failure(let error) = result, let networkError = error as? NetworkError else {
+            XCTFail("Expected NetworkError failure for status \(statusCode)")
+            return
         }
-        .store(in: &cancelBag)
-        
-        // Then
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
-        
-        switch receivedResult {
-        case .success:
-            XCTFail("Expected failure, but received success.")
-        case .failure(let receivedError):
-            guard let networkError = receivedError as? DevToolsNetworking.NetworkError else {
-                XCTFail("Received error is not a NetworkError")
-                return
-            }
-            
-            switch failStatusCode {
-            case Constant.unAuthorizedCode:
-                XCTAssertEqual(networkError, DevToolsNetworking.NetworkError.unauthorized, "Expected unauthorized error")
-            case Constant.forbiddenCode:
-                XCTAssertEqual(networkError, DevToolsNetworking.NetworkError.forbidden, "Expected forbidden error")
-            case Constant.notFoundCode:
-                XCTAssertEqual(networkError, DevToolsNetworking.NetworkError.resourceNotFound, "Expected resource not found error")
-            default:
-                let apiError = (try? JSONDecoder().decode(ApiErrorResponse.self, from: fetchedData)) ?? ApiErrorResponse(code: "", message: "")
-                XCTAssertEqual(networkError, NetworkError.apiErrorResponse(apiError), "Expected API error response")
-            }
-        case .none:
-            XCTFail("No result received from the publisher.")
+
+        switch statusCode {
+        case Constant.unauthorizedCode:
+            XCTAssertEqual(networkError, .unauthorized)
+        case Constant.forbiddenCode:
+            XCTAssertEqual(networkError, .forbidden)
+        case Constant.notFoundCode:
+            XCTAssertEqual(networkError, .resourceNotFound)
+        default:
+            let expected = (try? JSONDecoder().decode(ApiErrorResponse.self, from: data))
+                .map { NetworkError.apiErrorResponse($0) } ?? .unexpectedResponse
+            XCTAssertEqual(networkError, expected)
         }
     }
 
-    
-    private func makeAPIErrorJSON(code: String = "W123", message: String = "Upsie, API dead!") -> String {
-            """
-            {
-                "code": "\(code)",
-                "message": "\(message)",
-            }
-            """
+    func makeAPIErrorJSON(code: String = "W123", message: String = "Upsie, API dead!") -> String {
+        """
+        {
+            "code": "\(code)",
+            "message": "\(message)"
+        }
+        """
     }
-    
-    private func makeValidJSON(value: String = "Hello world!") -> String {
-            """
-            {
-                "mockProperty": "\(value)",
-            }
-            """
+
+    func makeValidJSON(value: String = "Hello world!") -> String {
+        """
+        {
+            "mockProperty": "\(value)"
+        }
+        """
     }
-    
-    private func makeInValidJSON() -> String {
-            """
-            {invalid jsonasdasd ..das
-            """
+
+    func makeInvalidJSON() -> String {
+        "{invalid json"
     }
 }
