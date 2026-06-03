@@ -19,9 +19,10 @@ import Foundation
 ///
 /// let provider = DefaultNetworkDataProvider(delegate: PinningDelegate())
 /// ```
-public final class DefaultNetworkDataProvider: DevNetworkDataProvider {
+public final class DefaultNetworkDataProvider: DevNetworkDataProvider, DevFileDownloadProvider {
 
     private let session: URLSession
+    private let downloadCoordinator: DownloadCoordinator
 
     /// - Parameters:
     ///   - configuration: The session configuration. Defaults to `.default`.
@@ -36,9 +37,18 @@ public final class DefaultNetworkDataProvider: DevNetworkDataProvider {
             delegate: delegate,
             delegateQueue: nil
         )
+        self.downloadCoordinator = DownloadCoordinator(configuration: configuration, authDelegate: delegate)
     }
+
+    // MARK: - DevNetworkDataProvider
 
     public func output(for request: URLRequest) -> AnyPublisher<Output, URLError> {
         session.dataTaskPublisher(for: request).eraseToAnyPublisher()
+    }
+
+    // MARK: - DevFileDownloadProvider
+
+    public func download(for request: URLRequest) -> AnyPublisher<DownloadEvent, Error> {
+        downloadCoordinator.download(request: request)
     }
 }

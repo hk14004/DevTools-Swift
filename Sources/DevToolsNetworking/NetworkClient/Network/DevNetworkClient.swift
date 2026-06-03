@@ -54,6 +54,48 @@ open class BaseNetworkClient: DevNetworkClient {
             .eraseToAnyPublisher()
     }
 
+    // MARK: - Download
+
+    /// Downloads a file, emitting progress events followed by a `.completed(fileURL:)` event.
+    ///
+    /// Runs through the same `prepareRequest` pipeline as `execute` — auth headers and
+    /// other plugins are applied. Only `prepare` and `willSend` plugin hooks fire;
+    /// `didReceive` and `process` are not called since downloads stream rather than
+    /// produce a single response.
+    ///
+    /// Requires the `dataProvider` to conform to `DevFileDownloadProvider`.
+    /// `DefaultNetworkDataProvider` supports this out of the box.
+    ///
+    /// Example:
+    /// ```swift
+    /// client.download(config)
+    ///     .sink { event in
+    ///         switch event {
+    ///         case .progress(let received, let total):
+    ///             print("\(received) / \(total ?? 0) bytes")
+    ///         case .completed(let url):
+    ///             try? FileManager.default.moveItem(at: url, to: destinationURL)
+    ///         }
+    ///     }
+    /// ```
+    open func download(_ requestConfig: DevRequestConfig) -> AnyPublisher<DownloadEvent, Error> {
+        guard reachabilityNotifier.isReachable else {
+            return .fail(NetworkError.reachability)
+        }
+        guard let downloadProvider = dataProvider as? DevFileDownloadProvider else {
+            return .fail(NetworkError.unexpected(
+                "dataProvider does not support file downloads. Conform it to DevFileDownloadProvider."
+            ))
+        }
+        return prepareRequest(requestConfig: requestConfig)
+            .flatMap { [weak self] request -> AnyPublisher<DownloadEvent, Error> in
+                guard let self else { return .empty() }
+                self.plugins.forEach { $0.willSend(request, config: requestConfig) }
+                return downloadProvider.download(for: request)
+            }
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Request preparation
     open func prepareRequest(requestConfig: DevRequestConfig) -> AnyPublisher<URLRequest, Error> {
         let base: URLRequest
