@@ -12,7 +12,7 @@ extension CoreDataStoreTests {
 
     func test_bulkWriteAsync_writeNothing() async throws {
         try await sut.bulkWrite {}
-        let result = try sut.getList()
+        let result = try await sut.getList()
         XCTAssertTrue(result.isEmpty)
     }
 
@@ -22,7 +22,7 @@ extension CoreDataStoreTests {
             try await self.sut.replace(with: generated)
             try await self.sut.addOrUpdate([self.mockDTO])
         }
-        let result = try sut.getList()
+        let result = try await sut.getList()
         XCTAssertEqual(result.count, generated.count + 1)
     }
 }

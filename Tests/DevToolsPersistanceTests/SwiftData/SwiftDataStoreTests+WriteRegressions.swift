@@ -11,13 +11,24 @@ extension SwiftDataStoreTests {
     /// Regression: observer fires exactly once at the end of a bulk write, not per sub-operation.
     func test_bulkWriteAsync_observerFiresOnceNotPerSubOperation() async throws {
         var fireCount = 0
+        let initialExpectation = expectation(description: "Initial emission")
+        let batchExpectation   = expectation(description: "Batch write emission")
+
         let cancel = sut.observeList().sink(
             receiveCompletion: { _ in },
-            receiveValue: { _ in fireCount += 1 }
+            receiveValue: { _ in
+                fireCount += 1
+                switch fireCount {
+                case 1: initialExpectation.fulfill()
+                case 2: batchExpectation.fulfill()
+                default: break
+                }
+            }
         )
         defer { cancel.cancel() }
 
-        // Initial emission from prepend(()).
+        // Wait for the initial emission that comes from prepend(()).
+        await fulfillment(of: [initialExpectation], timeout: 1)
         XCTAssertEqual(fireCount, 1)
 
         let items = MockSD_DTO.mocks(count: 3)
@@ -28,6 +39,7 @@ extension SwiftDataStoreTests {
         }
 
         // Observer should fire exactly once more (the batch save), not three times.
+        await fulfillment(of: [batchExpectation], timeout: 2)
         XCTAssertEqual(fireCount, 2, "Observer fired \(fireCount) times — expected 2 (initial + batch end)")
     }
 

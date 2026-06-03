@@ -19,34 +19,31 @@ extension CoreDataStoreTests {
         XCTAssertTrue(result.isEmpty)
     }
     
-    func test_readListSync_found() throws {
+    func test_readListSync_found() async throws {
         // Arrange
         let allItems = MockCD_DTO.mocks(count: 3)
         let itemsToFind: [MockCD_DTO] = [allItems[0], allItems[2]]
         let compoundPredicate = NSCompoundPredicate(
             type: .or,
-            subpredicates: itemsToFind.map { item in
-                makeIDPredicate(item.id)
-            }
+            subpredicates: itemsToFind.map { makeIDPredicate($0.id) }
         )
-        
-        try sut.addOrUpdate(allItems)
-        
+        try await sut.addOrUpdate(allItems)
+
         // Act
-        let result = try sut.getList(predicate: compoundPredicate)
-        
+        let result = try await sut.getList(predicate: compoundPredicate)
+
         // Assert
         XCTAssertEqual(result, itemsToFind)
     }
-    
-    func test_readListSync_nothingFound_incorrectID() throws {
+
+    func test_readListSync_nothingFound_incorrectID() async throws {
         // Arrange
         let allItems = MockCD_DTO.mocks(count: 3)
-        try sut.addOrUpdate(allItems)
-        
+        try await sut.addOrUpdate(allItems)
+
         // Act
-        let result = try sut.getList(predicate: makeIDPredicate(Constant.randomSuffix))
-        
+        let result = try await sut.getList(predicate: makeIDPredicate(Constant.randomSuffix))
+
         // Assert
         XCTAssertTrue(result.isEmpty)
     }

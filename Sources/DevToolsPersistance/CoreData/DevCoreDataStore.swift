@@ -172,11 +172,11 @@ where
     /// Individual saves inside the block are suppressed; one save fires at the end.
     /// Observers on the view context receive a single update when the batch commits.
     public func bulkWrite(block: @escaping () async throws -> Void) async throws {
-        await writeContext.perform { self.bulkWriteInProgress = true }
+        try await writeContext.perform { self.bulkWriteInProgress = true }
         do {
             try await block()
         } catch {
-            await writeContext.perform {
+            try await writeContext.perform {
                 self.writeContext.rollback()
                 self.bulkWriteInProgress = false
             }

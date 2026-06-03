@@ -37,10 +37,14 @@ extension CoreDataStoreTests {
         try await sut.addOrUpdate([bUpdated, d])
 
         let found = try await sut.getList()
+        let foundA = try await sut.getSingle(id: "A")
+        let foundB = try await sut.getSingle(id: "B")
+        let foundC = try await sut.getSingle(id: "C")
+        let foundD = try await sut.getSingle(id: "D")
         XCTAssertEqual(found.count, 4)
-        XCTAssertEqual(try await sut.getSingle(id: "A"), a)
-        XCTAssertEqual(try await sut.getSingle(id: "B"), bUpdated)
-        XCTAssertEqual(try await sut.getSingle(id: "C"), c)
-        XCTAssertEqual(try await sut.getSingle(id: "D"), d)
+        XCTAssertEqual(foundA, a)
+        XCTAssertEqual(foundB, bUpdated)
+        XCTAssertEqual(foundC, c)
+        XCTAssertEqual(foundD, d)
     }
 }
