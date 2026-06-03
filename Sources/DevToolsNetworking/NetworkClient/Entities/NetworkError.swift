@@ -8,6 +8,7 @@ public enum NetworkError: Error, Equatable {
     case forbidden
     case unexpectedResponse
     case resourceNotFound
+    case maintenance
 }
 
 extension NetworkError: LocalizedError {
@@ -27,6 +28,8 @@ extension NetworkError: LocalizedError {
             return "Unexpected server response."
         case .resourceNotFound:
             return "Resource not found."
+        case .maintenance:
+            return "Service is temporarily unavailable."
         }
     }
 }
