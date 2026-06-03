@@ -49,7 +49,7 @@ open class BaseNetworkClient: DevNetworkClient {
                         case .failure(let error): return .fail(error)
                         }
                     }
-                    .decode(when: request)
+                    .decode()
             }
             .eraseToAnyPublisher()
     }

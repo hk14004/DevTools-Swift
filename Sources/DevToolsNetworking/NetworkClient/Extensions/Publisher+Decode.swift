@@ -2,11 +2,7 @@ import Combine
 import Foundation
 
 extension Publisher where Output == URLSession.DataTaskPublisher.Output {
-    // swiftlint:disable:next function_default_parameter_at_end
-    public func decode<T>(
-        as type: T.Type = T.self,
-        when request: URLRequest
-    ) -> AnyPublisher<T, Error> where T: Codable {
+    public func decode<T>(as type: T.Type = T.self) -> AnyPublisher<T, Error> where T: Codable {
         tryMap { data -> T in
             do {
                 guard
