@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import OSLog
 
 extension Publisher where Output == URLSession.DataTaskPublisher.Output {
     // swiftlint:disable:next function_default_parameter_at_end
@@ -10,7 +9,6 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
     ) -> AnyPublisher<T, Error> where T: Codable {
         tryMap { data -> T in
             do {
-                Logger.logResponse(data)
                 guard
                     let response = data.response as? HTTPURLResponse,
                     200..<300 ~= response.statusCode
@@ -33,7 +31,6 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
             return error
         }
         if error.isReachabilityError {
-            Logger.logNoResponse(error: error)
             return NetworkError.reachability
         }
         return NetworkError.unexpected(error.localizedDescription)
