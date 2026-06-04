@@ -1,5 +1,5 @@
 //
-//  UIKitScreenFactory.swift
+//  SwiftUIScreenFactory.swift
 //  DevTools
 //
 //  Created by Hardijs on 28/08/2025.
