@@ -3,6 +3,12 @@ import Foundation
 public extension URL {
     init?(base: String, path: String, queryItems: [URLQueryItem]? = nil) {
         var urlComponents = URLComponents(string: "\(base)\(path)")
+
+        // Reject URLs with a missing or empty scheme. URLComponents is lenient and
+        // may successfully parse strings like "://bad url" on newer platforms —
+        // an empty scheme is never a valid URL for networking purposes.
+        guard !(urlComponents?.scheme ?? "").isEmpty else { return nil }
+
         urlComponents?.queryItems = queryItems
 
         // `NSURLComponents` and `URLComponents` handle "+" differently
