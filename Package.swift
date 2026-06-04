@@ -74,6 +74,9 @@ let package = Package(
             dependencies: ["DevToolsCore"]),
         .testTarget(
             name: "DevToolsPersistanceTests",
-            dependencies: ["DevToolsPersistance", "DevToolsCore"])
+            dependencies: ["DevToolsPersistance", "DevToolsCore"]),
+        .testTarget(
+            name: "DevToolsNavigationTests",
+            dependencies: ["DevToolsNavigation"])
     ]
 )
