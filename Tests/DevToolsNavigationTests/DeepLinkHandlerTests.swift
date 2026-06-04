@@ -15,6 +15,7 @@ enum AppRoute: Equatable {
     case productDetail(id: String)
     case userProfile(username: String, tab: ProfileTab)
     case settings
+    case webView(url: URL)
 }
 
 enum ProfileTab: String {
@@ -28,6 +29,7 @@ enum ProfileTab: String {
 ///   myapp://product/<id>
 ///   myapp://user/<username>?tab=posts
 ///   myapp://settings
+///   myapp://webview?url=https%3A%2F%2Fexample.com%2Fterms
 ///
 /// In a real app, `handle(route:)` would call into a coordinator or router
 /// to perform the actual UIKit navigation.
@@ -51,6 +53,12 @@ class AppDeepLinkHandler: DeepLinkHandling {
 
         case "settings":
             return .settings
+
+        case "webview":
+            guard let urlString = url.queryValue(for: "url"),
+                  let destination = URL(string: urlString),
+                  destination.scheme == "http" || destination.scheme == "https" else { return nil }
+            return .webView(url: destination)
 
         default:
             return nil
@@ -105,6 +113,22 @@ final class DeepLinkHandlerTests: XCTestCase {
     func testSettingsRoute() {
         let url = URL(string: "myapp://settings")!
         XCTAssertEqual(sut.route(for: url), .settings)
+    }
+
+    func testWebViewRouteWithValidURL() {
+        // The destination URL must be percent-encoded inside the query string.
+        let url = URL(string: "myapp://webview?url=https%3A%2F%2Fexample.com%2Fterms")!
+        XCTAssertEqual(sut.route(for: url), .webView(url: URL(string: "https://example.com/terms")!))
+    }
+
+    func testWebViewRouteMissingURLParamReturnsNil() {
+        let url = URL(string: "myapp://webview")!
+        XCTAssertNil(sut.route(for: url))
+    }
+
+    func testWebViewRouteInvalidURLParamReturnsNil() {
+        let url = URL(string: "myapp://webview?url=not-a-valid-url")!
+        XCTAssertNil(sut.route(for: url))
     }
 
     func testUnrecognisedPathReturnsNil() {
