@@ -21,7 +21,7 @@ struct MockDevRequestConfig: DevRequestConfig, Equatable {
 
 extension MockDevRequestConfig {
     static func mock(
-        baseURL: String = "www.mock.com",
+        baseURL: String = "https://www.mock.com",
         path: String = "/mock",
         method: DevHTTPMethod,
         queryItems: [URLQueryItem]? = [

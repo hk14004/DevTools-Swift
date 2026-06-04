@@ -25,7 +25,7 @@ final class BaseNetworkRequestFactoryTests: XCTestCase {
 
     func testInvalidURLThrows() {
         let config = MockDevRequestConfig.mock(
-            baseURL: "://bad url",
+            baseURL: "",
             method: .get
         )
         XCTAssertThrowsError(try sut.urlRequest(requestConfig: config)) { error in
