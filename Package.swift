@@ -29,6 +29,9 @@ let package = Package(
             name: "DevToolsLocalization",
             targets: ["DevToolsLocalization"]),
         .library(
+            name: "DevToolsWebView",
+            targets: ["DevToolsWebView"]),
+        .library(
             name: "DevToolsXCTest",
             targets: ["DevToolsXCTest"]),
     ],
@@ -58,6 +61,9 @@ let package = Package(
             dependencies: ["DevToolsCore"]),
         .target(
             name: "DevToolsLocalization",
+            dependencies: ["DevToolsCore"]),
+        .target(
+            name: "DevToolsWebView",
             dependencies: ["DevToolsCore"]),
         .target(
             name: "DevToolsXCTest",
