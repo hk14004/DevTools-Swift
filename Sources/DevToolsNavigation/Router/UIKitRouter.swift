@@ -87,4 +87,11 @@ public extension UIKitRouter {
     func openURL(_ url: URL) {
         UIApplication.shared.open(url)
     }
+
+    /// Opens the app's own page in iOS Settings.
+    /// Use this after a permission is denied to let the user enable it manually.
+    func openAppSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
+    }
 }
