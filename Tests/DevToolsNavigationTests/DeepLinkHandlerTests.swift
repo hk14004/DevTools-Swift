@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import DevToolsCore
 @testable import DevToolsNavigation
 
 // MARK: - Example: how you'd define deep links for a real app
@@ -220,10 +221,3 @@ final class URLDeepLinkExtensionTests: XCTestCase {
     }
 }
 
-// MARK: - Helpers
-
-private extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}

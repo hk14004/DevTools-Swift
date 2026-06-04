@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import DevToolsCore
 @testable import DevToolsNavigation
 
 // MARK: - Simulated feature modules
@@ -151,10 +152,3 @@ final class DeepLinkRouterTests: XCTestCase {
     }
 }
 
-// MARK: - Helpers
-
-private extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}
