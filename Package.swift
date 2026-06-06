@@ -20,8 +20,11 @@ let package = Package(
             name: "DevToolsNetworking",
             targets: ["DevToolsNetworking"]),
         .library(
-            name: "DevToolsUI",
-            targets: ["DevToolsUI"]),
+            name: "DevToolsUIKit",
+            targets: ["DevToolsUIKit"]),
+        .library(
+            name: "DevToolsSwiftUI",
+            targets: ["DevToolsSwiftUI"]),
         .library(
             name: "DevToolsPersistance",
             targets: ["DevToolsPersistance"]),
@@ -54,7 +57,10 @@ let package = Package(
                 .product(name: "Reachability", package: "Reachability.swift")
             ]),
         .target(
-            name: "DevToolsUI",
+            name: "DevToolsUIKit",
+            dependencies: ["DevToolsCore"]),
+        .target(
+            name: "DevToolsSwiftUI",
             dependencies: ["DevToolsCore"]),
         .target(
             name: "DevToolsPersistance",
