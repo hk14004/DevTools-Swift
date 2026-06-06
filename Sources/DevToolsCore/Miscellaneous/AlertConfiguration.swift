@@ -34,23 +34,29 @@ public struct AlertConfiguration {
     }
 }
 
-extension AlertConfiguration {
-    public struct Button {
-        // MARK: Variables
+public extension AlertConfiguration {
+
+    enum Style: Int {
+        case actionSheet = 0
+        case alert
+    }
+
+    struct Button {
         public let title: String
         public let action: VoidCallback
-        public let style: AlertAction.Style
+        public let style: ButtonStyle
         public let isPreferredAction: Bool
+        /// When `true` and `selectedImageData` is set, the action displays a
+        /// custom image via UIAlertAction's private `"image"` key.
         public let isSelected: Bool
         public let selectedImageData: Data?
         public let accessibilityIdentifier: String?
         public let accessibilityLabel: String?
-        
-        // MARK: - Lifecycle
+
         public init(
             title: String,
             action: @escaping VoidCallback,
-            style: AlertAction.Style = .default,
+            style: ButtonStyle = .default,
             isPreferredAction: Bool = false,
             isSelected: Bool = false,
             selectedImageData: Data? = nil,
@@ -67,19 +73,10 @@ extension AlertConfiguration {
             self.accessibilityLabel = accessibilityLabel
         }
     }
-}
 
-public extension AlertConfiguration {
-    enum Style: Int {
-        case actionSheet = 0
-        case alert
-    }
-    
-    struct AlertAction {
-        public enum Style: Int {
-            case `default` = 0
-            case cancel
-            case destructive
-        }
+    enum ButtonStyle: Int {
+        case `default` = 0
+        case cancel
+        case destructive
     }
 }

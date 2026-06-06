@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import DevToolsCore
 
 public struct DevIndexPathChangeSet {
     public var inserted: [IndexPath]

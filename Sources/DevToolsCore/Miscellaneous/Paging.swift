@@ -19,13 +19,9 @@ public struct DevPagedResult<T> {
     }
 }
 
-extension DevPagedResult: Hashable {
+extension DevPagedResult: Equatable {
     public static func == (lhs: DevPagedResult<T>, rhs: DevPagedResult<T>) -> Bool {
-        return lhs.pageNumber == rhs.pageNumber
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(pageNumber)
+        lhs.pageNumber == rhs.pageNumber
     }
 }
 

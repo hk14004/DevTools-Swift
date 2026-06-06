@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import DevToolsCore
 
 /// Marks a type as a valid cell in a `DevTableSection`.
 public protocol DevTableSectionCell: DevContentComparable, Hashable {}
