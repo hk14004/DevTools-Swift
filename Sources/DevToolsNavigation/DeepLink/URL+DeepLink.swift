@@ -33,12 +33,13 @@ public extension URL {
     }
 
     /// Returns the value of a single query parameter by key.
+    /// When a key appears more than once, the last value wins.
     ///
     /// For `myapp://feed?tab=popular`, `queryValue(for: "tab")` returns `"popular"`.
     func queryValue(for key: String) -> String? {
         URLComponents(url: self, resolvingAgainstBaseURL: false)?
             .queryItems?
-            .first { $0.name == key }?
+            .last { $0.name == key }?
             .value
     }
 

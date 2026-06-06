@@ -43,7 +43,7 @@ extension RuntimeStringFileLocalization: RuntimeLocalization {
         return availableLanguages
     }
     
-    public func change(languageCode: String) {
+    @MainActor public func change(languageCode: String) {
         let selectedLanguage = getAvailableLanguages().contains(languageCode) ? languageCode : Constant.defaultLanguageCode
         if selectedLanguage != getCurrentLanguage() {
             UserDefaults.standard.set(selectedLanguage, forKey: Constant.currentLanguageKey)
@@ -89,11 +89,8 @@ extension RuntimeStringFileLocalization: RuntimeLocalization {
         return string.runtimeLocalizedPlural(argument)
     }
     
-    private func displayNameForLanguage(_ language: String) -> String {
-        let locale : NSLocale = NSLocale(localeIdentifier: getCurrentLanguage())
-        if let displayName = locale.displayName(forKey: NSLocale.Key.identifier, value: language) {
-            return displayName
-        }
-        return String()
+    public func displayName(for languageCode: String) -> String {
+        let locale = NSLocale(localeIdentifier: getCurrentLanguage())
+        return locale.displayName(forKey: .identifier, value: languageCode) ?? languageCode
     }
 }

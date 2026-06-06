@@ -78,7 +78,7 @@ public final class SelfSizingWebView: WKWebView {
 
     /// The most recently measured content height in points.
     /// Zero until the first page load completes.
-    public private(set) var measuredContentHeight: CGFloat = 0 {
+    public internal(set) var measuredContentHeight: CGFloat = 0 {
         didSet {
             guard measuredContentHeight != oldValue else { return }
             updateScrollBehaviour()

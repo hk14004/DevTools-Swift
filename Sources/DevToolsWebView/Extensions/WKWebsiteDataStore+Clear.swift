@@ -24,11 +24,11 @@ public extension WKWebsiteDataStore {
 
         // Clear all other website data (cache, local storage, IndexedDB, etc.)
         let types = WKWebsiteDataStore.allWebsiteDataTypes()
-        let records = await fetchDataRecords(ofTypes: types)
-        await withCheckedContinuation { continuation in
-            removeData(ofTypes: types, for: records) {
-                continuation.resume()
-            }
+        let records: [WKWebsiteDataRecord] = await withCheckedContinuation { continuation in
+            fetchDataRecords(ofTypes: types) { continuation.resume(returning: $0) }
+        }
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            removeData(ofTypes: types, for: records) { continuation.resume() }
         }
     }
 }

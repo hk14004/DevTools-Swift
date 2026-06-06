@@ -1,60 +1,55 @@
 //
 //  RuntimeLocalizedLabel.swift
-//  
+//
 //
 //  Created by Hardijs Ķirsis on 29/05/2023.
 //
 
-
+import Combine
 import UIKit
 
 open class RuntimeLocalizedLabel: UILabel {
-    
+
     // MARK: Properties
-    
-    public var localization: RuntimeLocalization = RuntimeStringFileLocalization.shared
-    
+
+    public var localization: RuntimeLocalization = RuntimeStringFileLocalization.shared {
+        didSet { observe() }
+    }
+
     @IBInspectable open var runtimeLocalizedKey: String? {
-        didSet {
-            updateRuntimeLocalizedStrings()
-        }
+        didSet { updateRuntimeLocalizedStrings() }
     }
+
     open var runtimeLocalizedArguments: [CVarArg] = [] {
-        didSet {
-            updateRuntimeLocalizedStrings()
-        }
+        didSet { updateRuntimeLocalizedStrings() }
     }
-    
-    //MARK: Initialization
-    
+
+    private var cancellable: AnyCancellable?
+
+    // MARK: Initialization
+
     public override init(frame: CGRect) {
         super.init(frame: frame)
-       commonInit()
+        commonInit()
     }
-    
+
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         commonInit()
     }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    //MARK: Overridden Functions
-    
+
     open override func awakeFromNib() {
         super.awakeFromNib()
         updateRuntimeLocalizedStrings()
     }
-    
+
     private func commonInit() {
-        updateRuntimeLocalizedStrings()
         observe()
+        updateRuntimeLocalizedStrings()
     }
 }
 
-// MARK: LocalizedRuntimeComponent
+// MARK: RuntimeLocalizedUIKitComponent
 
 extension RuntimeLocalizedLabel: RuntimeLocalizedUIKitComponent {
     @objc open func updateRuntimeLocalizedStrings() {
@@ -70,6 +65,9 @@ extension RuntimeLocalizedLabel: RuntimeLocalizedUIKitComponent {
 
 extension RuntimeLocalizedLabel {
     private func observe() {
-        localization.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
+        cancellable = localization.observeCurrentLanguage()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.updateRuntimeLocalizedStrings() }
     }
 }

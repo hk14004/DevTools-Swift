@@ -88,7 +88,6 @@ public extension XCTestCase {
         }
         return result
     }
-}
 
     /// Asserts that a publisher emits no value within the given timeout.
     ///
