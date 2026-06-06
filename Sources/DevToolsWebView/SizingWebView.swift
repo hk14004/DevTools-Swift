@@ -5,6 +5,7 @@
 //  Created by Hardijs on 04/06/2026.
 //
 
+import Combine
 import SwiftUI
 import WebKit
 
@@ -51,6 +52,7 @@ public struct SizingWebView: UIViewRepresentable {
     public var configuration: WKWebViewConfiguration
     public var maxHeight: CGFloat
     public var onContentHeightChanged: ((CGFloat) -> Void)?
+    public var onLoadingProgressChanged: ((Double) -> Void)?
     public var onError: ((Error) -> Void)?
 
     // MARK: - Init
@@ -61,12 +63,14 @@ public struct SizingWebView: UIViewRepresentable {
         configuration: WKWebViewConfiguration = .init(),
         maxHeight: CGFloat = 400,
         onContentHeightChanged: ((CGFloat) -> Void)? = nil,
+        onLoadingProgressChanged: ((Double) -> Void)? = nil,
         onError: ((Error) -> Void)? = nil
     ) {
         self.source = .url(url)
         self.configuration = configuration
         self.maxHeight = maxHeight
         self.onContentHeightChanged = onContentHeightChanged
+        self.onLoadingProgressChanged = onLoadingProgressChanged
         self.onError = onError
     }
 
@@ -77,12 +81,14 @@ public struct SizingWebView: UIViewRepresentable {
         configuration: WKWebViewConfiguration = .init(),
         maxHeight: CGFloat = 400,
         onContentHeightChanged: ((CGFloat) -> Void)? = nil,
+        onLoadingProgressChanged: ((Double) -> Void)? = nil,
         onError: ((Error) -> Void)? = nil
     ) {
         self.source = .html(html, baseURL: baseURL)
         self.configuration = configuration
         self.maxHeight = maxHeight
         self.onContentHeightChanged = onContentHeightChanged
+        self.onLoadingProgressChanged = onLoadingProgressChanged
         self.onError = onError
     }
 
@@ -96,6 +102,7 @@ public struct SizingWebView: UIViewRepresentable {
         let webView = SelfSizingWebView(configuration: configuration)
         webView.maxHeight = maxHeight
         configure(webView, context: context)
+        context.coordinator.subscribe(to: webView, onProgressChanged: onLoadingProgressChanged)
         context.coordinator.lastSource = source
         webView.load(source)
         return webView
@@ -125,6 +132,7 @@ public struct SizingWebView: UIViewRepresentable {
             context.coordinator.lastHeight = height
             onContentHeightChanged?(height)
         }
+        context.coordinator.onLoadingProgressChanged = onLoadingProgressChanged
         webView.onError = onError
     }
 }
@@ -135,5 +143,15 @@ public extension SizingWebView {
     final class Coordinator {
         var lastHeight: CGFloat = 0
         var lastSource: WebViewSource?
+        var onLoadingProgressChanged: ((Double) -> Void)?
+        private var progressCancellable: AnyCancellable?
+
+        func subscribe(to webView: SelfSizingWebView, onProgressChanged: ((Double) -> Void)?) {
+            progressCancellable = webView.loadingProgressPublisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] progress in
+                    self?.onLoadingProgressChanged?(progress)
+                }
+        }
     }
 }
