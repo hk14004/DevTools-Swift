@@ -35,8 +35,15 @@ public extension String {
     }
 
     func isEmailAddress() -> Bool {
-        wholeMatch(of: /[A-Z0-9a-z._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,64}/i) != nil
+        let range = NSRange(startIndex..., in: self)
+        return String._emailRegex.firstMatch(in: self, options: [], range: range) != nil
     }
+
+    // Compiled once at type initialisation — try! is safe for a hardcoded pattern.
+    private static let _emailRegex: NSRegularExpression = try! NSRegularExpression(
+        pattern: "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}",
+        options: .caseInsensitive
+    )
 }
 
 // MARK: - Transformation
