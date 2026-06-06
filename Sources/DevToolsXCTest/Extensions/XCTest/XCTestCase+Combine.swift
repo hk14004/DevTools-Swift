@@ -90,6 +90,35 @@ public extension XCTestCase {
     }
 }
 
+    /// Asserts that a publisher emits no value within the given timeout.
+    ///
+    /// Uses an inverted expectation — the test fails if the publisher emits anything.
+    /// Prefer this over `awaitPublisher` + `XCTAssertNil` when the intent is
+    /// explicitly "this should never fire".
+    ///
+    /// ```swift
+    /// viewModel.triggerSomethingThatShouldNotCauseError()
+    /// awaitPublisherSilence(viewModel.errorPublisher, timeout: 0.5)
+    /// ```
+    func awaitPublisherSilence<T: Publisher>(
+        _ publisher: T,
+        timeout: TimeInterval = 1,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        let expectation = expectation(description: "Publisher should not emit — \(file):\(line)")
+        expectation.isInverted = true
+
+        let cancellable = publisher.sink(
+            receiveCompletion: { _ in },
+            receiveValue: { _ in expectation.fulfill() }
+        )
+
+        wait(for: [expectation], timeout: timeout)
+        cancellable.cancel()
+    }
+}
+
 // MARK: - Timeout error
 
 /// Error returned by `awaitRequiredPublisher` when the publisher times out.
