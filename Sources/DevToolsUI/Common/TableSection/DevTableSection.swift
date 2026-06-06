@@ -11,44 +11,51 @@ import DevToolsCore
 /// Marks a type as a valid cell in a `DevTableSection`.
 public protocol DevTableSectionCell: DevContentComparable, Hashable {}
 
-/// Marks a type as a valid cell view model in a `DevTableSection`.
-public protocol DevTableSectionCellModel: DevContentComparable, Hashable {}
-
 /// A typed, diffable model for a single table view section — designed to live on the ViewModel side.
 ///
-///Use case                        Rating    Recommendation
-///─────────────────────────────────────────────────────────
-///Flat single-section list        6/10      Skip the protocol
-///Fixed multi-section             8/10      Sweet spot — use it
-///Dynamic API-driven sections     4/10      Use snapshot directly
-///
-///
 /// Conform to this protocol to describe a section's identity, optional title, and cells.
-/// The ViewModel holds `[YourSection]` and manipulates it using the `Array+DevTableSection`
-/// helpers. The view controller converts it to an `NSDiffableDataSourceSnapshot` via
-/// `Array.asSnapshot()` and applies it to its data source.
+/// For managing collections of sections, prefer ``DevSectionStore`` over a raw array —
+/// it provides O(1) lookup, explicit ordering control, atomic cell updates, and snapshot conversion.
 ///
-/// # Defining a section
+/// ## SectionID
+/// `SectionID` only needs to be `Hashable`. Unlike the previous design it does **not** require
+/// `CaseIterable`, so dynamic section IDs with associated values are fully supported:
+///
+/// ```swift
+/// enum FeedSectionID: Hashable {
+///     case featured
+///     case group(Int)      // dynamic, API-driven
+///     case footer
+/// }
+/// ```
+///
+/// ## Defining a section
 /// ```swift
 /// struct FeedSection: DevTableSection {
-///     enum SectionID: Hashable, CaseIterable { case featured, recent }
-///     enum Cell: DevTableSectionCell { case post(PostViewModel); case ad(AdViewModel) }
+///     enum SectionID: Hashable { case featured, recent }
+///     enum Cell: DevTableSectionCell {
+///         case post(PostViewModel)
+///         case ad(AdViewModel)
+///     }
 ///
 ///     var id: SectionID
-///     var title: String?
+///     var title: String? { "Feed" }
 ///     var cells: [Cell]
 /// }
 /// ```
 ///
-/// # ViewModel usage
+/// ## ViewModel usage with DevSectionStore
 /// ```swift
-/// var sections: [FeedSection] = []
-/// sections.addOrUpdate(FeedSection(id: .featured, title: "Featured", cells: [...]))
+/// var store = DevSectionStore<FeedSection>()
+/// store.set(FeedSection(id: .featured, cells: [...]))
+/// store.updateCells(id: .recent) { cells in
+///     cells = latestPosts.map { .post($0) }
+/// }
 /// ```
 ///
-/// # View controller usage
+/// ## View controller
 /// ```swift
-/// viewModel.$sections
+/// viewModel.$store
 ///     .map { $0.asSnapshot() }
 ///     .receive(on: DispatchQueue.main)
 ///     .sink { [weak self] snapshot in
@@ -59,13 +66,12 @@ public protocol DevTableSectionCellModel: DevContentComparable, Hashable {}
 public protocol DevTableSection: Hashable, DevContentComparable {
     associatedtype Cell: DevTableSectionCell
     /// The type used to uniquely identify this section.
-    /// Must be `CaseIterable` so all possible sections are enumerable,
-    /// and `Hashable` so it can be used as a `NSDiffableDataSourceSnapshot` section identifier.
-    associatedtype SectionID: CaseIterable, Hashable
+    /// Must be `Hashable` so it can be used as a `NSDiffableDataSourceSnapshot` section identifier.
+    associatedtype SectionID: Hashable
 
     var id: SectionID { get }
     /// Optional section header title. `nil` means no header.
-    var title: String? { get set }
+    var title: String? { get }
     var cells: [Cell] { get set }
 }
 
@@ -84,23 +90,5 @@ public extension DevTableSection {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-    }
-}
-
-public extension DevHashChangeSet {
-
-    /// Calculates a cell-level changeset by flattening all sections into a single sequence.
-    ///
-    /// - Note: This is most reliable for **single-section** tables. For multi-section tables
-    ///   the resulting index paths may not reflect actual per-section positions — use
-    ///   `Array.asSnapshot()` and `NSDiffableDataSourceSnapshot` instead, which handles
-    ///   multi-section diffing correctly.
-    static func calculateCellChangeSet<Element: DevTableSection>(
-        old: [Element],
-        new: [Element]
-    ) -> DevHashChangeSet {
-        let oldCells = old.flatMap { $0.cells }
-        let newCells = new.flatMap { $0.cells }
-        return DevHashChangeSet.calculateChangeSet(old: oldCells, new: newCells)
     }
 }
