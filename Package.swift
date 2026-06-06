@@ -64,7 +64,7 @@ let package = Package(
             dependencies: ["DevToolsCore"]),
         .target(
             name: "DevToolsWebView",
-            dependencies: ["DevToolsCore"]),
+            dependencies: []),
         .target(
             name: "DevToolsXCTest",
             dependencies: ["DevToolsCore"],
