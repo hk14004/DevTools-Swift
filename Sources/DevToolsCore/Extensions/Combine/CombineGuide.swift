@@ -303,7 +303,65 @@
 
 
 // ============================================================
-// MARK: - 8. Bind to UI (weakAssign vs assign)
+// MARK: - 8. Run N requests in parallel
+// ============================================================
+//
+//  Problem: Publishers.Zip only supports up to 4 publishers.
+//           For N requests you need zipAll() (DevToolsCore extension).
+//
+//  Operator: zipAll()  (DevToolsCore extension)
+//  Use when: you have an array of publishers (same type) and want ONE result
+//            array back, after ALL have completed, in INPUT order.
+//
+//  // ❌ Does not compile beyond 4 publishers
+//  Publishers.Zip(p0, p1, p2, p3, p4 ...)
+//
+//  // ✅ Works for any N
+//  let publishers = postIDs.map { id in api.fetchPost(id: id) }
+//
+//  publishers
+//      .zipAll()                          // AnyPublisher<[Post], Error>
+//      .receive(on: DispatchQueue.main)
+//      .sink(receiveValue: { self.posts = $0 },
+//            completionError: { self.error = $0 })
+//      .store(in: &cancellables)
+//
+//  Key properties:
+//  - All requests start simultaneously (parallel, not sequential)
+//  - Results are in INPUT order, not completion order
+//  - If ONE fails, the whole chain fails immediately
+//
+// ─────────────────────────────────────────────────────────────
+//
+//  Alternative: async/await with withThrowingTaskGroup
+//  For one-shot parallel fetching on iOS 17+, this is often simpler.
+//  Use it when you are in an async context already.
+//
+//  func fetchPosts(ids: [Int]) async throws -> [Post] {
+//      try await withThrowingTaskGroup(of: (Int, Post).self) { group in
+//          for (index, id) in ids.enumerated() {
+//              group.addTask { (index, try await api.fetchPost(id: id)) }
+//          }
+//          var results = [(Int, Post)]()
+//          for try await pair in group { results.append(pair) }
+//          return results.sorted { $0.0 < $1.0 }.map { $0.1 }
+//      }
+//  }
+//
+//  Combine zipAll vs async/await taskGroup:
+//  ┌────────────────────┬───────────────┬──────────────────┐
+//  │                    │   zipAll()    │  withTaskGroup   │
+//  ├────────────────────┼───────────────┼──────────────────┤
+//  │ Reactive pipeline  │      ✅       │       ❌         │
+//  │ Combine chain      │      ✅       │       ❌         │
+//  │ One-shot fetch     │      ✅       │       ✅         │
+//  │ Very large N (100+)│      ⚠️       │       ✅         │
+//  │ Backpressure       │      ✅       │       ❌         │
+//  └────────────────────┴───────────────┴──────────────────┘
+
+
+// ============================================================
+// MARK: - 9. Bind to UI (weakAssign vs assign)
 // ============================================================
 //
 //  Operator: weakAssign  (DevToolsCore extension)
