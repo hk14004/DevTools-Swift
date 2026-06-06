@@ -14,11 +14,11 @@ public extension AnyPublisher {
         Fail(error: error).eraseToAnyPublisher()
     }
     
-    func mapToVoid() -> Publishers.Map<AnyPublisher<Output, Failure>, Void> {
-        map { _ in () }
+    func mapToVoid() -> AnyPublisher<Void, Failure> {
+        map { _ in () }.eraseToAnyPublisher()
     }
-    
-    func mapTo(_ output: Output) -> Publishers.Map<AnyPublisher<Output, Failure>, Output> {
-        map { _ in output }
+
+    func mapTo(_ output: Output) -> AnyPublisher<Output, Failure> {
+        map { _ in output }.eraseToAnyPublisher()
     }
 }
