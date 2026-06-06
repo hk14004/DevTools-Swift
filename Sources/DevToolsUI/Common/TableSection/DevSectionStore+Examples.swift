@@ -1,231 +1,378 @@
 //
 //  DevSectionStore+Examples.swift
 //
-//  Usage examples for DevSectionStore — not compiled into production code.
-//  Read this file to understand common patterns.
+//  Documented usage patterns for DevSectionStore.
+//
+//  Open this file in Xcode — the Preview canvas (Editor ▸ Canvas, or ⌥⌘↩)
+//  shows four live examples without needing a host project.
 //
 
-// MARK: - Example 1: Static multi-section profile screen
+// MARK: - Example 1: Static multi-section screen
 //
-// A profile screen with a fixed set of sections whose existence is known
-// at compile time. The simplest case.
+// A profile screen with a known, fixed set of sections.
+// All section IDs are defined upfront; cells are populated asynchronously.
 //
 // ┌─────────────────────────────────────────────────────────────┐
-// │  [Avatar]  John Doe  · @johndoe            ← header        │
+// │  Header      [Avatar]  John Doe · @johndoe                 │
 // │──────────────────────────────────────────────────────────── │
-// │  Posts: 120   Followers: 4.2k   Following: 310  ← stats    │
+// │  Stats       Posts 120 · Followers 4.2k · Following 310    │
 // │──────────────────────────────────────────────────────────── │
-// │  Post 1                                    ← posts         │
-// │  Post 2                                                     │
+// │  Posts       Post 1                                        │
+// │              Post 2                                        │
 // └─────────────────────────────────────────────────────────────┘
-
-/*
-
-import UIKit
-import Combine
-
-// MARK: Models
-
-struct ProfileSection: DevTableSection {
-
-    enum SectionID: Hashable {
-        case header
-        case stats
-        case posts
-    }
-
-    enum Cell: DevTableSectionCell {
-        case avatar(AvatarViewModel)
-        case stat(StatViewModel)
-        case post(PostViewModel)
-    }
-
-    var id: SectionID
-    var title: String? { nil }      // computed — no mutability required
-    var cells: [Cell]
-}
-
-// MARK: ViewModel
-
-final class ProfileViewModel {
-
-    @Published private(set) var store = DevSectionStore<ProfileSection>()
-
-    init() {
-        // Pre-populate with empty sections so the order is established upfront.
-        store.set(ProfileSection(id: .header, cells: []))
-        store.set(ProfileSection(id: .stats,  cells: []))
-        store.set(ProfileSection(id: .posts,  cells: []))
-    }
-
-    func userLoaded(_ user: User) {
-        // Atomic update — only cells are touched, section identity and order unchanged.
-        store.updateCells(id: .header) { cells in
-            cells = [.avatar(AvatarViewModel(user: user))]
-        }
-        store.updateCells(id: .stats) { cells in
-            cells = user.stats.map { .stat(StatViewModel($0)) }
-        }
-    }
-
-    func postsLoaded(_ posts: [Post]) {
-        store.updateCells(id: .posts) { cells in
-            cells = posts.map { .post(PostViewModel($0)) }
-        }
-    }
-}
-
-// MARK: ViewController
-
-final class ProfileViewController: UIViewController {
-
-    private var dataSource: UITableViewDiffableDataSource<ProfileSection.SectionID, ProfileSection.Cell>!
-    private var cancellables: Set<AnyCancellable> = []
-    private let viewModel: ProfileViewModel
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        bindStore()
-    }
-
-    private func bindStore() {
-        viewModel.$store
-            .map { $0.asSnapshot() }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] snapshot in
-                self?.dataSource.apply(snapshot, animatingDifferences: true)
-            }
-            .store(in: &cancellables)
-    }
-}
-
-*/
+//
+//  struct ProfileSection: DevTableSection {
+//      enum SectionID: Hashable { case header, stats, posts }
+//      enum Cell: DevTableSectionCell {
+//          case avatar(AvatarViewModel)
+//          case stat(StatViewModel)
+//          case post(PostViewModel)
+//      }
+//      var id: SectionID
+//      var title: String? { nil }
+//      var cells: [Cell]
+//  }
+//
+//  final class ProfileViewModel {
+//      @Published private(set) var store = DevSectionStore<ProfileSection>()
+//
+//      init() {
+//          // Establish order immediately; cells arrive later.
+//          store.set(ProfileSection(id: .header, cells: []))
+//          store.set(ProfileSection(id: .stats,  cells: []))
+//          store.set(ProfileSection(id: .posts,  cells: []))
+//      }
+//
+//      func userLoaded(_ user: User) {
+//          store.updateCells(id: .header) { $0 = [.avatar(AvatarViewModel(user))] }
+//          store.updateCells(id: .stats)  { $0 = user.stats.map { .stat(StatViewModel($0)) } }
+//      }
+//
+//      func postsLoaded(_ posts: [Post]) {
+//          store.updateCells(id: .posts) { $0 = posts.map { .post(PostViewModel($0)) } }
+//      }
+//  }
+//
+//  // ViewController — single binding drives all sections
+//  viewModel.$store
+//      .map { $0.asSnapshot() }
+//      .receive(on: DispatchQueue.main)
+//      .sink { [weak self] in self?.dataSource.apply($0, animatingDifferences: true) }
+//      .store(in: &cancellables)
 
 
 // MARK: - Example 2: Dynamic sections with associated values
 //
-// A feed screen where sections come from an API and may carry a server-side
-// category ID. CaseIterable was impossible for this; Hashable-only works fine.
+// Sections come from an API and carry a server-side ID.
+// CaseIterable was impossible here; Hashable-only works fine.
 //
-// ┌─────────────────────────────────────────────────────────────┐
-// │  Featured                                  ← static        │
-// │──────────────────────────────────────────────────────────── │
-// │  Category: "Swift"       (id: 42)          ← dynamic       │
-// │  Category: "SwiftUI"     (id: 17)          ← dynamic       │
-// │──────────────────────────────────────────────────────────── │
-// │  Footer                                    ← static        │
-// └─────────────────────────────────────────────────────────────┘
-
-/*
-
-struct FeedSection: DevTableSection {
-
-    // ✅ Associated value — impossible with the old CaseIterable constraint.
-    enum SectionID: Hashable {
-        case featured
-        case category(Int)   // server-provided category ID
-        case footer
-    }
-
-    enum Cell: DevTableSectionCell {
-        case post(PostViewModel)
-        case categoryHeader(CategoryViewModel)
-        case footerAction
-    }
-
-    var id: SectionID
-    var title: String? { nil }
-    var cells: [Cell]
-}
-
-final class FeedViewModel {
-
-    @Published private(set) var store = DevSectionStore<FeedSection>()
-
-    func load(featuredPosts: [Post], categories: [Category]) {
-        // 1. Set static bookend sections at known positions.
-        store.set(FeedSection(id: .featured, cells: featuredPosts.map { .post(PostViewModel($0)) }), at: 0)
-        store.set(FeedSection(id: .footer,   cells: [.footerAction]))
-
-        // 2. Insert dynamic category sections between them.
-        let insertionStart = 1
-        for (offset, category) in categories.enumerated() {
-            let section = FeedSection(
-                id: .category(category.id),
-                cells: [.categoryHeader(CategoryViewModel(category))]
-            )
-            store.set(section, at: insertionStart + offset)
-        }
-
-        // Footer was appended last — move it back to the end.
-        store.move(id: .footer, to: store.count - 1)
-    }
-
-    // Remove a category section when the user hides it.
-    func hideCategory(id: Int) {
-        store.remove(id: .category(id))
-    }
-}
-
-*/
+//  struct FeedSection: DevTableSection {
+//      enum SectionID: Hashable {
+//          case featured
+//          case category(Int)   // ✅ associated value — impossible with old CaseIterable constraint
+//          case footer
+//      }
+//      enum Cell: DevTableSectionCell { case post(PostViewModel); case footerAction }
+//      var id: SectionID
+//      var title: String?
+//      var cells: [Cell]
+//  }
+//
+//  func loaded(featured: [Post], categories: [(id: Int, name: String, posts: [Post])]) {
+//      store.set(FeedSection(id: .featured, title: "Featured",
+//                            cells: featured.map { .post(PostViewModel($0)) }), at: 0)
+//      store.set(FeedSection(id: .footer, title: nil, cells: [.footerAction]))
+//      for (offset, cat) in categories.enumerated() {
+//          store.set(FeedSection(id: .category(cat.id), title: cat.name,
+//                               cells: cat.posts.map { .post(PostViewModel($0)) }),
+//                    at: 1 + offset)
+//      }
+//      store.move(id: .footer, to: store.count - 1)
+//  }
 
 
 // MARK: - Example 3: Conditional section visibility
 //
-// A checkout screen where sections appear or disappear based on state.
-// "Promotions" only shows if there are active promos; "Summary" is always last.
+// "Promotions" only appears when promos exist — no sentinel empty sections needed.
+//
+//  func applyState(_ state: CheckoutState) {
+//      store.set(CheckoutSection(id: .cart,     cells: state.items.map   { .cartItem($0) }))
+//      store.set(CheckoutSection(id: .delivery, cells: state.options.map { .delivery($0) }))
+//      store.set(CheckoutSection(id: .summary,  cells: [.total(state.total)]))
+//
+//      if state.promos.isEmpty {
+//          store.remove(id: .promotions)
+//      } else {
+//          store.set(CheckoutSection(id: .promotions,
+//                                   cells: state.promos.map { .promo($0) }), at: 1)
+//      }
+//  }
 
-/*
 
-struct CheckoutSection: DevTableSection {
+// MARK: - Example 4: Atomic cell update (updateCells)
+//
+// Update only one section's cells without replacing the whole section.
+// Typical pattern: a row with a button that triggers a live data refresh.
+//
+//  func refreshTimestamp() {
+//      store.updateCells(id: .liveData) { cells in
+//          cells = cells.map { cell in
+//              if case .timestamp(let id, let label, _) = cell {
+//                  return .timestamp(id: id, label: label, time: Date())
+//              }
+//              return cell
+//          }
+//      }
+//  }
 
-    enum SectionID: Hashable {
-        case cart
-        case promotions
-        case delivery
-        case summary
-    }
 
-    enum Cell: DevTableSectionCell {
-        case cartItem(CartItemViewModel)
-        case promo(PromoViewModel)
-        case deliveryOption(DeliveryViewModel)
-        case orderTotal(TotalViewModel)
-    }
+// MARK: - Xcode Previews
+//
+// All types are private and self-contained — no host project needed.
+// Open the canvas: Editor ▸ Canvas (⌥⌘↩)
 
-    var id: SectionID
-    var title: String? {
-        switch id {
-        case .cart:        return "Your Cart"
-        case .promotions:  return "Promotions"
-        case .delivery:    return "Delivery"
-        case .summary:     return nil
+#if DEBUG
+import SwiftUI
+
+// MARK: Preview cell enum
+//
+// Using an enum mirrors real-world usage where each case maps to a distinct cell type.
+// The ViewController's cellProvider switches on these cases to dequeue the right cell.
+
+private enum _Cell: DevTableSectionCell {
+
+    case text(id: String, title: String, detail: String?)
+    case timestamp(id: String, label: String, time: Date?)
+    case actionButton(id: String, label: String)
+
+    // Identity: section positions, not content
+    fileprivate var _id: String {
+        switch self {
+        case .text(let id, _, _):         return "text_\(id)"
+        case .timestamp(let id, _, _):    return "ts_\(id)"
+        case .actionButton(let id, _):    return "btn_\(id)"
         }
     }
-    var cells: [Cell]
+
+    // Content hash: all fields — drives diffable data source reload decisions
+    var contentHash: Int {
+        var h = Hasher()
+        switch self {
+        case .text(let id, let title, let detail):
+            h.combine(id); h.combine(title); h.combine(detail)
+        case .timestamp(let id, let label, let time):
+            h.combine(id); h.combine(label); h.combine(time)
+        case .actionButton(let id, let label):
+            h.combine(id); h.combine(label)
+        }
+        return h.finalize()
+    }
+
+    static func == (l: Self, r: Self) -> Bool { l._id == r._id }
+    func hash(into h: inout Hasher) { h.combine(_id) }
 }
 
-final class CheckoutViewModel {
+// MARK: Preview section
 
-    @Published private(set) var store = DevSectionStore<CheckoutSection>()
+private enum _SectionID: Hashable {
+    case header
+    case category(Int)   // demonstrates associated-value SectionID
+    case liveData
+    case footer
+}
 
-    func applyState(_ state: CheckoutState) {
-        // Always-present sections
-        store.set(CheckoutSection(id: .cart,     cells: state.items.map    { .cartItem($0) }))
-        store.set(CheckoutSection(id: .delivery, cells: state.options.map  { .deliveryOption($0) }))
-        store.set(CheckoutSection(id: .summary,  cells: [.orderTotal(TotalViewModel(state.total))]))
+private struct _Section: DevTableSection {
+    var id: _SectionID
+    var title: String?
+    var cells: [_Cell]
+}
 
-        // Conditional section — add or remove based on data.
-        if state.promos.isEmpty {
-            store.remove(id: .promotions)
-        } else {
-            // Insert between cart and delivery (index 1).
-            store.set(
-                CheckoutSection(id: .promotions, cells: state.promos.map { .promo($0) }),
-                at: 1
-            )
+// MARK: Shared SwiftUI renderer
+//
+// Renders each _Cell case differently — mirrors how a real UITableView
+// cellProvider switches on Cell cases to dequeue the right cell class.
+
+private struct StorePreview: View {
+    let store: DevSectionStore<_Section>
+    var onAction: ((_SectionID, String) -> Void)? = nil   // (sectionID, buttonID)
+
+    var body: some View {
+        List {
+            ForEach(store.sections, id: \.id) { section in
+                Section(header: Text(section.title ?? "").textCase(nil)) {
+                    ForEach(section.cells, id: \._id) { cell in
+                        cellView(cell, inSection: section.id)
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+    }
+
+    @ViewBuilder
+    private func cellView(_ cell: _Cell, inSection sectionID: _SectionID) -> some View {
+        switch cell {
+
+        case .text(_, let title, let detail):
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                if let detail {
+                    Text(detail).font(.caption).foregroundColor(.secondary)
+                }
+            }
+            .padding(.vertical, 2)
+
+        case .timestamp(_, let label, let time):
+            HStack {
+                Text(label)
+                Spacer()
+                Text(time.map(timeString) ?? "—")
+                    .font(.caption.monospacedDigit())
+                    .foregroundColor(time == nil ? .secondary : .primary)
+                    .contentTransition(.numericText())
+            }
+
+        case .actionButton(let id, let label):
+            Button {
+                onAction?(sectionID, id)
+            } label: {
+                Text(label)
+                    .foregroundColor(.accentColor)
+            }
+        }
+    }
+
+    private func timeString(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm:ss"
+        return f.string(from: date)
+    }
+}
+
+// MARK: Preview 1 — Static multi-section feed
+
+#Preview("Static sections") {
+    var store = DevSectionStore<_Section>()
+    store.set(_Section(id: .header, title: "Featured", cells: [
+        .text(id: "p1", title: "Mastering Swift Concurrency",     detail: "by @johndoe"),
+        .text(id: "p2", title: "Building Great APIs",              detail: "by @janedoe"),
+    ]))
+    store.set(_Section(id: .category(42), title: "Swift", cells: [
+        .text(id: "p3", title: "Swift 6 Migration Guide",          detail: nil),
+        .text(id: "p4", title: "Typed throws in practice",         detail: nil),
+    ]))
+    store.set(_Section(id: .category(17), title: "SwiftUI", cells: [
+        .text(id: "p5", title: "Observation framework deep-dive",  detail: nil),
+    ]))
+    store.set(_Section(id: .footer, title: nil, cells: [
+        .text(id: "load", title: "Load more…",                     detail: nil),
+    ]))
+    return StorePreview(store: store)
+}
+
+// MARK: Preview 2 — Interactive: atomic cell update via button
+//
+// Demonstrates store.updateCells(id:transform:).
+//
+// Uses @StateObject + ObservableObject rather than plain @State because
+// @State with a mutating struct inside nested ForEach closures is unreliable
+// in Xcode previews — the mutation sometimes doesn't trigger a re-render.
+// @Published on a class always fires objectWillChange, which the preview
+// engine handles correctly on every tap.
+
+@MainActor
+private final class _PreviewModel: ObservableObject {
+    @Published var store: DevSectionStore<_Section>
+
+    init() {
+        var s = DevSectionStore<_Section>()
+        s.set(_Section(id: .header, title: "Other sections", cells: [
+            .text(id: "note", title: "These cells are unaffected",
+                  detail: "Tapping the button only updates the section beneath"),
+            .text(id: "info", title: "Atomic update demo",
+                  detail: "store.updateCells(id:transform:)"),
+        ]))
+        s.set(_Section(id: .liveData, title: "Live data section", cells: [
+            .text(id: "desc", title: "Timestamp cell",
+                  detail: "Only this cell's value changes"),
+            .timestamp(id: "ts", label: "Last updated", time: nil),
+        ]))
+        s.set(_Section(id: .footer, title: "Actions", cells: [
+            .actionButton(id: "stamp_btn", label: "Stamp current time ↑"),
+        ]))
+        store = s
+    }
+
+    func stampCurrentTime() {
+        store.updateCells(id: .liveData) { cells in
+            cells = cells.map { c in
+                if case .timestamp(let id, let label, _) = c {
+                    return .timestamp(id: id, label: label, time: Date())
+                }
+                return c
+            }
         }
     }
 }
 
-*/
+private struct InteractivePreview: View {
+    @StateObject private var model = _PreviewModel()
+
+    var body: some View {
+        List {
+            ForEach(model.store.sections, id: \.id) { section in
+                Section(header: Text(section.title ?? "").textCase(nil)) {
+                    ForEach(section.cells, id: \._id) { cell in
+                        cellView(cell)
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+    }
+
+    @ViewBuilder
+    private func cellView(_ cell: _Cell) -> some View {
+        switch cell {
+
+        case .text(_, let title, let detail):
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                if let detail {
+                    Text(detail).font(.caption).foregroundColor(.secondary)
+                }
+            }
+            .padding(.vertical, 2)
+
+        case .timestamp(_, let label, let time):
+            HStack {
+                Text(label)
+                Spacer()
+                Text(time.map(timeString) ?? "—")
+                    .font(.caption.monospacedDigit())
+                    .foregroundColor(time == nil ? .secondary : .primary)
+                    .contentTransition(.numericText())
+            }
+
+        case .actionButton(_, let label):
+            Button(label) {
+                withAnimation {
+                    model.stampCurrentTime()
+                }
+            }
+            .foregroundColor(.accentColor)
+        }
+    }
+
+    private func timeString(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm:ss"
+        return f.string(from: date)
+    }
+}
+
+#Preview("Interactive — atomic cell update") {
+    InteractivePreview()
+}
+
+#endif

@@ -171,8 +171,9 @@ public struct DevSectionStore<S: DevTableSection> {
     /// }
     /// ```
     public mutating func updateCells(id: S.SectionID, transform: (inout [S.Cell]) -> Void) {
-        guard storage[id] != nil else { return }
-        transform(&storage[id]!.cells)
+        guard var section = storage[id] else { return }
+        transform(&section.cells)
+        storage[id] = section
     }
 
     /// Removes all sections from the store.
