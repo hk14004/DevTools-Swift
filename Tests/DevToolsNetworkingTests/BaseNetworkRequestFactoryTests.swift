@@ -1,46 +1,43 @@
-//
-//  BaseNetworkRequestFactoryTests.swift
-//
-//
-//  Created by Hardijs Ķirsis on 14/08/2024.
-//
-
 import XCTest
 import Combine
 import DevToolsNetworking
 
 final class BaseNetworkRequestFactoryTests: XCTestCase {
     private var sut: BaseNetworkRequestFactory!
-    
+
     override func setUpWithError() throws {
-        sut = makeSUT()
+        sut = BaseNetworkRequestFactory()
     }
 
-    private func makeSUT() -> BaseNetworkRequestFactory {
-        BaseNetworkRequestFactory()
-    }
-    
-    func testRequestIsCreatedWithConfig() {
-        DevHTTPMethod.allCases.forEach { method in
-            runTestUrlRequestCreation(
+    func testRequestIsCreatedWithConfig() throws {
+        try DevHTTPMethod.allCases.forEach { method in
+            try runTestUrlRequestCreation(
                 config: MockDevRequestConfig.mock(
                     method: method,
                     bodyParameters: makeValidJSON().data(using: .unicode),
-                    headers: ["key" : "value"],
+                    headers: ["key": "value"],
                     requiresAuthorization: false,
                     timeoutInterval: 69
                 )
             )
         }
     }
-    
-    private func runTestUrlRequestCreation(config: DevRequestConfig) {
-        // Given
-        
-        // When
-        let request = sut.urlRequest(requestConfig: config, authorizationHeaders: nil)
-        
-        // Then
+
+    func testInvalidURLThrows() {
+        let config = MockDevRequestConfig.mock(
+            baseURL: "",
+            method: .get
+        )
+        XCTAssertThrowsError(try sut.urlRequest(requestConfig: config)) { error in
+            XCTAssertTrue(error is NetworkRequestFactoryError)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func runTestUrlRequestCreation(config: DevRequestConfig) throws {
+        let request = try sut.urlRequest(requestConfig: config)
+
         XCTAssertEqual(request.timeoutInterval, config.timeoutInterval)
         XCTAssertEqual(request.url, URL(
             base: config.baseURL,
@@ -48,37 +45,16 @@ final class BaseNetworkRequestFactoryTests: XCTestCase {
             queryItems: config.queryItems
         ))
         XCTAssertEqual(request.httpMethod, config.method.rawValue)
-        
-        var expectedHeaders = makeMandatoryHeaders()
-        if let additionalHeaders = config.headers {
-            expectedHeaders.merge(additionalHeaders, uniquingKeysWith: { _, new in new })
-        }
-        XCTAssertEqual(request.allHTTPHeaderFields, expectedHeaders)
+        // mandatoryHeaders() returns [:] by default; only config headers expected
+        XCTAssertEqual(request.allHTTPHeaderFields, config.headers)
         XCTAssertEqual(request.httpBody, config.bodyParameters)
     }
-    
-    private func makeMandatoryHeaders() -> [String: String] {
-        let osVersion = UIDevice.current.systemVersion
-        let appVersion = Bundle.main.releaseVersionNumber ?? ""
-        let appBuildNumber = Bundle.main.buildVersionNumber ?? ""
-        let deviceName = UIDevice.deviceName
-        let deviceOS = "iOS"
-        
-        return [
-            "App-Version": appVersion,
-            "App-Build": appBuildNumber,
-            "Device-OS": deviceOS,
-            "Device-OS-Version": osVersion,
-            "Device-Name": deviceName,
-            "User-Agent": "App-(\(appVersion)/\(appBuildNumber))-(\(deviceOS)/\(osVersion))"
-        ]
-    }
-    
+
     private func makeValidJSON(value: String = "Hello world!") -> String {
-            """
-            {
-                "mockProperty": "\(value)",
-            }
-            """
+        """
+        {
+            "mockProperty": "\(value)",
+        }
+        """
     }
 }

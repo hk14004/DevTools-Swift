@@ -16,14 +16,13 @@ final class CoreDataStoreTests: XCTestCase {
         static let mockDBModelName = "Model"
         static let mockID = "mockID"
         static let mockName = "mockName"
-        static let queueName = "test.queue"
         static let randomSuffix = "fhsaggfhjfhjf"
     }
-    var context: NSManagedObjectContext!
+    var container: NSPersistentContainer!
     let mockDTO = MockCD_DTO(id: Constant.mockID, name: Constant.mockName)
     lazy var sut = makeSUT()
     var cancelBag: Set<AnyCancellable> = []
-    
+
     override func setUpWithError() throws {
         try super.setUpWithError()
         try configureCoreDataStack()
@@ -32,9 +31,9 @@ final class CoreDataStoreTests: XCTestCase {
 
 extension CoreDataStoreTests {
     func makeSUT() -> DevCoreDataStore<MockCD_DTO, MockCD_Converter> {
-        DevCoreDataStore(context: context, converter: MockCD_Converter())
+        DevCoreDataStore(container: container, converter: MockCD_Converter())
     }
-    
+
     func configureCoreDataStack() throws {
         guard let modelURL = Bundle.module.url(
             forResource: Constant.mockDBModelName,
@@ -47,40 +46,31 @@ extension CoreDataStoreTests {
             XCTFail("Failed to load Core Data model from test bundle")
             return
         }
-        let container = NSPersistentContainer(name: Constant.mockDBModelName, managedObjectModel: model)
+        let persistentContainer = NSPersistentContainer(
+            name: Constant.mockDBModelName,
+            managedObjectModel: model
+        )
         let description = NSPersistentStoreDescription()
         description.url = URL(fileURLWithPath: "/dev/null")
-        container.persistentStoreDescriptions = [description]
-        
-        // Semaphore to wait for async loadPersistentStores
+        persistentContainer.persistentStoreDescriptions = [description]
+
         let semaphore = DispatchSemaphore(value: 0)
-        
         var loadError: Error?
-        
-        container.loadPersistentStores { _, error in
-            if let error = error {
-                loadError = error
-            }
+        persistentContainer.loadPersistentStores { _, error in
+            loadError = error
             semaphore.signal()
         }
-        
-        // Wait for the store to load (with timeout to avoid test hang)
-        let timeout = DispatchTime.now() + .seconds(5)
-        if semaphore.wait(timeout: timeout) == .timedOut {
+        if semaphore.wait(timeout: .now() + .seconds(5)) == .timedOut {
             XCTFail("Timed out waiting for persistent store to load.")
         }
-        
-        if let error = loadError {
-            throw error
-        } else {
-            context = container.newBackgroundContext()
-        }
+        if let error = loadError { throw error }
+        container = persistentContainer
     }
-    
+
     func makeIDPredicate(_ id: String) -> NSPredicate {
         NSPredicate(format: "id == %@", id)
     }
-    
+
     func makeNamePredicate(_ name: String) -> NSPredicate {
         NSPredicate(format: "name == %@", name)
     }

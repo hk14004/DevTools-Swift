@@ -7,4 +7,4 @@
 
 import Foundation
 
-public protocol DevCoreDataInterface: DevPersistedLayerInterface where PredicateType == NSPredicate, SortType == NSSortDescriptor {}
+public protocol DevCoreDataInterface: DevSyncPersistedLayerInterface where PredicateType == NSPredicate, SortType == NSSortDescriptor {}

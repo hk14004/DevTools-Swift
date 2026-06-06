@@ -7,9 +7,11 @@
 
 import Foundation
 
-public func sanityCheck(name: String = "SANITY-CHECK", operation: ()->()) {
+#if DEBUG
+public func sanityCheck(name: String = "SANITY-CHECK", operation: () -> Void) {
     let symbols = "###########"
     print(symbols + " " + name + "-START" + " " + symbols)
     operation()
     print(symbols + " " + name + "-END" + " " + symbols)
 }
+#endif

@@ -1,20 +1,19 @@
 import Foundation
 
 public enum NetworkError: Error, Equatable {
-    case apiErrorResponse(ApiErrorResponse)
     case reachability
     case unauthorized
     case unexpected(String)
     case forbidden
     case unexpectedResponse
     case resourceNotFound
+    case maintenance
+    case sessionExpired
 }
 
 extension NetworkError: LocalizedError {
     public var errorDescription: String? {
         switch self {
-        case .apiErrorResponse(let apiError):
-            return apiError.message
         case .reachability:
             return "No internet connection."
         case .unauthorized:
@@ -27,6 +26,10 @@ extension NetworkError: LocalizedError {
             return "Unexpected server response."
         case .resourceNotFound:
             return "Resource not found."
+        case .maintenance:
+            return "Service is temporarily unavailable."
+        case .sessionExpired:
+            return "Your session has expired. Please log in again."
         }
     }
 }

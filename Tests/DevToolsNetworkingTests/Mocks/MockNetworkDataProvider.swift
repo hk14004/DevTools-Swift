@@ -12,8 +12,10 @@ import DevToolsNetworking
 class MockNetworkDataProvider: NSObject, DevNetworkDataProvider, URLSessionDelegate {
 
     var mockOutput: AnyPublisher<DevNetworkDataProvider.Output, URLError>!
-    
+    var receivedRequest: URLRequest?
+
     public func output(for request: URLRequest) -> AnyPublisher<Output, URLError> {
-        mockOutput
+        receivedRequest = request
+        return mockOutput
     }
 }

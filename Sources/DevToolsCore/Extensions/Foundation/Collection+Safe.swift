@@ -8,7 +8,28 @@
 import Foundation
 
 public extension Collection {
-    subscript (safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
+
+    /// Returns the element at the given index, or `nil` if the index is out of bounds.
+    ///
+    /// Avoids index-out-of-bounds crashes when working with arrays of unknown length,
+    /// such as URL path segments from a deep link.
+    ///
+    /// ```swift
+    /// let segments = ["product", "42", "reviews"]
+    /// segments[safe: 1]  // "42"
+    /// segments[safe: 5]  // nil
+    /// ```
+    subscript(safe index: Index) -> Element? {
+        indices.contains(index) ? self[index] : nil
     }
+
+    /// `true` if the collection contains at least one element.
+    ///
+    /// Reads more naturally than `!isEmpty` in guards and conditions:
+    ///
+    /// ```swift
+    /// guard results.isNotEmpty else { return }
+    /// sendButton.isEnabled = recipients.isNotEmpty
+    /// ```
+    var isNotEmpty: Bool { !isEmpty }
 }

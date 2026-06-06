@@ -19,23 +19,23 @@ extension SwiftDataStoreTests {
         XCTAssertNil(result)
     }
     
-    func test_readSingleSync_found() throws {
+    func test_readSingleSync_found() async throws {
         // Arrange
-        try sut.addOrUpdate([mockDTO])
+        try await sut.addOrUpdate([mockDTO])
         
         // Act
-        let result = try sut.getSingle(id: mockDTO.id)
+        let result = try await sut.getSingle(id: mockDTO.id)
         
         // Assert
         XCTAssertEqual(result, mockDTO)
     }
     
-    func test_readSingleSync_nothingFound_incorrectID() throws {
+    func test_readSingleSync_nothingFound_incorrectID() async throws {
         // Arrange
-        try sut.addOrUpdate([mockDTO])
+        try await sut.addOrUpdate([mockDTO])
         
         // Act
-        let result = try sut.getSingle(id: mockDTO.id + Constant.randomSuffix)
+        let result = try await sut.getSingle(id: mockDTO.id + Constant.randomSuffix)
         
         // Assert
         XCTAssertNil(result)

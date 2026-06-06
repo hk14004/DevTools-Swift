@@ -20,14 +20,20 @@ let package = Package(
             name: "DevToolsNetworking",
             targets: ["DevToolsNetworking"]),
         .library(
-            name: "DevToolsUI",
-            targets: ["DevToolsUI"]),
+            name: "DevToolsUIKit",
+            targets: ["DevToolsUIKit"]),
+        .library(
+            name: "DevToolsSwiftUI",
+            targets: ["DevToolsSwiftUI"]),
         .library(
             name: "DevToolsPersistance",
             targets: ["DevToolsPersistance"]),
         .library(
             name: "DevToolsLocalization",
             targets: ["DevToolsLocalization"]),
+        .library(
+            name: "DevToolsWebView",
+            targets: ["DevToolsWebView"]),
         .library(
             name: "DevToolsXCTest",
             targets: ["DevToolsXCTest"]),
@@ -51,7 +57,10 @@ let package = Package(
                 .product(name: "Reachability", package: "Reachability.swift")
             ]),
         .target(
-            name: "DevToolsUI",
+            name: "DevToolsUIKit",
+            dependencies: ["DevToolsCore"]),
+        .target(
+            name: "DevToolsSwiftUI",
             dependencies: ["DevToolsCore"]),
         .target(
             name: "DevToolsPersistance",
@@ -60,9 +69,15 @@ let package = Package(
             name: "DevToolsLocalization",
             dependencies: ["DevToolsCore"]),
         .target(
+            name: "DevToolsWebView",
+            dependencies: []),
+        .target(
             name: "DevToolsXCTest",
             dependencies: ["DevToolsCore"],
             linkerSettings: [
+                // XCTest is not automatically linked on iOS when consumed as a library target
+                // (as opposed to a test target). This explicit link makes the framework
+                // available to app test targets that import DevToolsXCTest.
                 .linkedFramework("XCTest", .when(platforms: [.iOS]))
             ]
         ),
@@ -74,6 +89,12 @@ let package = Package(
             dependencies: ["DevToolsCore"]),
         .testTarget(
             name: "DevToolsPersistanceTests",
-            dependencies: ["DevToolsPersistance", "DevToolsCore"])
+            dependencies: ["DevToolsPersistance", "DevToolsCore"]),
+        .testTarget(
+            name: "DevToolsNavigationTests",
+            dependencies: ["DevToolsNavigation", "DevToolsCore"]),
+        .testTarget(
+            name: "DevToolsLocalizationTests",
+            dependencies: ["DevToolsLocalization"])
     ]
 )

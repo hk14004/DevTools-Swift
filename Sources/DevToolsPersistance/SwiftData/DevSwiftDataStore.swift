@@ -10,7 +10,6 @@ import SwiftData
 @preconcurrency import DevToolsCore
 import Combine
 
-// TODO: Implement async barrier?
 public class DevSwiftDataStore<DTO, Converter>: DevSwiftDataInterface
 where
     DTO: DevDBInterfaceDTO,
@@ -20,221 +19,195 @@ where
     Converter.DomainType == DTO,
     Converter.PersistedType == DTO.StoreType
 {
-    
+
     // MARK: Properties
-    internal let context: ModelContext
+
+    /// Read context — always accessed on the main thread.
+    /// Never written to; only used for fetches and observation.
+    internal let viewContext: ModelContext
+
+    /// Write context — always accessed via writeQueue.
+    /// Saves here commit to the persistent store; contextUpdatedPublisher
+    /// then fires on the main thread so observers re-fetch from viewContext.
+    internal let writeContext: ModelContext
+
     internal let converter: Converter
-    internal var bulkWriteInProgress = false
-    internal let queue: DispatchQueue
-    internal let isMainQueue: Bool
     internal let contextUpdatedPublisher = PassthroughSubject<Void, Never>()
-    
-    // MARK: LifeCycle
-    public init(
-        container: ModelContainer,
-        converter: Converter,
-        queue: DispatchQueue
-    ) {
+
+    /// Serial queue that serialises all write operations and protects bulkWriteInProgress.
+    private let writeQueue = DispatchQueue(
+        label: "com.devtools.swiftdata.write",
+        qos: .userInitiated
+    )
+
+    /// Only ever read or written from within writeQueue — serial queue provides safety.
+    private var bulkWriteInProgress = false
+
+    // MARK: Init
+
+    /// Must be called on the main thread so that viewContext is created in the correct context.
+    public init(container: ModelContainer, converter: Converter) {
+        precondition(Thread.isMainThread, "DevSwiftDataStore must be initialised on the main thread")
         self.converter = converter
-        self.queue = queue
-        self.isMainQueue = queue == .main
-        if isMainQueue {
-            self.context = ModelContext(container)
-        } else {
-            self.context = queue.sync { ModelContext(container) }
-        }
+        self.viewContext = ModelContext(container)
+        self.writeContext = writeQueue.sync { ModelContext(container) }
     }
-    
-    // MARK: Read/Single
+
+    // MARK: Read / Single
+
     public func getSingle(id: String) throws -> DTO? {
-        try syncOperation {
-            try performFetch(id: id)
-        }
+        try performFetch(id: id)
     }
-    
-    // MARK: – Read / Single (async)
+
     public func getSingle(id: String) async throws -> DTO? {
-        try await withCheckedThrowingContinuation { cont in
-            queue.async {
-                do {
-                    cont.resume(returning: try self.performFetch(id: id))
-                } catch {
-                    cont.resume(throwing: error)
-                }
-            }
-        }
+        try await MainActor.run { try self.performFetch(id: id) }
     }
-    
-    // MARK: Read/List
+
+    // MARK: Read / List
+
     public func getList(
         predicate: Predicate<DTO.StoreType>? = nil,
         sortDescriptors: [SortDescriptor<DTO.StoreType>] = SortDescriptor<DTO.StoreType>.defaultSortDescriptors
     ) throws -> [DTO] {
-        try syncOperation {
-            try performFetchList(
-                predicate: predicate,
-                sortDescriptors: sortDescriptors
-            )
-        }
+        try performFetchList(predicate: predicate, sortDescriptors: sortDescriptors)
     }
-    
+
     public func getList(
         predicate: Predicate<DTO.StoreType>? = nil,
         sortDescriptors: [SortDescriptor<DTO.StoreType>] = SortDescriptor<DTO.StoreType>.defaultSortDescriptors
     ) async throws -> [DTO] {
-        try await withCheckedThrowingContinuation { cont in
-            queue.async {
-                do {
-                    let items = try self.performFetchList(
-                        predicate: predicate,
-                        sortDescriptors: sortDescriptors
-                    )
-                    cont.resume(returning: items)
-                } catch {
-                    cont.resume(throwing: error)
-                }
-            }
+        try await MainActor.run {
+            try self.performFetchList(predicate: predicate, sortDescriptors: sortDescriptors)
         }
     }
-    
-    // MARK: Read/Page
+
+    // MARK: Read / Page
+
     public func getListPage(
         pageOptions: DevPagedRequestOptions,
         predicate: Predicate<DTO.StoreType>? = nil,
         sortDescriptors: [SortDescriptor<DTO.StoreType>] = SortDescriptor<DTO.StoreType>.defaultSortDescriptors
     ) throws -> DevPagedResult<DTO> {
-        try syncOperation {
-            try performFetchPage(
-                pageOptions,
-                predicate: predicate,
-                sortDescriptors: sortDescriptors
-            )
-        }
+        try performFetchPage(pageOptions, predicate: predicate, sortDescriptors: sortDescriptors)
     }
-    
+
     public func getListPage(
         pageOptions: DevPagedRequestOptions,
         predicate: Predicate<DTO.StoreType>? = nil,
         sortDescriptors: [SortDescriptor<DTO.StoreType>] = SortDescriptor<DTO.StoreType>.defaultSortDescriptors
     ) async throws -> DevPagedResult<DTO> {
-        try await withCheckedThrowingContinuation { cont in
-            queue.async {
-                do {
-                    let result = try self.performFetchPage(
-                        pageOptions,
-                        predicate: predicate,
-                        sortDescriptors: sortDescriptors
-                    )
-                    cont.resume(returning: result)
-                } catch {
-                    cont.resume(throwing: error)
-                }
-            }
+        try await MainActor.run {
+            try self.performFetchPage(pageOptions, predicate: predicate, sortDescriptors: sortDescriptors)
         }
     }
-    
-    // MARK: Read/Observe
+
+    // MARK: Read / Observe
+
     public func observeSingle(id: String) -> AnyPublisher<DTO?, Error> {
         makeObservable { try self.getSingle(id: id) }
     }
-    
+
     public func observeList(
         predicate: Predicate<DTO.StoreType>? = nil,
         sortDescriptors: [SortDescriptor<DTO.StoreType>] = SortDescriptor<DTO.StoreType>.defaultSortDescriptors
     ) -> AnyPublisher<[DTO], Error> {
         makeObservable {
-            try self.getList(
-                predicate: predicate,
-                sortDescriptors: sortDescriptors
-            )
+            try self.getList(predicate: predicate, sortDescriptors: sortDescriptors)
         }
     }
-    
-    // MARK: Write/Amend
-    public func addOrUpdate(_ items: [DTO]) throws {
-        try syncOperation {
-            try performAddOrUpdate(items)
-        }
-    }
-    
+
+    // MARK: Write
+
     public func addOrUpdate(_ items: [DTO]) async throws {
-        try await withCheckedThrowingContinuation { continuation in
-            queue.async {
-                do {
-                    try self.performAddOrUpdate(items)
-                    continuation.resume()
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-            }
-        }
+        try await performWrite { try self.performAddOrUpdate(items) }
     }
-    
-    // MARK: Write/Delete
-    public func delete(_ itemIds: [String]) throws {
-        try syncOperation {
-            try performDelete(itemIds)
-        }
-    }
-    
+
     public func delete(_ itemIds: [String]) async throws {
-        try await withCheckedThrowingContinuation { continuation in
-            queue.async {
-                do {
-                    try self.performDelete(itemIds)
-                    continuation.resume()
-                } catch {
-                    continuation.resume(throwing: error)
-                }
+        try await performWrite { try self.performDelete(itemIds) }
+    }
+
+    public func replace(with items: [DTO]) async throws {
+        try await performWrite { try self.performReplace(items) }
+    }
+
+    // MARK: Write / Bulk
+
+    /// Groups multiple writes into a single save, firing observers exactly once at the end.
+    /// Call the store's normal async write methods inside the block.
+    public func bulkWrite(block: @escaping () async throws -> Void) async throws {
+        await withCheckedContinuation { cont in
+            writeQueue.async {
+                self.bulkWriteInProgress = true
+                cont.resume()
             }
         }
-    }
-    
-    // MARK: Write/Replace
-    public func replace(with items: [DTO]) throws {
-        try syncOperation {
-            try performReplace(items)
+        do {
+            try await block()
+        } catch {
+            await withCheckedContinuation { cont in
+                writeQueue.async {
+                    if self.writeContext.hasChanges { self.writeContext.rollback() }
+                    self.bulkWriteInProgress = false
+                    cont.resume()
+                }
+            }
+            throw error
         }
-    }
-    
-    public func replace(with items: [DTO]) async throws {
         try await withCheckedThrowingContinuation { cont in
-            queue.async {
+            writeQueue.async {
                 do {
-                    try self.performReplace(items)
+                    try self.attemptSave()
+                    self.bulkWriteInProgress = false
                     cont.resume()
                 } catch {
                     cont.resume(throwing: error)
                 }
             }
         }
+        await MainActor.run { self.contextUpdatedPublisher.send(()) }
     }
-    
-    // MARK: Write/Bulk
-    public func bulkWrite(block: @escaping () throws -> Void) throws {
-        try syncOperation {
-            try performBulkWriteOperation(block)
-        }
-    }
-    
-    public func bulkWrite(block: @escaping () throws -> Void) async throws {
-        try await withCheckedThrowingContinuation { continuation in
-            queue.async {
+
+    // MARK: Private
+
+    /// Runs an operation on writeQueue, saves if not in a bulk write, and notifies observers.
+    private func performWrite(_ operation: @escaping () throws -> Void) async throws {
+        let saved = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Bool, Error>) in
+            writeQueue.async {
                 do {
-                    try self.performBulkWriteOperation(block)
-                    continuation.resume()
+                    try operation()
+                    if !self.bulkWriteInProgress {
+                        try self.attemptSave()
+                        cont.resume(returning: true)
+                    } else {
+                        cont.resume(returning: false)
+                    }
                 } catch {
-                    continuation.resume(throwing: error)
+                    cont.resume(throwing: error)
                 }
             }
         }
+        if saved {
+            await MainActor.run { self.contextUpdatedPublisher.send(()) }
+        }
+    }
+
+    private func makeObservable<Output>(_ fetch: @escaping () throws -> Output) -> AnyPublisher<Output, Error> {
+        contextUpdatedPublisher
+            .prepend(())
+            .receive(on: DispatchQueue.main)
+            .tryMap { _ in try fetch() }
+            .eraseToAnyPublisher()
     }
 }
 
+// @unchecked Sendable is required because ModelContext is not Sendable.
+// Thread safety is enforced by design:
+//   - viewContext is only ever accessed on the main thread
+//   - writeContext and bulkWriteInProgress are only ever accessed on writeQueue
 extension DevSwiftDataStore: @unchecked Sendable {}
 
 extension SortDescriptor where Compared: DevDBStoredObject, Compared.ID == String {
     public static var defaultSortDescriptors: [SortDescriptor<Compared>] {
-        [ .init(\.id, comparator: .localizedStandard) ]
+        [.init(\.id, comparator: .localizedStandard)]
     }
 }

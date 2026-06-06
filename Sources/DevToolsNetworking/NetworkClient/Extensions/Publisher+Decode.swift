@@ -1,16 +1,10 @@
 import Combine
 import Foundation
-import OSLog
 
 extension Publisher where Output == URLSession.DataTaskPublisher.Output {
-    // swiftlint:disable:next function_default_parameter_at_end
-    public func decode<T>(
-        as type: T.Type = T.self,
-        when request: URLRequest
-    ) -> AnyPublisher<T, Error> where T: Codable {
+    public func decode<T>(as type: T.Type = T.self) -> AnyPublisher<T, Error> where T: Codable {
         tryMap { data -> T in
             do {
-                Logger.logResponse(data)
                 guard
                     let response = data.response as? HTTPURLResponse,
                     200..<300 ~= response.statusCode
@@ -33,7 +27,6 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
             return error
         }
         if error.isReachabilityError {
-            Logger.logNoResponse(error: error)
             return NetworkError.reachability
         }
         return NetworkError.unexpected(error.localizedDescription)
@@ -52,12 +45,7 @@ extension Publisher where Output == URLSession.DataTaskPublisher.Output {
         case 404:
             return .resourceNotFound
         default:
-            do {
-                let apiError = try JSONDecoder().decode(ApiErrorResponse.self, from: data)
-                return .apiErrorResponse(apiError)
-            } catch {
-                return .unexpectedResponse
-            }
+            return .unexpectedResponse
         }
     }
 }

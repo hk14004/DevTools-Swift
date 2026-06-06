@@ -9,69 +9,42 @@ import Foundation
 import XCTest
 
 extension SwiftDataStoreTests {
-    // MARK: Sync
-    // Amend
-    func test_writeSync_emptyList() throws {
-        // Arrange
-        // Act
-        try sut.addOrUpdate([])
-        // Assert
-    }
-    
-    func test_writeSync_addMultipleItems() throws {
-        // Arrange
-        let items = MockSD_DTO.mocks(count: 3)
-        // Act
-        try sut.addOrUpdate(items)
-        // Assert
-        let found = try sut.getList()
-        XCTAssertEqual(found, items)
-    }
-    
-    func test_writeSync_updateItem() throws {
-        // Arrange
-        let initialItem = MockSD_DTO(id: "0", name: "updateMe")
-        let updatedItem = MockSD_DTO(id: "0", name: "updated")
-        try sut.addOrUpdate([initialItem])
-        
-        // Act
-        try sut.addOrUpdate([updatedItem])
-        // Assert
-        
-        let found = try sut.getSingle(id: initialItem.id)
-        XCTAssertEqual(found?.name, updatedItem.name)
-    }
-    
-    // MARK: Async
-    // Amend
-    func test_writeAsync_emptyList() async throws {
-        // Arrange
-        // Act
-        try await sut.addOrUpdate([])
-        // Assert
-    }
-    
+
     func test_writeAsync_addMultipleItems() async throws {
-        // Arrange
         let items = MockSD_DTO.mocks(count: 3)
-        // Act
         try await sut.addOrUpdate(items)
-        // Assert
         let found = try await sut.getList()
         XCTAssertEqual(found, items)
     }
-    
+
     func test_writeAsync_updateItem() async throws {
-        // Arrange
         let initialItem = MockSD_DTO(id: "0", name: "updateMe")
         let updatedItem = MockSD_DTO(id: "0", name: "updated")
         try await sut.addOrUpdate([initialItem])
-        
-        // Act
         try await sut.addOrUpdate([updatedItem])
-        // Assert
-        
         let found = try await sut.getSingle(id: initialItem.id)
         XCTAssertEqual(found?.name, updatedItem.name)
+    }
+
+    func test_writeAsync_mixedUpsert() async throws {
+        let a = MockSD_DTO(id: "A", name: "a")
+        let b = MockSD_DTO(id: "B", name: "b")
+        let c = MockSD_DTO(id: "C", name: "c")
+        let bUpdated = MockSD_DTO(id: "B", name: "b-updated")
+        let d = MockSD_DTO(id: "D", name: "d")
+        try await sut.addOrUpdate([a, b, c])
+
+        try await sut.addOrUpdate([bUpdated, d])
+
+        let found = try await sut.getList()
+        let foundA = try await sut.getSingle(id: "A")
+        let foundB = try await sut.getSingle(id: "B")
+        let foundC = try await sut.getSingle(id: "C")
+        let foundD = try await sut.getSingle(id: "D")
+        XCTAssertEqual(found.count, 4)
+        XCTAssertEqual(foundA, a)
+        XCTAssertEqual(foundB, bUpdated)
+        XCTAssertEqual(foundC, c)
+        XCTAssertEqual(foundD, d)
     }
 }

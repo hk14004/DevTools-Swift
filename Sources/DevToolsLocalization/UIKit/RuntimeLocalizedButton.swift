@@ -5,13 +5,17 @@
 //  Created by Hardijs Ķirsis on 28/05/2023.
 //
 
+import Combine
 import UIKit
 
 open class RuntimeLocalizedButton: UIButton {
     
     // MARK: Properties
     
-    private let loc: RuntimeLocalization = RuntimeStringFileLocalization.shared
+    public var localization: RuntimeLocalization = RuntimeStringFileLocalization.shared {
+        didSet { observe() }
+    }
+    private var cancellable: AnyCancellable?
     
     @IBInspectable open var runtimeLocalizedKey: String? {
         didSet {
@@ -36,9 +40,6 @@ open class RuntimeLocalizedButton: UIButton {
         commonInit()
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
     
     //MARK: Overridden Functions
     
@@ -56,7 +57,7 @@ open class RuntimeLocalizedButton: UIButton {
 // MARK: LocalizedRuntimeComponent
 
 extension RuntimeLocalizedButton: RuntimeLocalizedUIKitComponent {
-    @objc func updateRuntimeLocalizedStrings() {
+    @objc open func updateRuntimeLocalizedStrings() {
         guard titleLabel != nil else {
             return
         }
@@ -72,6 +73,9 @@ extension RuntimeLocalizedButton: RuntimeLocalizedUIKitComponent {
 
 extension RuntimeLocalizedButton {
     private func observe() {
-        loc.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
+        cancellable = localization.observeCurrentLanguage()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.updateRuntimeLocalizedStrings() }
     }
 }
