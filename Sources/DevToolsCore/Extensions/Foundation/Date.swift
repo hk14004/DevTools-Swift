@@ -73,6 +73,25 @@ public extension Date {
         ).day ?? 0
     }
 
+    // MARK: - Display helpers
+
+    /// `true` if this date falls on today in the device's calendar.
+    var isToday: Bool { Calendar.current.isDateInToday(self) }
+
+    /// `true` if this date falls on yesterday in the device's calendar.
+    var isYesterday: Bool { Calendar.current.isDateInYesterday(self) }
+
+    /// `true` if this date falls on tomorrow in the device's calendar.
+    var isTomorrow: Bool { Calendar.current.isDateInTomorrow(self) }
+
+    /// `true` if this date and `date` fall on the same calendar day.
+    ///
+    /// - Parameter calendar: Defaults to `Calendar.current`. Pass `Calendar.utc`
+    ///   when comparing server-sent UTC timestamps.
+    func isInSameDay(as date: Date, calendar: Calendar = .current) -> Bool {
+        calendar.isDate(self, inSameDayAs: date)
+    }
+
     // MARK: - Formatting
 
     /// Returns an ISO 8601 string with full date, time, and timezone offset,
