@@ -7,6 +7,6 @@
 
 import SwiftUI
 
-extension UIColor {
+public extension UIColor {
     var swiftUIColor: Color { Color(self) }
 }

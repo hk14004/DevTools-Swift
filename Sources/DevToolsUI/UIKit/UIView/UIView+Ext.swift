@@ -15,7 +15,6 @@ public extension UIView {
         return (view as? T) ?? view.parentView(of: T.self)
     }
     
-    @available(iOS 13.4, *)
     func setMargins(direction: UIAxis, constant: CGFloat, ignoreSuperViewMargins: Bool? = nil) {
         if let ignoreSuperViewMargins = ignoreSuperViewMargins {
             preservesSuperviewLayoutMargins = !ignoreSuperViewMargins
