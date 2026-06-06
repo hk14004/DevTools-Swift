@@ -12,7 +12,7 @@ open class RuntimeLocalizedLabel: UILabel {
     
     // MARK: Properties
     
-    private let loc: RuntimeLocalization = RuntimeStringFileLocalization.shared
+    public var localization: RuntimeLocalization = RuntimeStringFileLocalization.shared
     
     @IBInspectable open var runtimeLocalizedKey: String? {
         didSet {
@@ -70,6 +70,6 @@ extension RuntimeLocalizedLabel: RuntimeLocalizedUIKitComponent {
 
 extension RuntimeLocalizedLabel {
     private func observe() {
-        loc.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
+        localization.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
     }
 }

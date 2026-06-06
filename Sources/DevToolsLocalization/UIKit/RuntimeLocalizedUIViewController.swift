@@ -11,7 +11,7 @@ open class RuntimeLocalizedUIViewController: UIViewController {
     
     // MARK: Properties
     
-    private let loc: RuntimeLocalization = RuntimeStringFileLocalization.shared
+    public var localization: RuntimeLocalization = RuntimeStringFileLocalization.shared
     
     @IBInspectable open var runtimeLocalizedTitleKey: String? {
         didSet {
@@ -49,7 +49,7 @@ open class RuntimeLocalizedUIViewController: UIViewController {
     }
     
     private func observe() {
-        loc.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
+        localization.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
     }
     
     // MARK: Public

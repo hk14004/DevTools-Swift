@@ -18,6 +18,8 @@ public protocol RuntimeLocalization {
     func change(languageCode: String)
     func observeLanguage(observer: Any, selector: Selector)
     func observeLanguage(callback: @escaping ((LanguageCode) -> ())) -> ObserverHandle
+    func stopObservingLanguage(handle: ObserverHandle)
+    func stopObservingLanguage(observer: Any)
     func observeCurrentLanguage() -> AnyPublisher<LanguageCode, Never>
     func localized(_ string: String) -> String
     func localizedFormat(_ string: String, arguments: CVarArg...) -> String

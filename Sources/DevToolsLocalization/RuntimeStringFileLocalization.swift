@@ -45,12 +45,11 @@ extension RuntimeStringFileLocalization: RuntimeLocalization {
     
     public func change(languageCode: String) {
         let selectedLanguage = getAvailableLanguages().contains(languageCode) ? languageCode : Constant.defaultLanguageCode
-        if (selectedLanguage != getCurrentLanguage()){
+        if selectedLanguage != getCurrentLanguage() {
             UserDefaults.standard.set(selectedLanguage, forKey: Constant.currentLanguageKey)
-            UserDefaults.standard.synchronize()
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constant.languageChangeNotification), object: nil)
         }
-        currentLanguagePublisher.send(languageCode)
+        currentLanguagePublisher.send(selectedLanguage)
     }
     
     public func observeCurrentLanguage() -> AnyPublisher<String, Never> {

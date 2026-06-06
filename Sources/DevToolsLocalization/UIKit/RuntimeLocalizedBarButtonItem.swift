@@ -11,7 +11,7 @@ open class RuntimeLocalizedBarButtonItem: UIBarButtonItem {
     
     // MARK: Properties
     
-    private let loc: RuntimeLocalization = RuntimeStringFileLocalization.shared
+    public var localization: RuntimeLocalization = RuntimeStringFileLocalization.shared
     
     @IBInspectable open var runtimeLocalizedKey: String? {
         didSet {
@@ -57,7 +57,7 @@ open class RuntimeLocalizedBarButtonItem: UIBarButtonItem {
 // MARK: LocalizedRuntimeComponent
 
 extension RuntimeLocalizedBarButtonItem: RuntimeLocalizedUIKitComponent {
-    @objc func updateRuntimeLocalizedStrings() {
+    @objc open func updateRuntimeLocalizedStrings() {
         title = String(
             format: runtimeLocalizedKey?.runtimeLocalized() ?? "",
             locale: Locale.current,
@@ -70,6 +70,6 @@ extension RuntimeLocalizedBarButtonItem: RuntimeLocalizedUIKitComponent {
 
 extension RuntimeLocalizedBarButtonItem {
     private func observe() {
-        loc.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
+        localization.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
     }
 }

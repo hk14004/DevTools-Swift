@@ -1,5 +1,5 @@
 //
-//  LocalizedButton.swift
+//  RuntimeLocalizedTextField.swift
 //  
 //
 //  Created by Hardijs Ķirsis on 28/05/2023.
@@ -11,7 +11,7 @@ open class RuntimeLocalizedTextField: UITextField {
     
     // MARK: Properties
     
-    private let loc: RuntimeLocalization = RuntimeStringFileLocalization.shared
+    public var localization: RuntimeLocalization = RuntimeStringFileLocalization.shared
     
     @IBInspectable open var runtimeLocalizedKey: String? {
         didSet {
@@ -69,6 +69,6 @@ extension RuntimeLocalizedTextField: RuntimeLocalizedUIKitComponent {
 
 extension RuntimeLocalizedTextField {
     private func observe() {
-        loc.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
+        localization.observeLanguage(observer: self, selector: #selector(updateRuntimeLocalizedStrings))
     }
 }

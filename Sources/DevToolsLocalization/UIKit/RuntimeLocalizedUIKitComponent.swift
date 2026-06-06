@@ -7,7 +7,8 @@
 
 import Foundation
 
-protocol RuntimeLocalizedUIKitComponent {
+public protocol RuntimeLocalizedUIKitComponent {
+    var localization: RuntimeLocalization { get set }
     var runtimeLocalizedKey: String? { get set }
     var runtimeLocalizedArguments: [CVarArg] { get set }
     func updateRuntimeLocalizedStrings()
