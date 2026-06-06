@@ -69,6 +69,9 @@ let package = Package(
             name: "DevToolsXCTest",
             dependencies: ["DevToolsCore"],
             linkerSettings: [
+                // XCTest is not automatically linked on iOS when consumed as a library target
+                // (as opposed to a test target). This explicit link makes the framework
+                // available to app test targets that import DevToolsXCTest.
                 .linkedFramework("XCTest", .when(platforms: [.iOS]))
             ]
         ),
