@@ -30,3 +30,32 @@ public extension Result {
         return nil
     }
 }
+
+// MARK: - Collection of Results
+
+public extension Collection {
+
+    /// Returns the success values from a collection of `Result`s, discarding failures.
+    ///
+    /// Useful after parallel or batch operations where some items may have
+    /// failed and you want to work with whatever succeeded.
+    ///
+    /// ```swift
+    /// let results: [Result<User, Error>] = await fetchAll(ids)
+    /// let users  = results.successes()  // [User]
+    /// let errors = results.failures()   // [Error]
+    /// ```
+    func successes<Success, Failure: Error>() -> [Success]
+    where Element == Result<Success, Failure> {
+        compactMap { try? $0.get() }
+    }
+
+    /// Returns the failure errors from a collection of `Result`s, discarding successes.
+    func failures<Success, Failure: Error>() -> [Failure]
+    where Element == Result<Success, Failure> {
+        compactMap { result in
+            guard case .failure(let error) = result else { return nil }
+            return error
+        }
+    }
+}

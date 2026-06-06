@@ -96,3 +96,51 @@ public extension Sequence {
         Dictionary(grouping: self, by: transform)
     }
 }
+
+// MARK: - KeyPath find & filter
+
+public extension Sequence {
+
+    /// Returns the first element whose value at `keyPath` equals `value`.
+    ///
+    /// ```swift
+    /// users.first(where: \.id, equals: targetID)
+    /// products.first(where: \.sku, equals: "ABC-123")
+    /// ```
+    func first<Value: Equatable>(
+        where keyPath: KeyPath<Element, Value>,
+        equals value: Value
+    ) -> Element? {
+        first { $0[keyPath: keyPath] == value }
+    }
+
+    /// Returns all elements whose value at `keyPath` equals `value`.
+    ///
+    /// ```swift
+    /// users.filter(by: \.status, equals: .active)
+    /// orders.filter(by: \.isPaid, equals: true)
+    /// ```
+    func filter<Value: Equatable>(
+        by keyPath: KeyPath<Element, Value>,
+        equals value: Value
+    ) -> [Element] {
+        filter { $0[keyPath: keyPath] == value }
+    }
+
+    /// Returns the elements with duplicate values at `keyPath` removed,
+    /// preserving the order of first occurrence.
+    ///
+    /// Unlike `removingDuplicates()`, this works for any key path — the element
+    /// itself does not need to be `Hashable`.
+    ///
+    /// ```swift
+    /// users.unique(by: \.id)         // deduplicate by ID
+    /// events.unique(by: \.date.startOfDay)  // one event per day
+    /// ```
+    func unique<Value: Hashable>(
+        by keyPath: KeyPath<Element, Value>
+    ) -> [Element] {
+        var seen = Set<Value>()
+        return filter { seen.insert($0[keyPath: keyPath]).inserted }
+    }
+}

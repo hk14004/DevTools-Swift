@@ -92,6 +92,28 @@ public extension Date {
         calendar.isDate(self, inSameDayAs: date)
     }
 
+    // MARK: - Relative formatting
+
+    /// A human-readable relative description of the date — e.g. "3 minutes ago",
+    /// "yesterday", "in 2 weeks".
+    ///
+    /// Uses `RelativeDateTimeFormatter` with `.full` units style and the device
+    /// locale. The formatter is cached to avoid repeated allocation.
+    ///
+    /// ```swift
+    /// messageLabel.text = message.date.relativeFormatted
+    /// cell.timestampLabel.text = post.createdAt.relativeFormatted
+    /// ```
+    var relativeFormatted: String {
+        Date._relativeFormatter.localizedString(for: self, relativeTo: Date())
+    }
+
+    private static let _relativeFormatter: RelativeDateTimeFormatter = {
+        let f = RelativeDateTimeFormatter()
+        f.unitsStyle = .full
+        return f
+    }()
+
     // MARK: - Formatting
 
     /// Returns an ISO 8601 string with full date, time, and timezone offset,

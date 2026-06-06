@@ -77,6 +77,21 @@ public extension String {
             .joined()
     }
 
+    /// Returns the string with only its first character uppercased.
+    ///
+    /// Unlike `.capitalized`, which uppercases every word, this only touches
+    /// the first character — preserving the casing of the rest.
+    ///
+    /// ```swift
+    /// "hello world".capitalizingFirstLetter()  // "Hello world"
+    /// "hello world".capitalized                // "Hello World" ← often wrong
+    /// "iPhone settings".capitalizingFirstLetter() // "IPhone settings" ← edge case
+    /// ```
+    func capitalizingFirstLetter() -> String {
+        guard let first else { return self }
+        return String(first).uppercased() + dropFirst()
+    }
+
     var urlEncoded: String? {
         addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
     }
