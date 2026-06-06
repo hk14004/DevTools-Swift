@@ -22,4 +22,14 @@ public extension Collection {
     subscript(safe index: Index) -> Element? {
         indices.contains(index) ? self[index] : nil
     }
+
+    /// `true` if the collection contains at least one element.
+    ///
+    /// Reads more naturally than `!isEmpty` in guards and conditions:
+    ///
+    /// ```swift
+    /// guard results.isNotEmpty else { return }
+    /// sendButton.isEnabled = recipients.isNotEmpty
+    /// ```
+    var isNotEmpty: Bool { !isEmpty }
 }
