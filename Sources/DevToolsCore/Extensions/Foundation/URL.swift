@@ -7,49 +7,37 @@
 
 import Foundation
 
-extension URL {
+public extension URL {
+
+    /// Returns `true` if the URL's scheme matches any of the custom schemes
+    /// declared under `LSApplicationQueriesSchemes` in `Info.plist`.
     func isCustomUrlScheme() -> Bool {
-        let webUrlPrefixes: [String] = Bundle.main.object(forInfoDictionaryKey: "LSApplicationQueriesSchemes") as! [String]
-        let urlStringLowerCase = absoluteString.lowercased()
-        for (_, scheme) in webUrlPrefixes.enumerated() {
-            if urlStringLowerCase.hasPrefix(scheme + ":") {
-                return true
-            }
+        guard let schemes = Bundle.main.object(forInfoDictionaryKey: "LSApplicationQueriesSchemes") as? [String] else {
+            return false
         }
-        return false
+        let lowercased = absoluteString.lowercased()
+        return schemes.contains { lowercased.hasPrefix($0 + ":") }
     }
-    
-    func getBaseHost() -> String {
-        let components = host?.components(separatedBy: ".")
-        guard var components = components, components.count >= 2 else {
+
+    /// The base host — last two domain components, e.g. `"example.com"` from
+    /// `"api.v2.example.com"`. Returns the full `host` for single-component hosts.
+    var baseHost: String {
+        guard var components = host?.components(separatedBy: "."),
+              components.count >= 2 else {
             return host ?? ""
         }
-        let ext = components.removeLast()
+        let ext  = components.removeLast()
         let base = components.removeLast()
-        let baseHost = base + "." + ext
-        return baseHost
+        return base + "." + ext
     }
-    
-    func appending(_ queryItem: String, value: String?) -> URL {
-        guard var urlComponents = URLComponents(string: absoluteString) else { return absoluteURL }
 
-        // Create array of existing query items
-        var queryItems: [URLQueryItem] = urlComponents.queryItems ??  []
-
-        // Create query item
-        let queryItem = URLQueryItem(name: queryItem, value: value)
-
-        // Append the new query item in the existing query items array
-        queryItems.append(queryItem)
-
-        // Append updated query items array in the url component object
-        urlComponents.queryItems = queryItems
-
-        // Returns the url from new url components
-        return urlComponents.url!
-    }
-    
-    func addUtmParameter(property: String = "utm_source", value: String = "app") -> URL {
-        return self.appending(property, value: value)
+    /// Returns a new URL with the given query item appended.
+    /// Returns `self` unchanged if the URL cannot be parsed into components.
+    func appending(queryItem name: String, value: String?) -> URL {
+        guard var components = URLComponents(string: absoluteString) else { return self }
+        var items = components.queryItems ?? []
+        items.append(URLQueryItem(name: name, value: value))
+        components.queryItems = items
+        return components.url ?? self
     }
 }

@@ -5,7 +5,7 @@
 //  Created by Hardijs Ķirsis on 12/05/2023.
 //
 
-import Foundation
+import CoreData
 
 public extension NSSortDescriptor {
     static func makeStringIDSortDescriptor() -> NSSortDescriptor {
