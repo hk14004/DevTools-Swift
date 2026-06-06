@@ -140,11 +140,11 @@ import SwiftUI
 // The ViewController's cellProvider switches on these cases to dequeue the right cell.
 
 private enum _Cell: DevTableSectionCell {
-
+    
     case text(id: String, title: String, detail: String?)
     case timestamp(id: String, label: String, time: Date?)
     case actionButton(id: String, label: String)
-
+    
     // Identity: section positions, not content
     fileprivate var _id: String {
         switch self {
@@ -153,7 +153,7 @@ private enum _Cell: DevTableSectionCell {
         case .actionButton(let id, _):    return "btn_\(id)"
         }
     }
-
+    
     // Content hash: all fields — drives diffable data source reload decisions
     var contentHash: Int {
         var h = Hasher()
@@ -167,7 +167,7 @@ private enum _Cell: DevTableSectionCell {
         }
         return h.finalize()
     }
-
+    
     static func == (l: Self, r: Self) -> Bool { l._id == r._id }
     func hash(into h: inout Hasher) { h.combine(_id) }
 }
@@ -187,65 +187,96 @@ private struct _Section: DevTableSection {
     var cells: [_Cell]
 }
 
+// MARK: Per-cell view types
+//
+// Each cell case gets its own View struct — all rendering logic lives here,
+// not inline in a switch. This is the key pattern for keeping cellProvider /
+// cellView manageable as the number of cell types grows.
+//
+// UIKit equivalent: each case dequeues a dedicated UITableViewCell subclass
+// and calls configure(with:) on it. The switch stays one line per case:
+//
+//   switch cell {
+//   case .text(let vm):        return tableView.dequeue(TextCell.self, for: indexPath, with: vm)
+//   case .timestamp(let vm):   return tableView.dequeue(TimestampCell.self, for: indexPath, with: vm)
+//   case .actionButton(let vm): return tableView.dequeue(ActionCell.self, for: indexPath, with: vm)
+//   }
+
+private struct _TextCellView: View {
+    let title: String
+    let detail: String?
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+            if let detail {
+                Text(detail).font(.caption).foregroundColor(.secondary)
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct _TimestampCellView: View {
+    let label: String
+    let time: Date?
+    
+    var body: some View {
+        HStack {
+            Text(label)
+            Spacer()
+            Text(time.map(formatted) ?? "—")
+                .font(.caption.monospacedDigit())
+                .foregroundColor(time == nil ? .secondary : .primary)
+                .contentTransition(.numericText())
+        }
+    }
+    
+    private func formatted(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm:ss"
+        return f.string(from: date)
+    }
+}
+
+private struct _ActionButtonCellView: View {
+    let label: String
+    var action: () -> Void = {}
+    
+    var body: some View {
+        Button(label, action: action)
+            .foregroundColor(.accentColor)
+    }
+}
+
 // MARK: Shared SwiftUI renderer
 //
-// Renders each _Cell case differently — mirrors how a real UITableView
-// cellProvider switches on Cell cases to dequeue the right cell class.
+// The switch is now a thin router — one line per case.
+// Adding a 20th cell type means adding one line here and one new view struct.
 
 private struct StorePreview: View {
     let store: DevSectionStore<_Section>
-    var onAction: ((_SectionID, String) -> Void)? = nil   // (sectionID, buttonID)
-
+    
     var body: some View {
         List {
             ForEach(store.sections, id: \.id) { section in
                 Section(header: Text(section.title ?? "").textCase(nil)) {
                     ForEach(section.cells, id: \._id) { cell in
-                        cellView(cell, inSection: section.id)
+                        cellView(cell)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
     }
-
+    
     @ViewBuilder
-    private func cellView(_ cell: _Cell, inSection sectionID: _SectionID) -> some View {
+    private func cellView(_ cell: _Cell) -> some View {
         switch cell {
-
-        case .text(_, let title, let detail):
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                if let detail {
-                    Text(detail).font(.caption).foregroundColor(.secondary)
-                }
-            }
-            .padding(.vertical, 2)
-
-        case .timestamp(_, let label, let time):
-            HStack {
-                Text(label)
-                Spacer()
-                Text(time.map(timeString) ?? "—")
-                    .font(.caption.monospacedDigit())
-                    .foregroundColor(time == nil ? .secondary : .primary)
-                    .contentTransition(.numericText())
-            }
-
-        case .actionButton(let id, let label):
-            Button {
-                onAction?(sectionID, id)
-            } label: {
-                Text(label)
-                    .foregroundColor(.accentColor)
-            }
+        case .text(_, let title, let detail):       _TextCellView(title: title, detail: detail)
+        case .timestamp(_, let label, let time):    _TimestampCellView(label: label, time: time)
+        case .actionButton(_, let label):           _ActionButtonCellView(label: label)
         }
-    }
-
-    private func timeString(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm:ss"
-        return f.string(from: date)
     }
 }
 
@@ -283,7 +314,7 @@ private struct StorePreview: View {
 @MainActor
 private final class _PreviewModel: ObservableObject {
     @Published var store: DevSectionStore<_Section>
-
+    
     init() {
         var s = DevSectionStore<_Section>()
         s.set(_Section(id: .header, title: "Other sections", cells: [
@@ -302,7 +333,7 @@ private final class _PreviewModel: ObservableObject {
         ]))
         store = s
     }
-
+    
     func stampCurrentTime() {
         store.updateCells(id: .liveData) { cells in
             cells = cells.map { c in
@@ -317,7 +348,7 @@ private final class _PreviewModel: ObservableObject {
 
 private struct InteractivePreview: View {
     @StateObject private var model = _PreviewModel()
-
+    
     var body: some View {
         List {
             ForEach(model.store.sections, id: \.id) { section in
@@ -330,44 +361,16 @@ private struct InteractivePreview: View {
         }
         .listStyle(.insetGrouped)
     }
-
+    
     @ViewBuilder
     private func cellView(_ cell: _Cell) -> some View {
         switch cell {
-
-        case .text(_, let title, let detail):
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                if let detail {
-                    Text(detail).font(.caption).foregroundColor(.secondary)
-                }
-            }
-            .padding(.vertical, 2)
-
-        case .timestamp(_, let label, let time):
-            HStack {
-                Text(label)
-                Spacer()
-                Text(time.map(timeString) ?? "—")
-                    .font(.caption.monospacedDigit())
-                    .foregroundColor(time == nil ? .secondary : .primary)
-                    .contentTransition(.numericText())
-            }
-
-        case .actionButton(_, let label):
-            Button(label) {
-                withAnimation {
-                    model.stampCurrentTime()
-                }
-            }
-            .foregroundColor(.accentColor)
+        case .text(_, let title, let detail):    _TextCellView(title: title, detail: detail)
+        case .timestamp(_, let label, let time): _TimestampCellView(label: label, time: time)
+        case .actionButton(_, let label):        _ActionButtonCellView(label: label) {
+            withAnimation { model.stampCurrentTime() }
         }
-    }
-
-    private func timeString(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm:ss"
-        return f.string(from: date)
+        }
     }
 }
 
