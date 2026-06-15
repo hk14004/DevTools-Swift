@@ -9,9 +9,15 @@ import WebKit
 
 /// A `WKWebView` subclass that sizes itself to its content height via Auto Layout.
 ///
-/// After the page finishes loading, `SelfSizingWebView` reads the content height
-/// via JavaScript and reports it through `intrinsicContentSize`. Auto Layout reacts
-/// automatically — no manual frame management needed.
+/// `SelfSizingWebView` continuously measures the height of `document.body` using a
+/// JavaScript `ResizeObserver` and reports it through `intrinsicContentSize`. Auto
+/// Layout reacts automatically — no manual frame management needed.
+///
+/// Because measurement is continuous rather than a one-shot read at load time, the
+/// view tracks content that changes *after* the initial load: images and web fonts
+/// settling in, DOM mutations, and reflow caused by width changes (e.g. device
+/// rotation). It also shrinks correctly when shorter content is loaded into a view
+/// that previously displayed something taller.
 ///
 /// When content exceeds `maxHeight`, the view caps its height and enables its own
 /// internal scrolling. When content fits, internal scrolling is disabled so the
@@ -103,6 +109,7 @@ public final class SelfSizingWebView: WKWebView {
         super.init(frame: frame, configuration: configuration)
         navigationDelegate = internalCoordinator
         internalCoordinator.owner = self
+        installHeightObserver()
     }
 
     public convenience init(configuration: WKWebViewConfiguration = .init()) {
@@ -114,12 +121,71 @@ public final class SelfSizingWebView: WKWebView {
         fatalError("init(coder:) is not supported. Use init(configuration:) instead.")
     }
 
+    deinit {
+        configuration.userContentController.removeScriptMessageHandler(forName: Self.heightMessageName)
+    }
+
     // MARK: - Private
 
     private let internalCoordinator = NavigationCoordinator()
 
+    /// Name of the script message channel the injected JavaScript posts heights to.
+    private static let heightMessageName = "selfSizingContentHeight"
+
+    /// Injects a `ResizeObserver` that reports `document.body.scrollHeight` whenever
+    /// the body's size changes, plus once on `load`. A weak proxy handler avoids the
+    /// retain cycle that a direct `WKScriptMessageHandler` would create (the
+    /// userContentController retains its handlers).
+    private func installHeightObserver() {
+        let controller = configuration.userContentController
+        controller.add(HeightMessageHandler(owner: self), name: Self.heightMessageName)
+
+        let js = """
+        (function() {
+            function report() {
+                var body = document.body;
+                if (!body) { return; }
+                window.webkit.messageHandlers.\(Self.heightMessageName).postMessage(body.scrollHeight);
+            }
+            if (typeof ResizeObserver !== 'undefined' && document.body) {
+                new ResizeObserver(report).observe(document.body);
+            }
+            window.addEventListener('load', report);
+            report();
+        })();
+        """
+        controller.addUserScript(
+            WKUserScript(source: js, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        )
+    }
+
+    fileprivate func reportMeasuredHeight(_ height: CGFloat) {
+        guard height > 0 else { return }
+        measuredContentHeight = height
+    }
+
     private func updateScrollBehaviour() {
         scrollView.isScrollEnabled = maxHeight != .infinity && measuredContentHeight > maxHeight
+    }
+}
+
+// MARK: - Height message handler
+
+/// Forwards JavaScript height messages to the owning web view.
+///
+/// Holds `owner` weakly so the `userContentController -> handler -> webView`
+/// reference chain does not become a retain cycle.
+private final class HeightMessageHandler: NSObject, WKScriptMessageHandler {
+
+    weak var owner: SelfSizingWebView?
+
+    init(owner: SelfSizingWebView) {
+        self.owner = owner
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard let height = (message.body as? NSNumber)?.doubleValue else { return }
+        owner?.reportMeasuredHeight(CGFloat(height))
     }
 }
 
@@ -129,12 +195,23 @@ private final class NavigationCoordinator: NSObject, WKNavigationDelegate {
 
     weak var owner: SelfSizingWebView?
 
+    /// Incremented on each new navigation so a slow measurement from a previous
+    /// load can't overwrite the height of the page that's now showing.
+    private var generation = 0
+
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        generation &+= 1
+    }
+
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         guard let owner else { return }
-        Task { @MainActor [weak owner] in
-            guard let owner else { return }
-            if let height = try? await owner.contentHeight() {
-                owner.measuredContentHeight = height
+        let current = generation
+        Task { @MainActor [weak self, weak owner] in
+            guard let self, let owner else { return }
+            // The ResizeObserver normally reports first, but take an immediate
+            // measurement too so height is available the moment loading finishes.
+            if self.generation == current, let height = try? await owner.contentHeight() {
+                owner.reportMeasuredHeight(height)
             }
             owner.onNavigationFinished?(owner)
         }

@@ -120,8 +120,19 @@ public struct SizingWebView: UIViewRepresentable {
     public func sizeThatFits(_ proposal: ProposedViewSize, uiView: SelfSizingWebView, context: Context) -> CGSize? {
         let measuredHeight = uiView.measuredContentHeight
         guard measuredHeight > 0 else { return nil }
-        let width = proposal.width ?? UIScreen.main.bounds.width
         let height = maxHeight == .infinity ? measuredHeight : min(measuredHeight, maxHeight)
+
+        // Prefer the width SwiftUI proposes; fall back to the view's current width.
+        // Avoid `UIScreen.main`, which is wrong under multi-window / Split View and
+        // returns the wrong screen on external displays.
+        let width: CGFloat
+        if let proposedWidth = proposal.width, proposedWidth > 0, proposedWidth != .infinity {
+            width = proposedWidth
+        } else if uiView.bounds.width > 0 {
+            width = uiView.bounds.width
+        } else {
+            width = proposal.width ?? UIView.noIntrinsicMetric
+        }
         return CGSize(width: width, height: height)
     }
 
