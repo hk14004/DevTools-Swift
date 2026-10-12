@@ -9,6 +9,7 @@ import Foundation
 import SwiftData
 import DevToolsCore
 
+@available(iOS 17, *)
 extension DevSwiftDataStore {
 
     // MARK: - Read (viewContext — called on main thread)

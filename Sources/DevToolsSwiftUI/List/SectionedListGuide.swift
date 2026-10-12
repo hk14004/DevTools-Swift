@@ -292,6 +292,7 @@ private struct _CellView: View {
 // Tap "Toggle Promotions" to insert/remove a section with animation.
 // This is the SwiftUI equivalent of store.remove(id:) / store.set(_:at:).
 
+@available(iOS 17, *)
 @Observable
 private final class _ConditionalModel {
     var sections: [_Section] = []
@@ -324,6 +325,7 @@ private final class _ConditionalModel {
     }
 }
 
+@available(iOS 17, *)
 #Preview("Conditional section visibility") {
     @Previewable @State var model = _ConditionalModel()
 
@@ -348,6 +350,7 @@ private final class _ConditionalModel {
 // SwiftUI re-renders only the affected row — equivalent to store.updateCells(id:).
 // No snapshot needed. Direct index mutation on @Observable is sufficient.
 
+@available(iOS 17, *)
 @Observable
 private final class _AtomicUpdateModel {
     var sections: [_Section]
@@ -379,6 +382,7 @@ private final class _AtomicUpdateModel {
     }
 }
 
+@available(iOS 17, *)
 #Preview("Targeted cell update") {
     @Previewable @State var model = _AtomicUpdateModel()
 

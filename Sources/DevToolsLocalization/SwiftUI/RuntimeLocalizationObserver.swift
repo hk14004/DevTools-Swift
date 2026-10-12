@@ -28,6 +28,7 @@ import SwiftUI
 /// ```swift
 /// @State private var observer = RuntimeLocalizationObserver(animate: true)
 /// ```
+@available(iOS 17, *)
 @Observable
 public final class RuntimeLocalizationObserver {
 

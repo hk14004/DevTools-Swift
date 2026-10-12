@@ -10,6 +10,7 @@ import SwiftData
 @preconcurrency import DevToolsCore
 import Combine
 
+@available(iOS 17, *)
 public class DevSwiftDataStore<DTO, Converter>: DevSwiftDataInterface
 where
     DTO: DevDBInterfaceDTO,
@@ -204,8 +205,10 @@ where
 // Thread safety is enforced by design:
 //   - viewContext is only ever accessed on the main thread
 //   - writeContext and bulkWriteInProgress are only ever accessed on writeQueue
+@available(iOS 17, *)
 extension DevSwiftDataStore: @unchecked Sendable {}
 
+@available(iOS 17, *)
 extension SortDescriptor where Compared: DevDBStoredObject, Compared.ID == String {
     public static var defaultSortDescriptors: [SortDescriptor<Compared>] {
         [.init(\.id, comparator: .localizedStandard)]

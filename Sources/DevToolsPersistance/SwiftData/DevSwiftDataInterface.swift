@@ -7,4 +7,5 @@
 
 import Foundation
 
+@available(iOS 17, *)
 public protocol DevSwiftDataInterface: DevSyncPersistedLayerInterface where PredicateType == Predicate<DTO.StoreType>, SortType == SortDescriptor<DTO.StoreType> {}
